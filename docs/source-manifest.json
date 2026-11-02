@@ -1,0 +1,247 @@
+{
+  "schema_version": "1.0",
+  "migration_version": "0.1.0-docs",
+  "retrieved_date": "2026-11-02",
+  "repository": "hypermindedd/white-hat",
+  "scope": "17 accessible Notion text snapshots; not a native workspace export or runtime",
+  "sources": [
+    {
+      "page_id": "3c36f520-f93e-8145-9ac0-fc036497750d",
+      "title": "🧠 SECOND MIND — V1 Build Project",
+      "url": "https://app.notion.com/p/3c36f520f93e81459ac0fc036497750d?pvs=204",
+      "path": "docs/sources/SM-SPEC-V1-001.md",
+      "source_last_edited_at": "2026-09-12T08:20:22.093Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "80dde341e2940aed30e3b711db073469de81930bee6f059c2ab0675e60439b27",
+      "size_bytes": 56156
+    },
+    {
+      "page_id": "3c46f520-f93e-813c-af57-d49630c69693",
+      "title": "SM-KNOW-06 — SECOND MIND Output Contracts v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e813caf57d49630c69693?pvs=204",
+      "path": "docs/sources/SM-KNOW-06.md",
+      "source_last_edited_at": "2026-08-29T16:37:01.641Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "0fdf50a9cc295819d718224b9b6f924de9b39302ef75e51e03f716a8eecb8cfc",
+      "size_bytes": 12425
+    },
+    {
+      "page_id": "3cb6f520-f93e-8181-bbfe-e27870884b07",
+      "title": "🧠 02 — SECOND MIND — برنامه جامع پروژه",
+      "url": "https://app.notion.com/p/3cb6f520f93e8181bbfee27870884b07?pvs=204",
+      "path": "docs/sources/PORTFOLIO-SUMMARY.md",
+      "source_last_edited_at": "2026-08-29T18:29:55.720Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "4c757f797eef9f852c0556e2a8b58fbe4b5f03ea7927673ec7a59c17a4d0de2b",
+      "size_bytes": 3984
+    },
+    {
+      "page_id": "3c46f520-f93e-81c0-90ed-d61fbad2b227",
+      "title": "SM-KNOW-07 — SECOND MIND Routing & Reasoning Protocol v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81c090edd61fbad2b227?pvs=204",
+      "path": "docs/sources/SM-KNOW-07.md",
+      "source_last_edited_at": "2026-08-22T09:23:17.692Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "dcc6176e65a11877e0b81e7700a8ecb8b0c234eb40d97eee109431a5956044f0",
+      "size_bytes": 43422
+    },
+    {
+      "page_id": "3c46f520-f93e-812b-bc1c-cbee44cdd8e3",
+      "title": "SM-LOG-001 — SECOND MIND Failure & Regression Log v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e812bbc1ccbee44cdd8e3?pvs=204",
+      "path": "docs/sources/SM-LOG-001.md",
+      "source_last_edited_at": "2026-08-22T09:23:25.620Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "8c6e8465316ec9be38af45980124f994f2726faf4d3df8dab1daee01ede66a2c",
+      "size_bytes": 10868
+    },
+    {
+      "page_id": "3c46f520-f93e-81bb-9b49-e7112bb8738e",
+      "title": "SM-KNOW-01 — SECOND MIND Decision Ontology v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81bb9b49e7112bb8738e?pvs=204",
+      "path": "docs/sources/SM-KNOW-01.md",
+      "source_last_edited_at": "2026-08-22T09:22:48.457Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "f66148435b4e1ec78b1c5a4822da78bf7a5a9c477d59bacba8a32453695592d1",
+      "size_bytes": 17538
+    },
+    {
+      "page_id": "3c46f520-f93e-81c9-a7dd-c10f0c1aceb4",
+      "title": "SM-GPT-V1-001 — SECOND MIND GPTs Build Specification v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81c9a7ddc10f0c1aceb4?pvs=204",
+      "path": "docs/sources/SM-GPT-V1-001.md",
+      "source_last_edited_at": "2026-08-22T09:24:38.512Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "965d9326779c9e7dfdcb47776a07be322b5a6a7a5dbbee701b2af100812c0cff",
+      "size_bytes": 30442
+    },
+    {
+      "page_id": "3c46f520-f93e-8157-8fde-e8e233e54513",
+      "title": "SM-REL-001 — SECOND MIND GPTs Release Checklist v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81578fdee8e233e54513?pvs=204",
+      "path": "docs/sources/SM-REL-001.md",
+      "source_last_edited_at": "2026-08-22T09:22:35.594Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "e9358bd21c4ac829acbd5a3b02cab75883ee9df3f0b7c495328b592053021dea",
+      "size_bytes": 18665
+    },
+    {
+      "page_id": "3c46f520-f93e-81a6-982d-d59408ed60ff",
+      "title": "SM-KNOW-04 — SECOND MIND Mode Specifications v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81a6982dd59408ed60ff?pvs=204",
+      "path": "docs/sources/SM-KNOW-04.md",
+      "source_last_edited_at": "2026-08-22T09:23:00.766Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "4284dbcd3e62e3c333ab9b388597dbda1308d93bba82b2ae2fd9eef3c4a3a8f8",
+      "size_bytes": 20179
+    },
+    {
+      "page_id": "3c46f520-f93e-81db-a5dc-c093b3a06184",
+      "title": "🧠 SM-INT-V1-001 — SECOND MIND V1 Intelligence Engine Specification v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81dba5dcc093b3a06184?pvs=204",
+      "path": "docs/sources/SM-INT-V1-001.md",
+      "source_last_edited_at": "2026-08-22T09:22:43.017Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "b36eaa0a4fe11fdd31b13eab266509fd5f9c62a73d195f5b2f4489991e25e991",
+      "size_bytes": 57843
+    },
+    {
+      "page_id": "3c46f520-f93e-819e-a3a3-cd2baff4a973",
+      "title": "SM-KNOW-05 — SECOND MIND Evidence, Confidence & Verdict Model v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e819ea3a3cd2baff4a973?pvs=204",
+      "path": "docs/sources/SM-KNOW-05.md",
+      "source_last_edited_at": "2026-08-22T09:23:05.495Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "b29fd3fd45321d165bcba8e4994a42d68330791d4afb94336542c93813ff926b",
+      "size_bytes": 13873
+    },
+    {
+      "page_id": "3c46f520-f93e-815a-8b71-f1da56b05bd9",
+      "title": "SM-KNOW-02 — SECOND MIND Core Capability Contracts v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e815a8b71f1da56b05bd9?pvs=204",
+      "path": "docs/sources/SM-KNOW-02.md",
+      "source_last_edited_at": "2026-08-22T09:21:41.726Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "26c133f334388b07e7ce88562dd8bbca26af65dae8ac63ef341df731a68cf041",
+      "size_bytes": 17880
+    },
+    {
+      "page_id": "3c46f520-f93e-81f4-a82d-fa4da7ca4b28",
+      "title": "SM-KNOW-08 — SECOND MIND Evaluation, Failure Taxonomy & Golden Test Cases v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81f4a82dfa4da7ca4b28?pvs=204",
+      "path": "docs/sources/SM-KNOW-08.md",
+      "source_last_edited_at": "2026-08-22T09:24:28.613Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "e11529fa44e77d44e85f957f17b52b2530d549aeca36a5472c8aa10f14623013",
+      "size_bytes": 19320
+    },
+    {
+      "page_id": "3c46f520-f93e-812f-8277-f8d82c8a2c55",
+      "title": "SM-EVAL-001 — SECOND MIND Evaluation Scorecard v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e812f8277f8d82c8a2c55?pvs=204",
+      "path": "docs/sources/SM-EVAL-001.md",
+      "source_last_edited_at": "2026-08-22T09:21:11.865Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "d1c5e97c0184d6a0800eb243ff733345578571f3d27dc89928e531947e33b0cc",
+      "size_bytes": 2724
+    },
+    {
+      "page_id": "3c46f520-f93e-81da-abf7-d038b7d988ee",
+      "title": "SM-KNOW-03 — SECOND MIND Conditional Capability Contracts v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e81daabf7d038b7d988ee?pvs=204",
+      "path": "docs/sources/SM-KNOW-03.md",
+      "source_last_edited_at": "2026-08-22T09:22:55.852Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "8b151739700db48d414176c4bdec776f1b87acb4553a2f7d1f723b9b0db83ecf",
+      "size_bytes": 13742
+    },
+    {
+      "page_id": "3c46f520-f93e-817f-a683-cd18d68273f4",
+      "title": "SM-GPT-INS-001 — SECOND MIND Master System Instructions v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e817fa683cd18d68273f4?pvs=204",
+      "path": "docs/sources/SM-GPT-INS-001.md",
+      "source_last_edited_at": "2026-08-22T09:22:06.036Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "57ee85438659e5f566923ffd7360fc4e1cde15e4de95b24f0cf65f470cd9fda2",
+      "size_bytes": 27489
+    },
+    {
+      "page_id": "3c46f520-f93e-8185-819e-e113dcbb9d59",
+      "title": "SM-EVAL-002 — SECOND MIND Execution-Aligned Evaluation & Release Control v1.0",
+      "url": "https://app.notion.com/p/3c46f520f93e8185819ee113dcbb9d59?pvs=204",
+      "path": "docs/sources/SM-EVAL-002.md",
+      "source_last_edited_at": "2026-08-22T09:22:23.663Z",
+      "verification": {
+        "state": "unverified"
+      },
+      "truncated": null,
+      "unknown_block_count": null,
+      "sha256": "c09607e458edead2d30a935e63962e8e8be627795f54423a240c9a1dc70e9359",
+      "size_bytes": 6569
+    }
+  ]
+}
