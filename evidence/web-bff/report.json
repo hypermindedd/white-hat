@@ -57,5 +57,12 @@
     "real AI/model evaluation",
     "desktop/mobile builds"
   ],
-  "rollback": "No live deploy, migration or secrets changed; revert this S2 source commit/PR."
+  "rollback": "No live deploy, migration or secrets changed; revert this S2 source commit/PR.",
+  "browser_e2e": {
+    "status": "BLOCKED_BY_ENVIRONMENT_POLICY",
+    "attempted": "Chromium headless via Playwright against loopback BFF",
+    "observed": "net::ERR_BLOCKED_BY_ADMINISTRATOR at http://127.0.0.1:<dynamic-port>/",
+    "passed": false,
+    "note": "Do not count as a test PASS; requires permitted browser environment."
+  }
 }
