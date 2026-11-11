@@ -43,11 +43,11 @@
     },
     {
       "path": "docs/stages/S1-CLOSURE-FA.md",
-      "sha256": "988667859dc4aebbffc177af3e5d5e4deeaa3299ae371aa3aa02521d87f908e1"
+      "sha256": "2b8f321eae9f3d1a49b030040b53248dc1292b6f7039a68da1e340d88d0ed2be"
     },
     {
       "path": "docs/stages/S2-NEXT-CHAT-FA.md",
-      "sha256": "87c8cd14fe14bd5e95215aed5262f00d30c0fc70c994e16de0e0e60f8fdbbefe"
+      "sha256": "f63c354df085ae0b5af78717b0518400a1116de3230683095c383c55ce6f8b4c"
     },
     {
       "path": "evidence/kotlin-api/TEST-whitehat.adapters.ResponsesProviderTest.xml",
@@ -66,6 +66,10 @@
       "sha256": "096db48e14c0b577bf435ead43053f675152738b155c9bebd189d133c4e3bda4"
     },
     {
+      "path": "evidence/kotlin-api/ci-observation.json",
+      "sha256": "5c7a4d13b55cd3f697f8f2a2dd7a5a9b3c542565d9b0fd0a1b71da16abb475fc"
+    },
+    {
       "path": "evidence/kotlin-api/initial-compile-failure.log",
       "sha256": "68a227d5db74b6759235e71ec3b686dc41d46b8df03e1f99c88da09c1bb6c510"
     },
@@ -79,7 +83,7 @@
     },
     {
       "path": "evidence/kotlin-api/report.json",
-      "sha256": "126305c454d48e4b6048b05c08279bed31fd259127ba07739129b6e6202d1fa9"
+      "sha256": "06ab4c8be1a12b7b965b2aa6c1f9a94aff881db128a1a96ae7f6b936ea42a73b"
     },
     {
       "path": "evidence/kotlin-api/test.log",

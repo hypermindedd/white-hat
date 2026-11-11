@@ -165,9 +165,15 @@
   "frontend_connected": false,
   "sqlite_migration_implemented": false,
   "rls_enabled": false,
-  "ci": "workflow committed for automatic checks; remote results are separate and must be observed in GitHub Actions/PR",
+  "ci": {
+    "observation": "ci-observation.json",
+    "code_commit": "19fe6c66e50d81185b48155c0af66ff95494a324",
+    "status": "failure_before_any_test_step",
+    "reason": "Exact failure reason not exposed by current connector; browser requires sign-in. Local test passes remain independent."
+  },
   "release_status": "API_SLICE_TESTED_NOT_PRODUCT_COMPLETE_NOT_DEPLOYED",
   "open_gates": [
+    "Resolve GitHub Actions pre-step failure and obtain a successful remote run",
     "Current comprehensive panel source reconciliation",
     "BFF/PKCE/login/session flow and real IdP",
     "UI integration and real browser E2E",
