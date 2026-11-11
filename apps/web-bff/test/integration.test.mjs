@@ -92,3 +92,12 @@ test('rejects callback state replay and tampered ID token',async()=>{
   f.state.badSignature=true;const result=await login(f);assert.equal(result.callback.status,401);assert.equal(result.sessionCookie,undefined);
  }finally{await f.stop();}
 });
+
+test('path-scoped OIDC issuer discovers its own suffix metadata endpoint',async()=>{
+ const issuer='http://127.0.0.1:8181/realms/whitehat',seen=[];
+ const env={WH_WEB_ORIGIN:'http://127.0.0.1:3030',WH_API_BASE:'http://127.0.0.1:8081',WH_OIDC_ISSUER:issuer,WH_OIDC_CLIENT_ID:'whitehat-web',WH_DEV_INSECURE_HTTP:'1'};
+ const httpClient=async url=>{seen.push(String(url));return new Response(JSON.stringify({issuer,authorization_endpoint:issuer+'/authorize',token_endpoint:issuer+'/token',jwks_uri:issuer+'/jwks'}),{status:200,headers:{'content-type':'application/json'}});};
+ const {server}=createBff({env,httpClient});const actual=await listen(server);
+ try {const response=await fetch(actual+'/auth/login',{redirect:'manual'});assert.equal(response.status,302);assert.equal(seen[0],issuer+'/.well-known/openid-configuration');}
+ finally{await close(server);}
+});
