@@ -1,0 +1,88 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :shared:contracts:kmpPartiallyResolvedDependenciesChecker
+> Task :shared:contracts:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:contracts:compileKotlinJvm UP-TO-DATE
+> Task :shared:contracts:compileJvmMainJava NO-SOURCE
+> Task :shared:contracts:jvmProcessResources NO-SOURCE
+> Task :shared:contracts:processJvmMainResources SKIPPED
+> Task :shared:contracts:jvmMainClasses UP-TO-DATE
+> Task :shared:contracts:jvmJar UP-TO-DATE
+> Task :shared:contracts:compileTestKotlinJvm UP-TO-DATE
+> Task :shared:contracts:compileJvmTestJava NO-SOURCE
+> Task :shared:contracts:jvmTestProcessResources NO-SOURCE
+> Task :shared:contracts:processJvmTestResources SKIPPED
+> Task :shared:contracts:jvmTestClasses UP-TO-DATE
+> Task :shared:contracts:jvmTest UP-TO-DATE
+> Task :shared:contracts:compileKotlinJs UP-TO-DATE
+> Task :server:adapters:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:domain:compileKotlin UP-TO-DATE
+> Task :server:domain:compileJava NO-SOURCE
+> Task :server:domain:processResources NO-SOURCE
+> Task :server:domain:classes UP-TO-DATE
+> Task :server:domain:jar UP-TO-DATE
+> Task :server:adapters:compileKotlin UP-TO-DATE
+> Task :server:adapters:compileJava NO-SOURCE
+> Task :server:adapters:processResources UP-TO-DATE
+> Task :server:adapters:classes UP-TO-DATE
+> Task :server:adapters:jar UP-TO-DATE
+> Task :server:api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:application:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:application:compileKotlin UP-TO-DATE
+> Task :server:application:compileJava NO-SOURCE
+> Task :server:application:processResources NO-SOURCE
+> Task :server:application:classes UP-TO-DATE
+> Task :server:application:jar UP-TO-DATE
+> Task :server:api:compileKotlin UP-TO-DATE
+> Task :server:api:compileJava NO-SOURCE
+> Task :server:api:processResources UP-TO-DATE
+> Task :server:api:classes UP-TO-DATE
+> Task :server:api:jar UP-TO-DATE
+> Task :server:api:compileTestKotlin UP-TO-DATE
+> Task :server:api:compileTestJava NO-SOURCE
+> Task :server:api:processTestResources UP-TO-DATE
+> Task :server:api:testClasses UP-TO-DATE
+
+> Task :server:api:test
+
+ApiIntegrationTest > persistedStateAndAppendOnlyAuditSurviveRepositoryReconstruction PASSED
+
+ApiIntegrationTest > quotaReservationsRemainAtomicAcrossDifferentDecisions PASSED
+
+ApiIntegrationTest > nettyServesAuthenticatedApiOverActualLoopbackHttp PASSED
+
+ApiIntegrationTest > expiredLeaseRejectsLateOutputAndPreservesItsReceiptOnce PASSED
+
+ApiIntegrationTest > invalidOutputFailsButKeepsActualUsage PASSED
+
+ApiIntegrationTest > revokedMemberCannotTriggerAPreviouslyQueuedProviderCall PASSED
+
+ApiIntegrationTest > concurrentDuplicatesCreateOneReservationAndOneProviderCall PASSED
+
+ApiIntegrationTest > uncertainProviderOutcomeIsNeverAutomaticallyRetried PASSED
+
+ApiIntegrationTest > noProviderOrInvalidInputsCannotConsumeRunsOrInventAResult PASSED
+
+ApiIntegrationTest > revisionsAndIdempotencyAreBoundToAnImmutableInput PASSED
+
+ApiIntegrationTest > organizationMemberSupportAndOwnerBoundariesAreEnforced PASSED
+
+ApiIntegrationTest > queuedAndInFlightCancellationsDiscardOutputWithoutHidingCost PASSED
+
+ApiIntegrationTest > recoveryRunsEvenWithoutProviderConfiguration PASSED
+
+ApiIntegrationTest > actualHttpRouteQueuesAndWorkerCompletesAllSevenModes PASSED
+
+ApiIntegrationTest > migrationIsRepeatableAndAuthCannotBeBypassed PASSED
+
+> Task :server:adapters:compileTestKotlin UP-TO-DATE
+> Task :server:adapters:compileTestJava NO-SOURCE
+> Task :server:adapters:processTestResources NO-SOURCE
+> Task :server:adapters:testClasses UP-TO-DATE
+> Task :server:adapters:test UP-TO-DATE
+> Task :server:api:startScripts UP-TO-DATE
+> Task :server:api:installDist UP-TO-DATE
+
+BUILD SUCCESSFUL in 16s
+23 actionable tasks: 2 executed, 21 up-to-date

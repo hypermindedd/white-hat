@@ -1,0 +1,247 @@
+{
+  "challenge": {
+    "mode": "challenge",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "TEST FIRST",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "kill": {
+    "mode": "kill",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "BUILD",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "blind": {
+    "mode": "blind",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "PROCEED",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "premortem": {
+    "mode": "premortem",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "PROCEED",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "reality": {
+    "mode": "reality",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "DO IT",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "compare": {
+    "mode": "compare",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "RECOMMENDATION",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  },
+  "devil": {
+    "mode": "devil",
+    "decision_question": "آیا پیش از ساخت باید پرداخت واقعی را بسنجیم؟",
+    "verdict": "YES",
+    "confidence": "MODERATE",
+    "summary": "دادهٔ مستقل پرداخت نداریم؛ تعهد کوچک‌تر برای آزمون مناسب‌تر است.",
+    "top_challenge": "نظر داخلی معادل تقاضای خرید نیست.",
+    "findings": [
+      {
+        "kind": "assumption",
+        "title": "پرداخت مشتری مستقل",
+        "explanation": "این فرض هنوز اثبات نشده.",
+        "evidence_status": "provided"
+      }
+    ],
+    "strongest_counterargument": "ساخت کامل قبل از اثبات پرداخت می‌تواند منابع را قفل کند.",
+    "failure_scenario": "اگر مشتری مستقل پرداخت نکند، هزینه ساخت بازیابی نمی‌شود.",
+    "critical_unknowns": [
+      {
+        "question": "آیا مشتری مستقل پرداخت می‌کند؟",
+        "decision_effect": "مقدار تعهد را تغییر می‌دهد.",
+        "resolve_by": "پیشنهاد پایلوت پولی به مشتری مستقل"
+      }
+    ],
+    "change_conditions": [
+      "پرداخت و استفاده تکرارشونده ثبت شود."
+    ],
+    "next_action": {
+      "action": "پایلوت پولی محدود ارائه کن.",
+      "purpose": "آزمون تمایل واقعی پرداخت",
+      "observable_result": "پذیرش یا رد پیشنهاد ثبت شود.",
+      "decision_effect": "در صورت رد، دامنه یا پیشنهاد بازنگری شود."
+    },
+    "clarification_question": ""
+  }
+}

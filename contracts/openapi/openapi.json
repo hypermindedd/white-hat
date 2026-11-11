@@ -1,0 +1,3348 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "White Hat / Second Mind Kotlin API",
+    "version": "0.4.0-alpha.1",
+    "description": "Migration slice; legacy UI cookie auth remains separate. JWT access token must include exp, sub, API audience and token_use=access."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "security": [
+    {
+      "BearerAccess": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "description": "Liveness only; not proof of database or AI readiness."
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "operationId": "openapi",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/me": {
+      "get": {
+        "operationId": "me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Me"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/modes": {
+      "get": {
+        "operationId": "modes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Modes"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspaces": {
+      "post": {
+        "operationId": "createWorkspace",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspaceInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspaces/{workspace}/members": {
+      "post": {
+        "operationId": "setMember",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ok"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberInput"
+              }
+            }
+          }
+        },
+        "description": "OWNER only. Changes apply on the next request, even for an existing token. Owner transfer is intentionally not exposed."
+      }
+    },
+    "/workspaces/{workspace}/decisions": {
+      "get": {
+        "operationId": "listDecisions",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createDecision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Decision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspaces/{workspace}/decisions/{decision}": {
+      "get": {
+        "operationId": "getDecision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "decision",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Decision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "replaceDecision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "decision",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Decision"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionReplace"
+              }
+            }
+          }
+        },
+        "description": "Full replacement with optimistic revision. Active/uncertain runs prevent input mutation."
+      }
+    },
+    "/workspaces/{workspace}/decisions/{decision}/runs": {
+      "post": {
+        "operationId": "enqueueRun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "decision",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{8,120}$"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunRequest"
+              }
+            }
+          }
+        },
+        "description": "Atomic per-member/workspace UTC-day attempt reservation. Repeated key+input revision returns the original run; changed payload conflicts. Cancellation does not promise a refund."
+      }
+    },
+    "/workspaces/{workspace}/runs/{run}": {
+      "get": {
+        "operationId": "getRun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspaces/{workspace}/runs/{run}/cancel": {
+      "post": {
+        "operationId": "cancelRun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Run"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "Queued => cancelled. Running => cancellation_requested; actual provider cost may remain. Late output is discarded."
+      }
+    },
+    "/workspaces/{workspace}/admin/usage": {
+      "get": {
+        "operationId": "adminUsage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Stable redacted error; no token, SQL or provider body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "OWNER/ADMIN aggregates only; no private decision output. Unknown token totals are null, never invented zero or currency."
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAccess": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT access token"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "error",
+          "request_id"
+        ],
+        "additionalProperties": false
+      },
+      "Workspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "ADMIN",
+              "MEMBER",
+              "SUPPORT"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role"
+        ],
+        "additionalProperties": false
+      },
+      "WorkspaceInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "MemberInput": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "ADMIN",
+              "MEMBER",
+              "SUPPORT"
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "subject",
+          "role",
+          "active"
+        ],
+        "additionalProperties": false
+      },
+      "DecisionInput": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1
+          },
+          "decision": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "context": {
+            "type": "string",
+            "maxLength": 12000
+          },
+          "source_notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "mode": {
+            "enum": [
+              "challenge",
+              "kill",
+              "blind",
+              "premortem",
+              "reality",
+              "compare",
+              "devil"
+            ],
+            "type": "string",
+            "default": "challenge"
+          }
+        },
+        "required": [
+          "title",
+          "decision"
+        ],
+        "additionalProperties": false
+      },
+      "DecisionReplace": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1
+          },
+          "decision": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "context": {
+            "type": "string",
+            "maxLength": 12000
+          },
+          "source_notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "mode": {
+            "enum": [
+              "challenge",
+              "kill",
+              "blind",
+              "premortem",
+              "reality",
+              "compare",
+              "devil"
+            ],
+            "type": "string",
+            "default": "challenge"
+          },
+          "expected_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "title",
+          "decision",
+          "expected_revision"
+        ],
+        "additionalProperties": false
+      },
+      "Decision": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1
+          },
+          "decision": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "context": {
+            "type": "string",
+            "maxLength": 12000
+          },
+          "source_notes": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "mode": {
+            "enum": [
+              "challenge",
+              "kill",
+              "blind",
+              "premortem",
+              "reality",
+              "compare",
+              "devil"
+            ],
+            "type": "string",
+            "default": "challenge"
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "revision",
+          "title",
+          "decision",
+          "objective",
+          "context",
+          "source_notes",
+          "mode"
+        ],
+        "additionalProperties": false
+      },
+      "RunRequest": {
+        "type": "object",
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
+        "additionalProperties": false
+      },
+      "LegacyOutput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "challenge"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "PROCEED",
+                  "PROCEED WITH CONDITIONS",
+                  "TEST FIRST",
+                  "RETHINK",
+                  "STOP",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "kill"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "BUILD",
+                  "VALIDATE FIRST",
+                  "PIVOT",
+                  "KILL",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "blind"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "PROCEED",
+                  "PROCEED WITH CONDITIONS",
+                  "TEST FIRST",
+                  "RETHINK",
+                  "STOP",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "premortem"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "PROCEED",
+                  "PROCEED WITH CONDITIONS",
+                  "TEST FIRST",
+                  "RETHINK",
+                  "STOP",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "reality"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "DO IT",
+                  "CHANGE IT",
+                  "TEST IT",
+                  "DON'T DO IT",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "compare"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "RECOMMENDATION",
+                  "CONDITIONAL RECOMMENDATION",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "devil"
+                ]
+              },
+              "decision_question": {
+                "type": "string"
+              },
+              "verdict": {
+                "type": "string",
+                "enum": [
+                  "YES",
+                  "PARTIALLY",
+                  "NO",
+                  "NEEDS_CONTEXT"
+                ]
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH",
+                  "VERY HIGH"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "top_challenge": {
+                "type": "string"
+              },
+              "findings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "assumption",
+                        "blind_spot",
+                        "evidence",
+                        "trade_off",
+                        "consequence"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "explanation": {
+                      "type": "string"
+                    },
+                    "evidence_status": {
+                      "type": "string",
+                      "enum": [
+                        "provided",
+                        "inferred",
+                        "unknown"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "title",
+                    "explanation",
+                    "evidence_status"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "strongest_counterargument": {
+                "type": "string"
+              },
+              "failure_scenario": {
+                "type": "string"
+              },
+              "critical_unknowns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "question": {
+                      "type": "string"
+                    },
+                    "decision_effect": {
+                      "type": "string"
+                    },
+                    "resolve_by": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "question",
+                    "decision_effect",
+                    "resolve_by"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "change_conditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "next_action": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "observable_result": {
+                    "type": "string"
+                  },
+                  "decision_effect": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "action",
+                  "purpose",
+                  "observable_result",
+                  "decision_effect"
+                ],
+                "additionalProperties": false
+              },
+              "clarification_question": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mode",
+              "decision_question",
+              "verdict",
+              "confidence",
+              "summary",
+              "top_challenge",
+              "findings",
+              "strongest_counterargument",
+              "failure_scenario",
+              "critical_unknowns",
+              "change_conditions",
+              "next_action",
+              "clarification_question"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "description": "Pinned flat legacy alpha.1 output. This is NOT SM-KNOW-06 canonical envelope 1.0."
+      },
+      "Run": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspace_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decision_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "input_revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "cancellation_requested",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "reconciliation_required"
+            ]
+          },
+          "output_contract": {
+            "const": "legacy-alpha.1",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegacyOutput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "workspace_id",
+          "decision_id",
+          "input_revision",
+          "status",
+          "output_contract",
+          "result",
+          "error",
+          "input_tokens",
+          "output_tokens"
+        ],
+        "additionalProperties": false
+      },
+      "Usage": {
+        "type": "object",
+        "properties": {
+          "runs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uncertain_runs": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "runs",
+          "input_tokens",
+          "output_tokens",
+          "uncertain_runs"
+        ],
+        "additionalProperties": false
+      },
+      "Me": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "workspaces": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Workspace"
+            }
+          }
+        },
+        "required": [
+          "subject",
+          "workspaces"
+        ],
+        "additionalProperties": false
+      },
+      "Modes": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "enum": [
+                    "challenge",
+                    "kill",
+                    "blind",
+                    "premortem",
+                    "reality",
+                    "compare",
+                    "devil"
+                  ]
+                },
+                "verdicts": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "verdicts"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "DecisionList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Decision"
+            }
+          },
+          "limit": {
+            "const": 100,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "limit"
+        ],
+        "additionalProperties": false
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "const": "ok",
+            "type": "string"
+          },
+          "version": {
+            "const": "0.4.0-alpha.1",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "Ok": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": true,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+}
