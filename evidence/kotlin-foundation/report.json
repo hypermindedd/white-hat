@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "stage": "Kotlin platform architecture and shared migration contract foundation",
+  "date": "2026-11-11",
+  "repository": "hypermindedd/white-hat",
+  "base_commit": "6829dc1d1c003dd0a138aff1465f6a8fbd4091c0",
+  "source_archive_sha256": "a16bf3407133890e7537106f848d04de4c8e7a0346dd5059a0a53b08d9fdd719",
+  "recovered_manifest_files_verified": 21,
+  "baseline_node": {
+    "version": "24.22.1",
+    "command": "cd apps/second-mind && npm test",
+    "tests": 23,
+    "passed": 23,
+    "live_provider_calls": 0
+  },
+  "kotlin": {
+    "version": "2.2.20",
+    "serialization": "1.9.0",
+    "gradle": "8.14.3",
+    "jdk": "Temurin 21.0.13+9",
+    "command": "./gradlew :shared:contracts:jvmTest :shared:contracts:compileKotlinJs",
+    "jvm": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "legacy_acceptance_cases_in_one_test": 42,
+    "js_compilation": "succeeded",
+    "js_runtime_tests": "not_executed"
+  },
+  "validation_scope": "fixture software behavior and contract compatibility only; not AI correctness, production security or native acceptance",
+  "unexecuted": [
+    "Ktor server integration",
+    "PostgreSQL and migrations",
+    "OpenAPI generation",
+    "native Android/iOS/macOS/Windows builds and device tests",
+    "current comprehensive panel source reconciliation",
+    "real AI benchmark",
+    "real voice/provider compatibility",
+    "security/load/restore/billing/store acceptance",
+    "independent final review"
+  ],
+  "environment_recovery": [
+    "System Java was JRE-only; full verified JDK was installed in scratch tooling.",
+    "Gradle proxy settings were supplied only to the local process.",
+    "New JDK used existing system truststore; certificate validation remained enabled."
+  ],
+  "release_status": "NOT_PRODUCT_COMPLETE_NOT_DEPLOYED"
+}

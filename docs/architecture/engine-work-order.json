@@ -1,0 +1,41 @@
+{
+  "modules": [
+    {
+      "id": "decision-core",
+      "owner": "server decision application",
+      "input": "authorized normalized decision + evidence",
+      "output": "validated versioned judgment",
+      "idempotency": "tenant/user/key + payload hash; one durable run owner"
+    },
+    {
+      "id": "contracts",
+      "owner": "shared contract module",
+      "input": "legacy alpha output JSON and stable mode ID",
+      "output": "structural/semantic validation violations",
+      "idempotency": "pure read-only validation"
+    },
+    {
+      "id": "voice",
+      "owner": "server turn coordinator",
+      "input": "final transcript event and expected revision",
+      "output": "core result and presentation events",
+      "idempotency": "tenant/session/event ID + revision; no automatic uncertain provider retry"
+    }
+  ],
+  "inputRoutes": [
+    {
+      "entry": "web / native clients",
+      "server": "identity -> authorization -> domain -> provider -> validator -> durable receipt",
+      "return": "authorized output view",
+      "failure": "stable error; no fake judgment"
+    },
+    {
+      "entry": "existing alpha UI",
+      "server": "existing alpha Node API until cutover",
+      "return": "existing flat legacy contract",
+      "failure": "keep the old runtime and database as sole writer until verified migration"
+    }
+  ],
+  "stateOwnership": "Server application services own durable writes; clients are projections; alpha and Kotlin never write the same live store concurrently.",
+  "failureStrategy": "Preserve recovered source; run parity checks; fail closed on auth and contract error; reconcile uncertain provider usage; per-workspace cutover with backup and explicit rollback."
+}

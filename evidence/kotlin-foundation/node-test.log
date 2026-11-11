@@ -1,0 +1,36 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> @second-mind/standalone@0.3.0-alpha.1 test
+> node --test tests/*.test.mjs
+
+✔ setup creates one admin; password hashed and session protected (128.798983ms)
+✔ unauthenticated access and cross-origin writes are rejected (94.555253ms)
+✔ members cannot access another owner or admin routes (272.118495ms)
+✔ drafts persist in SQLite and input edits invalidate old conversational context (132.183928ms)
+✔ missing provider never generates a fake analysis (84.458829ms)
+✔ idempotency prevents duplicate model calls and rejects key reuse for changed requests (116.633394ms)
+✔ daily quota is enforced even across separate decisions (104.969895ms)
+✔ failed paid attempts consume request quota and never become successful output (85.438696ms)
+✔ followup preserves active decision and records the new user evidence (82.499188ms)
+✔ human evaluations require all 15 evidence entries and cannot approve release (103.051806ms)
+✔ provider credentials never enter database, audit or client responses (79.336108ms)
+✔ last admin cannot be disabled; disabled member sessions are revoked (260.533234ms)
+✔ audit is append-only and delete removes owned decision data (92.055746ms)
+✔ bad credentials and invalid modes are refused (184.883895ms)
+✔ public shell has security headers and cannot serve database or source files (95.968961ms)
+✔ database and owned drafts survive a server restart (192.248866ms)
+✔ invalid combined settings never partially apply the daily limit (97.121783ms)
+✔ mode switch preserves the decision and truth context while changing analytic mode (112.525887ms)
+✔ Responses adapter sends strict schema/store:false and accepts only completed structured output (3.540834ms)
+✔ provider authentication errors never expose remote error body or secrets (0.684371ms)
+✔ missing provider config does not call transport (0.209095ms)
+✔ refusal and incomplete output cannot be promoted to valid judgment (1.574402ms)
+✔ confidence ceilings, mode vocabulary, malformed fields and missing next actions are enforced (0.530199ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2423.029285
