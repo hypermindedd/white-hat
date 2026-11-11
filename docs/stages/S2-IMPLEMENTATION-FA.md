@@ -17,7 +17,7 @@ The BFF implements OIDC Code+PKCE, OIDC ID-token verification, server-side token
 
 ## Evidence and open gates
 
-See `evidence/web-bff/report.json`. Local tests use a mock OIDC issuer and mock Kotlin HTTP responses. No browser was launched; live IdP, actual Kotlin integration, real PostgreSQL, CI and production security cannot be marked PASS. Pre-existing Actions runs #43022447747 and #43022999862 both failed with no step metadata and no retrievable logs; error cannot yet be attributed to source. Do not claim CI passed because fixture tests passed.
+See `evidence/web-bff/report.json`. Local tests use a mock OIDC issuer and mock Kotlin HTTP responses. Chromium headless launched for browser E2E, but a managed browser policy blocked loopback navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`; no browser E2E completed. Live IdP, actual Kotlin integration, real PostgreSQL, CI and production security cannot be marked PASS. Pre-existing Actions runs #43022447747 and #43022999862 both failed with no step metadata and no retrievable logs; error cannot yet be attributed to source. Do not claim CI passed because fixture tests passed.
 
 Next gates: (a) obtain and resolve GitHub Actions scheduler/check annotations; (b) integrate real Kotlin/Ktor and actual test PostgreSQL with a fixture issuer; (c) full browser E2E including RTL, keyboard/screen reader, reconnect/cancel, tenancy/role denial; (d) durable distributed web session store, real IdP, policy and security review; (e) operator reconciliation UI, complete permission builder, support access review, migration rehearsal with backup/rollback; (f) human/AI/native benchmarks and independent sign-off.
 
