@@ -9,8 +9,8 @@
   "local": {
     "toolchain": "Node 22.16.0 (container); target Node >=24.15; mismatch must be retested",
     "command": "cd apps/web-bff && node --test test/*.test.mjs",
-    "tests": 3,
-    "passed": 3,
+    "tests": 4,
+    "passed": 4,
     "failed": 0,
     "coverage": [
       "OIDC Authorization Code + S256 PKCE fixture",
@@ -22,7 +22,8 @@
       "upstream 403 and null token usage preserved",
       "refresh token flow",
       "IdP refresh-token revocation attempt on logout",
-      "local session invalidation"
+      "local session invalidation",
+      "Path-scoped OIDC discovery regression"
     ]
   },
   "source": {
