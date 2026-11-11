@@ -1,0 +1,23 @@
+name: Web BFF / browser adapter validation
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  web-bff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Check the BFF and browser adapter
+        run: npm run check
+        working-directory: apps/web-bff
+      - name: Run OIDC/BFF fixture integration
+        run: npm test
+        working-directory: apps/web-bff
