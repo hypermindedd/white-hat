@@ -50,7 +50,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   async function discovery(){
     if(discoveryCache && discoveryCache.expires>clock())return discoveryCache.value;
     const base=new URL(issuer);const path=base.pathname.replace(/\/$/,'');
-    const wellKnown=new URL('/.well-known/openid-configuration'+path,base);
+    const wellKnown=new URL(path+'/.well-known/openid-configuration',base.origin);
     const data=await readJson(await request(wellKnown));
     if(data.issuer!==issuer)throw fail(502,'OIDC_ISSUER_MISMATCH');
     for(const key of ['authorization_endpoint','token_endpoint','jwks_uri']) {
