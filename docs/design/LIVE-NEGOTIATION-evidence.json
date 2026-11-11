@@ -1,0 +1,55 @@
+{
+  "version": "0.1.0-design",
+  "date": "2026-11-11",
+  "scope": "Documentation integrity and structural work-order validation only",
+  "hostCommit": "6829dc1d1c003dd0a138aff1465f6a8fbd4091c0",
+  "donorCommit": "9f1edb8d994b03ff4df492550bf36a9edf7230ee",
+  "artifacts": {
+    "LIVE-NEGOTIATION-v0.1.0-FA.md": "459b1f1fc4445a0914d9225de7771038efff5d6899aa43bd8b75c199d7831763",
+    "LIVE-NEGOTIATION-work-order.json": "bc01689b4f6bb30a4030cd4836764602ca501a94b66726ba47f6895d7a249039"
+  },
+  "checks": [
+    {
+      "command": "python3 scripts/verify_docs.py",
+      "exitCode": 0,
+      "output": "PASS: 17 source identities/hashes, file checksums and local guide links.\nScope: documentation integrity only; runtime NOT TESTED."
+    },
+    {
+      "command": "python3 <architecture-validator>/check_work.py docs/design/LIVE-NEGOTIATION-work-order.json",
+      "exitCode": 0,
+      "valid": true,
+      "errors": []
+    },
+    {
+      "command": "python3 <architecture-validator>/check_work.py <example-valid.json>",
+      "exitCode": 0,
+      "valid": true
+    },
+    {
+      "command": "python3 <architecture-validator>/check_work.py <example-invalid.json>",
+      "exitCode": 1,
+      "valid": false,
+      "errors": [
+        "invalid:modules"
+      ],
+      "expectedRejection": true
+    }
+  ],
+  "review": {
+    "modeCount": 7,
+    "independentDecisionEngineAdded": false,
+    "elyoraSourceModified": false,
+    "canonicalHistoricalSourcesModified": false,
+    "educationalPolicyExcluded": true,
+    "donorEndpointCompatibility": "UNVERIFIED",
+    "voiceEngineHookToWhiteHat": "NOT_IMPLEMENTED"
+  },
+  "gates": {
+    "implementation": "BLOCKED_MISSING_HOST_SOURCE_AND_STATE_OWNER",
+    "providerIntegration": "NOT_EXECUTED",
+    "audioDevice": "NOT_EXECUTED",
+    "deployment": "NOT_EXECUTED",
+    "runtime": "NOT_TESTED"
+  },
+  "rollback": "Close design PR or revert documentation commits; no runtime or database changes."
+}
