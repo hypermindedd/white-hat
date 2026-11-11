@@ -1,0 +1,67 @@
+{
+  "id": "WH-LIVE-20261111",
+  "version": "0.1.0-design",
+  "status": "DESIGN_RECORDED_IMPLEMENTATION_BLOCKED",
+  "sourceRoot": "hypermindedd/white-hat @ 6829dc1d1c003dd0a138aff1465f6a8fbd4091c0",
+  "modules": [
+    {
+      "id": "voice-adapter",
+      "owner": "White Hat gateway (proposed)",
+      "input": "microphone stream and provider events",
+      "output": "audio and normalized transient events",
+      "idempotency": "no durable decision writes; session/event dedupe at coordinator"
+    },
+    {
+      "id": "turn-coordinator",
+      "owner": "White Hat host (implementation owner must be recovered)",
+      "input": "authorized final turn and expectedRevision",
+      "output": "canonical engine envelope plus committed revision",
+      "idempotency": "unique tenant/session/eventId; optimistic concurrency"
+    },
+    {
+      "id": "decision-core",
+      "owner": "Existing shared Decision Challenge Engine",
+      "input": "Mode, Decision Object, Evidence and current context",
+      "output": "SM-KNOW-06 canonical envelope",
+      "idempotency": "one accepted turn revision; stale result discarded"
+    }
+  ],
+  "inputRoutes": [
+    {
+      "entry": "Proposed negotiation UI",
+      "server": "White Hat authorized session gateway and existing decision engine",
+      "return": "canonical output rendered as speech",
+      "failure": "retain accepted input; stop unsupported reasoning; no fabricated verdict"
+    }
+  ],
+  "stateOwnership": "Proposed Turn Coordinator is sole durable decision writer via Session Repository; actual host source and owner unresolved, so runtime changes blocked.",
+  "failureStrategy": "Preserve valid documentation; recover host source and migration lineage before implementation; no parallel product architecture; dedupe and receipts for uncertain provider outcomes.",
+  "requirements": [
+    {
+      "id": "WH-LIVE-R01",
+      "text": "Reuse compatible Elyora live transport with provenance."
+    },
+    {
+      "id": "WH-LIVE-R02",
+      "text": "Align with all seven existing White Hat modes and output/evidence semantics."
+    },
+    {
+      "id": "WH-LIVE-R03",
+      "text": "Personalize negotiation context without educational persona or unverified commitments."
+    }
+  ],
+  "acceptance": [
+    {
+      "requirement": "WH-LIVE-R01",
+      "check": "Pinned donor source reviewed; extraction and real audio checks pending."
+    },
+    {
+      "requirement": "WH-LIVE-R02",
+      "check": "Seven-row source mapping recorded; runtime consistency checks pending host source."
+    },
+    {
+      "requirement": "WH-LIVE-R03",
+      "check": "Policy and context design recorded; executable enforcement not tested."
+    }
+  ]
+}
