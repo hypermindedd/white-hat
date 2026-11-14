@@ -1,0 +1,39 @@
+{
+  "projectId": "white-hat-second-mind",
+  "sourceRoot": "/workspace/scratch/a513e6900a3e/white-hat",
+  "sourcePin": "github:hypermindedd/white-hat@6829dc1d1c003dd0a138aff1465f6a8fbd4091c0 + source archive sha256:a16bf3407133890e7537106f848d04de4c8e7a0346dd5059a0a53b08d9fdd719",
+  "requirements": [
+    {
+      "id": "WH-ARCH-01",
+      "text": "Select a coherent Kotlin architecture for web, Android, iOS and desktop without duplicating server authority."
+    },
+    {
+      "id": "WH-ARCH-02",
+      "text": "Recover existing alpha UI/API and preserve seven modes and legacy contract through an explicit migration."
+    },
+    {
+      "id": "WH-ARCH-03",
+      "text": "Define tenancy, role scopes, data owners, usage accounting, realtime adapters, testing and rollback."
+    }
+  ],
+  "capabilities": [
+    "source recovery",
+    "platform decision record",
+    "KMP portable validation boundary",
+    "migration and release plan"
+  ],
+  "acceptance": [
+    {
+      "requirement": "WH-ARCH-01",
+      "check": "ADR with platform matrix and dependency direction; portable code JVM tests and JS compile."
+    },
+    {
+      "requirement": "WH-ARCH-02",
+      "check": "21 recovered source file SHA256 matches, baseline Node tests, unchanged UI hashes."
+    },
+    {
+      "requirement": "WH-ARCH-03",
+      "check": "Document state ownership, role isolation, idempotency, provider uncertainty and reversible migration; runtime gates remain explicit."
+    }
+  ]
+}

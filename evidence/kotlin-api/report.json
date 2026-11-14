@@ -1,0 +1,194 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-11-11",
+  "stage": "S1 Kotlin API migration slice",
+  "api_version": "0.4.0-alpha.1",
+  "source_base_commit": "af945d817537130dd92d6d01320bdd9db122995a",
+  "repository": "hypermindedd/white-hat",
+  "branch": "build/kotlin-platform-foundation-20261111",
+  "pull_request": 2,
+  "command": "./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:api:test :server:adapters:test :server:api:installDist",
+  "test_results": {
+    "api": {
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "persistedStateAndAppendOnlyAuditSurviveRepositoryReconstruction",
+          "time_seconds": "0.638"
+        },
+        {
+          "name": "quotaReservationsRemainAtomicAcrossDifferentDecisions",
+          "time_seconds": "0.28"
+        },
+        {
+          "name": "nettyServesAuthenticatedApiOverActualLoopbackHttp",
+          "time_seconds": "1.086"
+        },
+        {
+          "name": "expiredLeaseRejectsLateOutputAndPreservesItsReceiptOnce",
+          "time_seconds": "0.201"
+        },
+        {
+          "name": "invalidOutputFailsButKeepsActualUsage",
+          "time_seconds": "0.189"
+        },
+        {
+          "name": "revokedMemberCannotTriggerAPreviouslyQueuedProviderCall",
+          "time_seconds": "0.169"
+        },
+        {
+          "name": "concurrentDuplicatesCreateOneReservationAndOneProviderCall",
+          "time_seconds": "0.234"
+        },
+        {
+          "name": "uncertainProviderOutcomeIsNeverAutomaticallyRetried",
+          "time_seconds": "0.186"
+        },
+        {
+          "name": "noProviderOrInvalidInputsCannotConsumeRunsOrInventAResult",
+          "time_seconds": "0.396"
+        },
+        {
+          "name": "revisionsAndIdempotencyAreBoundToAnImmutableInput",
+          "time_seconds": "0.284"
+        },
+        {
+          "name": "organizationMemberSupportAndOwnerBoundariesAreEnforced",
+          "time_seconds": "0.238"
+        },
+        {
+          "name": "queuedAndInFlightCancellationsDiscardOutputWithoutHidingCost",
+          "time_seconds": "0.184"
+        },
+        {
+          "name": "recoveryRunsEvenWithoutProviderConfiguration",
+          "time_seconds": "0.14"
+        },
+        {
+          "name": "actualHttpRouteQueuesAndWorkerCompletesAllSevenModes",
+          "time_seconds": "0.677"
+        },
+        {
+          "name": "migrationIsRepeatableAndAuthCannotBeBypassed",
+          "time_seconds": "0.28"
+        }
+      ]
+    },
+    "provider_adapter": {
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "malformedSuccessfulResponseRequiresReconciliation",
+          "time_seconds": "0.245"
+        },
+        {
+          "name": "refusalRetainsActualReceiptWithoutAValidJudgment",
+          "time_seconds": "0.016"
+        },
+        {
+          "name": "remoteErrorsAreRedactedAndNotRetried",
+          "time_seconds": "0.018"
+        },
+        {
+          "name": "requestsUsePinnedPolicyStrictSchemaAndActualUsage",
+          "time_seconds": "0.017"
+        },
+        {
+          "name": "missingConfigNeverCallsProvider",
+          "time_seconds": "0.005"
+        }
+      ]
+    },
+    "shared_contracts": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "criticalUnknownsCannotAccompanyHighConfidence[jvm]",
+          "time_seconds": "0.096"
+        },
+        {
+          "name": "modeVocabularyCannotLeakAcrossModes[jvm]",
+          "time_seconds": "0.0"
+        },
+        {
+          "name": "missingFieldsUnknownFieldsAndNonStringValuesAreRejected[jvm]",
+          "time_seconds": "0.002"
+        },
+        {
+          "name": "incompleteActionAndUnboundedCollectionsAreRejected[jvm]",
+          "time_seconds": "0.002"
+        },
+        {
+          "name": "allSevenModesPreserveTheirWireIdsAndVerdicts[jvm]",
+          "time_seconds": "0.001"
+        },
+        {
+          "name": "blockedJudgmentRequiresAQuestionAndNoInventedAction[jvm]",
+          "time_seconds": "0.001"
+        },
+        {
+          "name": "validLocalizedOutputIsAccepted[jvm]",
+          "time_seconds": "0.001"
+        },
+        {
+          "name": "recoveredEngineAcceptanceIsPreserved[jvm]",
+          "time_seconds": "0.022"
+        }
+      ]
+    }
+  },
+  "kotlin_tests_total": 28,
+  "baseline_node_tests": 23,
+  "legacy_parity_cases": 42,
+  "openapi_actual_response_samples": 7,
+  "recovered_file_hashes_verified": 21,
+  "postgresql_test_version": "16.15",
+  "java": "Temurin 21.0.13+9",
+  "node": "24.22.1",
+  "gradle": "8.14.3",
+  "kotlin": "2.2.20",
+  "ktor": "3.3.3",
+  "network_http": "Netty authenticated route over actual loopback HTTP passed; TLS not tested",
+  "jvm_distribution": "installDist succeeded; not a native desktop installer",
+  "javascript": "shared compile succeeded; JS runtime not executed",
+  "ai": "fixture provider and MockEngine only; no real AI call or benchmark",
+  "authentication": "resource server verified with locally signed access-token fixtures; live IdP/JWKS and full login not tested",
+  "frontend_connected": false,
+  "sqlite_migration_implemented": false,
+  "rls_enabled": false,
+  "ci": {
+    "observation": "ci-observation.json",
+    "code_commit": "19fe6c66e50d81185b48155c0af66ff95494a324",
+    "status": "failure_before_any_test_step",
+    "reason": "Exact failure reason not exposed by current connector; browser requires sign-in. Local test passes remain independent."
+  },
+  "release_status": "API_SLICE_TESTED_NOT_PRODUCT_COMPLETE_NOT_DEPLOYED",
+  "open_gates": [
+    "Resolve GitHub Actions pre-step failure and obtain a successful remote run",
+    "Current comprehensive panel source reconciliation",
+    "BFF/PKCE/login/session flow and real IdP",
+    "UI integration and real browser E2E",
+    "SQLite rehearsal migration/backup/rollback",
+    "Real AI golden/60-case/human evaluation",
+    "Realtime voice/provider/device compatibility",
+    "Custom permission builder and RLS/security/load/restore",
+    "Reconciliation operator workflow and billing",
+    "Android/iOS/macOS/Windows build/device/signing/store",
+    "Independent final review"
+  ],
+  "failure_recovery": [
+    "Initial compile/import/annotation errors fixed before final tests.",
+    "Embedded DB Unix socket restriction avoided with TCP only.",
+    "A blocking HTTP call in the new Netty test was moved out of the coroutine event loop and bounded by timeouts; the test and complete suite subsequently passed."
+  ],
+  "rollback": "No live database or deployment changed. Close/revert PR for this stage; follow ADR-010 for any future data cutover."
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0",
+  "version": "0.3.0-alpha.1",
+  "package_kind": "source_runtime_distribution_not_native_installer",
+  "date": "2026-11-03",
+  "runtime_requirement": "Node 24.15+ in 24.x family; no npm dependencies",
+  "engine_sha256": "b5b3a2a80dd9a809d8c93de1136544b9183d063d42315302f2a3437b08c5c375",
+  "files": [
+    {
+      "path": "README-FA.md",
+      "sha256": "295c4711fe5d9c87828a78b6ecafc2e69696fd7209d8396b20682d60d0f0df3d",
+      "size_bytes": 4469
+    },
+    {
+      "path": "START-MAC.command",
+      "sha256": "d63f1123fcc82d1eb1141cb52327c48d61ed94c0be21a1c772681156fcb9795c",
+      "size_bytes": 240
+    },
+    {
+      "path": "START-WINDOWS.cmd",
+      "sha256": "5135632bf43a49a6f69c818e2546c56b6b506f4a846c7abbc02ed971bff69e6f",
+      "size_bytes": 221
+    },
+    {
+      "path": "package.json",
+      "sha256": "6f030422cf717bfab83f977c3451438ec5af2e7769098e8a7dca9491e6fef117",
+      "size_bytes": 362
+    },
+    {
+      "path": "public/app.js",
+      "sha256": "bf46298298b2d27965fa81da62edcbb843f124cfac699e4b17f113279e2da4e0",
+      "size_bytes": 44247
+    },
+    {
+      "path": "public/icon.svg",
+      "sha256": "3aae740f66cc6fe114a13ccd44595a0fbcda9219fff76e197225b3d5427d3c99",
+      "size_bytes": 303
+    },
+    {
+      "path": "public/index.html",
+      "sha256": "cdbf18f3aa2a96102afbe06d8c5820babc5eb6552f55f3b76fe143f7051a2e20",
+      "size_bytes": 782
+    },
+    {
+      "path": "public/manifest.webmanifest",
+      "sha256": "327cb1c08fbc3974f15ab50c88844e83ee8ec9e5adccf9c2a23cf58d08144d02",
+      "size_bytes": 288
+    },
+    {
+      "path": "public/style.css",
+      "sha256": "1d6c6332bf1db2d088248bb12c95746226bd5c386c8008d507574fedb0b530da",
+      "size_bytes": 23236
+    },
+    {
+      "path": "public/sw.js",
+      "sha256": "886b7e8c772932edcd0ac533a298ccb2d9ab7716b3e99af14f970ddb24d48ceb",
+      "size_bytes": 670
+    },
+    {
+      "path": "server/app.mjs",
+      "sha256": "408c21a96810e48d7e1474a17f460460475ce0be3cf4f41b0aceeb183365615c",
+      "size_bytes": 22715
+    },
+    {
+      "path": "server/auth.mjs",
+      "sha256": "282ba56140a821daeb8f64743948a55b57ed5554b465dc2a3a72ffe98bb42d93",
+      "size_bytes": 1666
+    },
+    {
+      "path": "server/core/engine.mjs",
+      "sha256": "82842b96b6f5f51d9dbb61fbd2258dd71d84d4a270eff44785eab8ba16df6334",
+      "size_bytes": 6669
+    },
+    {
+      "path": "server/core/evaluation-policy.json",
+      "sha256": "01cd2db54dc62d0df6314d2c280501cb0c1b38e58a1f44fb175bb5f8958b9ef7",
+      "size_bytes": 2526
+    },
+    {
+      "path": "server/core/system.md",
+      "sha256": "b5b3a2a80dd9a809d8c93de1136544b9183d063d42315302f2a3437b08c5c375",
+      "size_bytes": 8586
+    },
+    {
+      "path": "server/index.mjs",
+      "sha256": "b2d556f1c82c57bd9c4353e10b560cc235e17e23e01adb2aafa9959f7bfc09cd",
+      "size_bytes": 1896
+    },
+    {
+      "path": "server/provider.mjs",
+      "sha256": "2ae48696cac0860e06763f28336b90a34a11377257934ae08548992d0f59663d",
+      "size_bytes": 2043
+    },
+    {
+      "path": "server/store.mjs",
+      "sha256": "de1bd17ef208d25805cfa74b28787fb7519e94df64cc11663089d093c10fbf4a",
+      "size_bytes": 3331
+    },
+    {
+      "path": "tests/fixtures.mjs",
+      "sha256": "a11c28b8d17c768dabc1409d3e9f7141311c5526051e6e458b7fdfc3d8099111",
+      "size_bytes": 2250
+    },
+    {
+      "path": "tests/integration.test.mjs",
+      "sha256": "bde941e5ed928bc70d83c7ef435cdd83a37e0df900dcf696b4b830270659e50a",
+      "size_bytes": 13896
+    },
+    {
+      "path": "tests/provider.test.mjs",
+      "sha256": "578c4fb2a42861471f62d89c5e9057e30238b0921267459300d116e84e2f3754",
+      "size_bytes": 3021
+    }
+  ],
+  "verified_environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "software_tests_passed": 23,
+  "live_model_runs": 0,
+  "commercial_release_approved": false
+}

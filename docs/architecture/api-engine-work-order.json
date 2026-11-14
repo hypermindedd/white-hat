@@ -1,0 +1,48 @@
+{
+  "modules": [
+    {
+      "id": "domain",
+      "owner": "server domain contracts",
+      "input": "authenticated subject and explicit workspace/decision revision",
+      "output": "decision and run models",
+      "idempotency": "immutable revision and scoped key contract"
+    },
+    {
+      "id": "application",
+      "owner": "RunWorker",
+      "input": "durable claim and provider response",
+      "output": "validated completion or explicit failure/uncertainty",
+      "idempotency": "fenced lease; no automatic uncertain provider retry"
+    },
+    {
+      "id": "adapters",
+      "owner": "PostgresStore",
+      "input": "authorized commands and completion receipts",
+      "output": "transactional durable state",
+      "idempotency": "workspace/subject/key uniqueness, locked decision and quota row, receipt unique lease token"
+    },
+    {
+      "id": "api",
+      "owner": "Ktor resource server",
+      "input": "RS256 access token, strict JSON and route IDs",
+      "output": "versioned JSON with stable error/request ID",
+      "idempotency": "delegates mutation to store; no client-authoritative state"
+    }
+  ],
+  "inputRoutes": [
+    {
+      "entry": "API v1 decision and run command",
+      "server": "JWT -> membership/ownership -> PostgreSQL transaction -> queued run",
+      "return": "run ID and persisted state",
+      "failure": "401/403/404/409/429 or redacted internal error"
+    },
+    {
+      "entry": "worker claim",
+      "server": "locked lease -> bounded provider -> schema/semantic validator -> receipt and completion",
+      "return": "succeeded/failed/cancelled/reconciliation_required",
+      "failure": "no fake output or automatic uncertain retry"
+    }
+  ],
+  "stateOwnership": "PostgresStore is the durable writer for this new API. Legacy SQLite remains isolated; no live cutover has occurred.",
+  "failureStrategy": "Fail closed on authority/contract errors; preserve actual usage; fence late output; recover expired leases even without provider configuration; review reconciliation manually before paid re-execution."
+}

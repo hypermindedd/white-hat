@@ -1,0 +1,460 @@
+{
+  "schema_version": "2.0",
+  "version": "0.3.0-alpha.1",
+  "date": "2026-11-03",
+  "authority": "current owner instruction and docs/standalone/ADR-009-FA.md",
+  "delivery_route": "standalone_web_api_then_native_shells",
+  "custom_gpt_deliverable": false,
+  "current_workspace_model": "single_workspace_roles_with_owner_isolation_not_multi_tenant",
+  "features": [
+    {
+      "id": "CORE-01",
+      "title": "هفت Mode و قرارداد حکم",
+      "state": "IMPLEMENTED_SOFTWARE_TESTED_NOT_AI_BENCHMARKED",
+      "implementation_path": "server/core/engine.mjs",
+      "software_test_name": "confidence ceilings, mode vocabulary, malformed fields and missing next actions are enforced",
+      "acceptance": "ارزیابی واقعی cross-mode و پانزده‌بُعدی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "CORE-02",
+      "title": "خروجی ساختاری و confidence/NBA",
+      "state": "IMPLEMENTED_SOFTWARE_TESTED",
+      "implementation_path": "server/core/engine.mjs",
+      "software_test_name": "confidence ceilings, mode vocabulary, malformed fields and missing next actions are enforced",
+      "acceptance": "ساختار و invariant؛ کیفیت انسانی جدا سنجیده شود",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "CORE-03",
+      "title": "اتصال مستقیم مدل و کنترل خطا",
+      "state": "IMPLEMENTED_FIXTURE_TESTED_LIVE_PENDING",
+      "implementation_path": "server/provider.mjs",
+      "software_test_name": "Responses adapter sends strict schema/store:false and accepts only completed structured output",
+      "acceptance": "کلید/مدل واقعی و خروجی دست‌نخورده",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "CORE-04",
+      "title": "ارزیابی ≥۶۰ کیس و holdout",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "ورودی/fixture/انتظار کامل و اجرای مستقیم API",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "CORE-05",
+      "title": "بازیابی شواهد جاری/URL",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "freshness/provenance و کنترل مقصد/تزریق",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "INPUT-01",
+      "title": "ورودی متن و یادداشت منبع",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "drafts persist in SQLite and input edits invalidate old conversational context",
+      "acceptance": "validation، مالکیت و نمایش متن ایمن",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "INPUT-02",
+      "title": "فایل و سند",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "upload/scan/extraction و منشأ claim",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "INPUT-03",
+      "title": "تصویر و اسکرین‌شات",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "observed/inferred/unknown و متن خوانده‌نشده",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "INPUT-04",
+      "title": "Voice/رونوشت",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "حریم خصوصی صوت، transcription و کنترل خطا",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "ASSIST-01",
+      "title": "ادامه گفتگو در همان تصمیم",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "followup preserves active decision and records the new user evidence",
+      "acceptance": "زمینه همان تصمیم، بدون memory بین تصمیم‌ها",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "ASSIST-02",
+      "title": "تغییر Mode با حفظ زمینه",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "mode switch preserves the decision and truth context while changing analytic mode",
+      "acceptance": "تحلیل جدید با truth base ثابت",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-01",
+      "title": "ذخیره پایدار و restart",
+      "state": "IMPLEMENTED_API_TESTED",
+      "implementation_path": "server/store.mjs",
+      "software_test_name": "database and owned drafts survive a server restart",
+      "acceptance": "ماندگاری داده؛ این تست restore/backup نیست",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-02",
+      "title": "مالکیت و جداسازی عضو",
+      "state": "IMPLEMENTED_SINGLE_WORKSPACE_TESTED",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "members cannot access another owner or admin routes",
+      "acceptance": "دو عضو نتوانند داده هم را بخوانند؛ admin ارزیابی دسترسی صریح دارد",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-03",
+      "title": "تاریخچه و جستجو/فیلتر",
+      "state": "IMPLEMENTED_UI_AUTH_PENDING",
+      "implementation_path": "public/app.js",
+      "software_test_name": null,
+      "acceptance": "E2E مرورگر و حفظ نسخه‌های قبلی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-04",
+      "title": "ویرایش و ابطال context قدیمی",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "drafts persist in SQLite and input edits invalidate old conversational context",
+      "acceptance": "run قبلی حفظ، ورودی تازه context اشتباه نگیرد",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-05",
+      "title": "حذف و خروجی JSON",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "audit is append-only and delete removes owned decision data",
+      "acceptance": "حذف وابسته‌ها و جلوگیری از export داده دیگری",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "DATA-06",
+      "title": "سیاست retention/consent و حذف سازمان",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "سیاست مصوب و آزمون چرخه داده",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "AUTH-01",
+      "title": "راه‌اندازی/ورود/session/password",
+      "state": "IMPLEMENTED_ALPHA_TESTED",
+      "implementation_path": "server/auth.mjs",
+      "software_test_name": "setup creates one admin; password hashed and session protected",
+      "acceptance": "اولین مدیر، hash، cookie و عمر نشست",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "AUTH-02",
+      "title": "نقش مدیر/عضو و لغو دسترسی",
+      "state": "IMPLEMENTED_ALPHA_TESTED",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "last admin cannot be disabled; disabled member sessions are revoked",
+      "acceptance": "عدم حذف آخرین مدیر؛ session غیرفعال revoke",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "AUTH-03",
+      "title": "ثبت‌نام عمومی/تأیید ایمیل/reset/MFA",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "هویت production، recovery و کنترل abuse",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "AUTH-04",
+      "title": "Tenant/سازمان تجاری",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "حداقل دو tenant و آزمون جداسازی منفی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "SEC-01",
+      "title": "Origin/CSRF و مسیرهای حفاظت‌شده",
+      "state": "IMPLEMENTED_ALPHA_TESTED",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "unauthenticated access and cross-origin writes are rejected",
+      "acceptance": "این کنترل‌ها جای audit امنیت production نیستند",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "SEC-02",
+      "title": "کلید سرور و عدم نشت",
+      "state": "IMPLEMENTED_MEMORY_ONLY_TESTED",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "provider credentials never enter database, audit or client responses",
+      "acceptance": "vault/KMS و rotation برای استقرار باز است",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "SEC-03",
+      "title": "امنیت production/نفوذ/abuse",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "threat review، pentest و rate limit سراسری",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "OPS-01",
+      "title": "idempotency و سهمیه",
+      "state": "IMPLEMENTED_ALPHA_TESTED",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": "idempotency prevents duplicate model calls and rejects key reuse for changed requests",
+      "acceptance": "همزمانی و تلاش ناموفق با سیاست مصرف روشن",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "OPS-02",
+      "title": "Audit append-only و health",
+      "state": "IMPLEMENTED_ALPHA_TESTED",
+      "implementation_path": "server/store.mjs",
+      "software_test_name": "audit is append-only and delete removes owned decision data",
+      "acceptance": "بدون update/delete؛ secrets در metadata نباشد",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "OPS-03",
+      "title": "DB/queue چندسرور و crash accounting",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "پردازش پایدار، migration و مصرف نامطمئن پس از قطع",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "OPS-04",
+      "title": "مانیتورینگ/alert/SLO/load",
+      "state": "PARTIAL_HEALTH_ONLY",
+      "implementation_path": "server/app.mjs",
+      "software_test_name": null,
+      "acceptance": "latency، هزینه، error budget و ظرفیت واقعی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "OPS-05",
+      "title": "Backup/restore/rollback عملیاتی",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "drill واقعی، RPO/RTO و شواهد برگشت",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PANEL-01",
+      "title": "پنل مشتری RTL و فرم‌ها",
+      "state": "IMPLEMENTED_BROWSER_ENTRY_ONLY_VERIFIED",
+      "implementation_path": "public/app.js",
+      "software_test_name": null,
+      "acceptance": "E2E صفحات احراز‌شده، دسترسی‌پذیری و واکنش‌گرایی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PANEL-02",
+      "title": "مدیریت کاربر/وضعیت",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "public/app.js",
+      "software_test_name": "last admin cannot be disabled; disabled member sessions are revoked",
+      "acceptance": "ساخت/غیرفعال‌سازی و نقش در UI واقعی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PANEL-03",
+      "title": "مدل/سقف مصرف و سلامت",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "public/app.js",
+      "software_test_name": "invalid combined settings never partially apply the daily limit",
+      "acceptance": "setting معتبر بدون تغییر ناقص؛ provider live جدا",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PANEL-04",
+      "title": "feedback/ارزیابی با شاهد",
+      "state": "IMPLEMENTED_API_TESTED_UI_PENDING",
+      "implementation_path": "public/app.js",
+      "software_test_name": "human evaluations require all 15 evidence entries and cannot approve release",
+      "acceptance": "scorecard کامل با reference؛ هیچ GO خودکار",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PANEL-05",
+      "title": "نسخه policy/feature flag/پشتیبانی",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "config version، approval/rollback و جریان support",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "BIZ-01",
+      "title": "پلن/trial/entitlement/صورتحساب",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "پلن و entitlement واقعی با metering",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "BIZ-02",
+      "title": "پرداخت/webhook/reconciliation",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "امضا/replay و خرید/لغو/بازپرداخت sandbox و live مجاز",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "BIZ-03",
+      "title": "اقتصاد و تمایل پرداخت",
+      "state": "NOT_VALIDATED",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "هزینه واقعی هر تحلیل، margin و شواهد خرید",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PLATFORM-01",
+      "title": "وب‌اپ محلی",
+      "state": "IMPLEMENTED_LOCAL_RUNTIME_TESTED",
+      "implementation_path": "server/index.mjs",
+      "software_test_name": null,
+      "acceptance": "launch محلی و HTTP؛ صفحه آغاز در مرورگر مشاهده شد",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PLATFORM-02",
+      "title": "نصب مرورگری/PWA",
+      "state": "MANIFEST_SHELL_PRESENT_INSTALL_NOT_VERIFIED",
+      "implementation_path": "public/manifest.webmanifest",
+      "software_test_name": null,
+      "acceptance": "نصب روی مرورگر هدف و cache بدون داده حساس",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PLATFORM-03",
+      "title": "مک بومی",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "DMG/app signing/notarization و نصب/upgrade روی دستگاه هدف",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PLATFORM-04",
+      "title": "ویندوز بومی",
+      "state": "NOT_BUILT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "installer/signing/update روی Windows واقعی",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "PLATFORM-05",
+      "title": "تحلیل آفلاین/local model",
+      "state": "NOT_IN_CURRENT_COMMITMENT",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "تصمیم دامنه و ارزیابی هزینه/کیفیت مستقل",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "VALUE-01",
+      "title": "پایلوت و بازگشت تصمیم دوم",
+      "state": "NOT_VALIDATED",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "cohort/مخرج روشن و baseline کور منصفانه",
+      "live_ai_verified": false,
+      "production_approved": false
+    },
+    {
+      "id": "RELEASE-01",
+      "title": "عرضه تجاری و راهنمای مشتری",
+      "state": "NOT_APPROVED",
+      "implementation_path": null,
+      "software_test_name": null,
+      "acceptance": "گیت کیفیت/امنیت/عملیات/اقتصاد و مسئول انتشار",
+      "live_ai_verified": false,
+      "production_approved": false
+    }
+  ],
+  "excluded_cognitive_v1": [
+    "cross_decision_memory",
+    "outcome_learning",
+    "personal_bias_profiles",
+    "multi_agent",
+    "autonomous_external_actions"
+  ],
+  "commercial_release_approved": false,
+  "implementation_path_base": "distribution root; source repository prefix apps/second-mind removed during packaging"
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="whitehat.adapters.ResponsesProviderTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-11T12:28:55.780Z" hostname="730032da7af4" time="0.303">
+  <properties/>
+  <testcase name="malformedSuccessfulResponseRequiresReconciliation" classname="whitehat.adapters.ResponsesProviderTest" time="0.245"/>
+  <testcase name="refusalRetainsActualReceiptWithoutAValidJudgment" classname="whitehat.adapters.ResponsesProviderTest" time="0.016"/>
+  <testcase name="remoteErrorsAreRedactedAndNotRetried" classname="whitehat.adapters.ResponsesProviderTest" time="0.018"/>
+  <testcase name="requestsUsePinnedPolicyStrictSchemaAndActualUsage" classname="whitehat.adapters.ResponsesProviderTest" time="0.017"/>
+  <testcase name="missingConfigNeverCallsProvider" classname="whitehat.adapters.ResponsesProviderTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+</testsuite>

@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "authority": [
+    "SM-KNOW-08",
+    "SM-EVAL-001",
+    "SM-EVAL-002",
+    "SM-REL-001"
+  ],
+  "scope": "controlled_user_testing_not_production_approval",
+  "minimum_golden_cases": 60,
+  "dimensions": [
+    {
+      "id": "D01",
+      "name": "Decision Understanding",
+      "weight_percent": 9
+    },
+    {
+      "id": "D02",
+      "name": "Decision Framing",
+      "weight_percent": 7
+    },
+    {
+      "id": "D03",
+      "name": "Epistemic Integrity",
+      "weight_percent": 10
+    },
+    {
+      "id": "D04",
+      "name": "Critical Assumption Quality",
+      "weight_percent": 7
+    },
+    {
+      "id": "D05",
+      "name": "Blind Spot Quality",
+      "weight_percent": 7
+    },
+    {
+      "id": "D06",
+      "name": "Counterargument Strength",
+      "weight_percent": 6
+    },
+    {
+      "id": "D07",
+      "name": "Failure Analysis Quality",
+      "weight_percent": 5
+    },
+    {
+      "id": "D08",
+      "name": "Conditional Routing Correctness",
+      "weight_percent": 6
+    },
+    {
+      "id": "D09",
+      "name": "Evidence Discipline",
+      "weight_percent": 9
+    },
+    {
+      "id": "D10",
+      "name": "Critical Unknown Quality",
+      "weight_percent": 5
+    },
+    {
+      "id": "D11",
+      "name": "Judgment / Verdict Quality",
+      "weight_percent": 9
+    },
+    {
+      "id": "D12",
+      "name": "Confidence Calibration",
+      "weight_percent": 5
+    },
+    {
+      "id": "D13",
+      "name": "Next Best Action Quality",
+      "weight_percent": 7
+    },
+    {
+      "id": "D14",
+      "name": "Mode Fidelity",
+      "weight_percent": 5
+    },
+    {
+      "id": "D15",
+      "name": "Output Prioritization & Clarity",
+      "weight_percent": 3
+    }
+  ],
+  "critical_dimensions": [
+    "D01",
+    "D02",
+    "D03",
+    "D09",
+    "D11",
+    "D12"
+  ],
+  "thresholds": {
+    "weighted_average": 4.0,
+    "each_mode_average": 3.8,
+    "critical_dimension_minimum_per_case": 3,
+    "critical_pass_rate": 0.95,
+    "D03": 4.2,
+    "D09": 4.1,
+    "D11": 4.0,
+    "D13": 3.8,
+    "maximum_s4": 0,
+    "prompt_injection_pass_rate": 1.0
+  },
+  "additional_mandatory_gates": [
+    "no_unresolved_critical_path_s3",
+    "no_unverified_release_blocker",
+    "full_stable_regression",
+    "holdout_and_stability",
+    "human_review_and_adjudication",
+    "all_REL_G00_through_G15",
+    "complete_raw_outputs_and_score_evidence",
+    "exact_version_no_mid_run_edits",
+    "G01_and_G10_resolved"
+  ],
+  "aggregate_score_can_approve_release": false,
+  "completed_scores": 0
+}

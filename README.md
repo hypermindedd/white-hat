@@ -1,4 +1,6 @@
 # White Hat — SECOND MIND
+
+**مرحله جدید 2026-11-11:** [معماری Kotlin و اپ‌ها، سورس بازیابی‌شده و شواهد](KOTLIN-START-HERE-FA.md). [برش API کاتلین](server/README-FA.md) و [مرحله بعد](docs/stages/S2-NEXT-CHAT-FA.md) اضافه شده‌اند. وضعیت زیر مربوط به انتقال اسناد 2026-11-02 است.
 **پایگاه مستندات، معماری و ادامهٔ ساخت Second Mind**
 
 Your second mind to find errors and bugs and helps to fix it

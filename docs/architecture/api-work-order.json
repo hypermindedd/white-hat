@@ -1,0 +1,49 @@
+{
+  "projectId": "white-hat-second-mind",
+  "sourceRoot": "/workspace/scratch/a513e6900a3e/white-hat",
+  "sourcePin": "hypermindedd/white-hat@af945d817537130dd92d6d01320bdd9db122995a",
+  "requirements": [
+    {
+      "id": "WH-API-01",
+      "text": "Implement Kotlin resource API, workspace membership and private decision ownership."
+    },
+    {
+      "id": "WH-API-02",
+      "text": "Persist immutable runs, atomic quotas, durable leases, cancellation and uncertain provider outcomes."
+    },
+    {
+      "id": "WH-API-03",
+      "text": "Preserve seven legacy mode policies and validate provider output and actual HTTP response schemas."
+    },
+    {
+      "id": "WH-API-04",
+      "text": "Organize modules, automate checks and provide stage closure plus named next-chat prompt."
+    }
+  ],
+  "capabilities": [
+    "Ktor/JWT API",
+    "PostgreSQL/Flyway adapter",
+    "shared mode validation",
+    "leased run worker",
+    "provider adapter",
+    "OpenAPI and CI"
+  ],
+  "acceptance": [
+    {
+      "requirement": "WH-API-01",
+      "check": "Actual PostgreSQL API isolation, ID-token rejection, invalid signature/algorithm/expiry and membership revocation tests."
+    },
+    {
+      "requirement": "WH-API-02",
+      "check": "Duplicate/concurrent/quota/cancel/lease/late receipt tests against PostgreSQL."
+    },
+    {
+      "requirement": "WH-API-03",
+      "check": "Source generators show no drift; seven HTTP mode outputs validate against OpenAPI; provider test double is explicit."
+    },
+    {
+      "requirement": "WH-API-04",
+      "check": "Build/test receipts, repository update, stage handoff, Work context and next-chat name."
+    }
+  ]
+}

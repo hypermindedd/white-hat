@@ -1,0 +1,127 @@
+{
+  "schema_version": "2.0",
+  "plan_version": "2.0",
+  "date": "2026-11-03",
+  "route": "standalone_no_custom_gpt",
+  "supersedes": "RC0 GPT-first delivery plan 1.0",
+  "calendar_commitment": null,
+  "phases": [
+    {
+      "id": "S00",
+      "title": "تغییر مسیر و معماری",
+      "depends_on": [],
+      "state": "CANDIDATE_RECORDED",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "معمار/سازنده/ارزیاب",
+      "assigned_person": null
+    },
+    {
+      "id": "S01",
+      "title": "برش مستقل",
+      "depends_on": [
+        "S00"
+      ],
+      "state": "IMPLEMENTED_SOFTWARE_TESTED_LIVE_PENDING",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "معمار/سازنده/ارزیاب",
+      "assigned_person": null
+    },
+    {
+      "id": "S02",
+      "title": "تکمیل موتور/ورودی/کیفیت",
+      "depends_on": [
+        "S01"
+      ],
+      "state": "NOT_COMPLETED",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "معمار/سازنده/ارزیاب",
+      "assigned_person": null
+    },
+    {
+      "id": "S03",
+      "title": "هویت و tenant تجاری",
+      "depends_on": [
+        "S01"
+      ],
+      "state": "NOT_BUILT",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S04",
+      "title": "پنل کامل",
+      "depends_on": [
+        "S01",
+        "S03"
+      ],
+      "state": "PARTIAL",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S05",
+      "title": "پرداخت و اقتصاد",
+      "depends_on": [
+        "S03",
+        "S04"
+      ],
+      "state": "NOT_BUILT",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S06",
+      "title": "عملیات و امنیت",
+      "depends_on": [
+        "S02",
+        "S03",
+        "S04"
+      ],
+      "state": "NOT_COMPLETED",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S07",
+      "title": "مک و ویندوز بومی",
+      "depends_on": [
+        "S04",
+        "S06"
+      ],
+      "state": "NOT_BUILT",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S08",
+      "title": "پایلوت ارزش",
+      "depends_on": [
+        "S02"
+      ],
+      "state": "NOT_VALIDATED",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    },
+    {
+      "id": "S09",
+      "title": "عرضه تجاری",
+      "depends_on": [
+        "S05",
+        "S06",
+        "S08"
+      ],
+      "state": "NOT_APPROVED",
+      "exit_gate": "evidence required per docs/ROADMAP-FA.md",
+      "owner_role": "مسئول فاز در ROADMAP",
+      "assigned_person": null
+    }
+  ],
+  "source_of_feature_status": "product/commercial-scope.json",
+  "commercial_release_approved": false
+}

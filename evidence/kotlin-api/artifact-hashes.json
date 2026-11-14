@@ -1,0 +1,185 @@
+{
+  "scope": "Changed source and evidence files; this hash list excludes itself.",
+  "files": [
+    {
+      "path": ".github/workflows/kotlin-api.yml",
+      "sha256": "ec6ab5b07d3d44cbb2aa0d1219cc9aac81b5d951b44963c7388b3467b36c7343"
+    },
+    {
+      "path": "CHECKSUMS.sha256",
+      "sha256": "19510564a16557fa68c17b0c385e9b2b3a1822c1e636835bd2e17eedcc25fe33"
+    },
+    {
+      "path": "KOTLIN-START-HERE-FA.md",
+      "sha256": "77e738b8f064f080c0c93fae36774e6dac69f6ef18c903f82bc21e89ec54fe4d"
+    },
+    {
+      "path": "README.md",
+      "sha256": "884928bd759cf27c9c82814a69f8c172c526cac0c8f46dea70aa34859a6c97db"
+    },
+    {
+      "path": "build.gradle.kts",
+      "sha256": "d0e62590bd79fc924ca5c5407ca34f739c57122902b907f1af94a569031dbe4f"
+    },
+    {
+      "path": "contracts/openapi/openapi.json",
+      "sha256": "86c3dfd15ee994eff5932895167a1958562cd55faae7353595cb4bad6d190fdc"
+    },
+    {
+      "path": "docs/architecture/ADR-011-API-MIGRATION-SLICE-FA.md",
+      "sha256": "d8a0b5b551ec8eaf21a2dda4c2da02eb6b647320998d1a9a8579c821f424977c"
+    },
+    {
+      "path": "docs/architecture/CHIEF-HANDOFF-FA.md",
+      "sha256": "f4da6e8001af9d89a2cc6ec48d956edf50db910eeaf552b90323a248636245a1"
+    },
+    {
+      "path": "docs/architecture/api-engine-work-order.json",
+      "sha256": "9592acc1514c3c585547c4da5de1acccd826c39626f063f88409d2b084fe33fd"
+    },
+    {
+      "path": "docs/architecture/api-work-order.json",
+      "sha256": "3f7baec5014fbbbfc261e4f1ee35caf268639cfd061dccd40f0ae1b5cef68067"
+    },
+    {
+      "path": "docs/stages/S1-CLOSURE-FA.md",
+      "sha256": "2b8f321eae9f3d1a49b030040b53248dc1292b6f7039a68da1e340d88d0ed2be"
+    },
+    {
+      "path": "docs/stages/S2-NEXT-CHAT-FA.md",
+      "sha256": "f63c354df085ae0b5af78717b0518400a1116de3230683095c383c55ce6f8b4c"
+    },
+    {
+      "path": "evidence/kotlin-api/TEST-whitehat.adapters.ResponsesProviderTest.xml",
+      "sha256": "17896d68a93cda200bb06f53b59fad6bf4505637ec05b1ce7201d2def304b24e"
+    },
+    {
+      "path": "evidence/kotlin-api/TEST-whitehat.api.ApiIntegrationTest.xml",
+      "sha256": "2e117a2c2b8372ee88ccf6b846e494f6f4fb89fd88024cbcac365ba7eb475c7d"
+    },
+    {
+      "path": "evidence/kotlin-api/TEST-whitehat.contracts.LegacyOutputValidatorTest.xml",
+      "sha256": "1c4d207c0f7b2799402f5f6ecb19c6318c6f5701aa080f923d37fe030ec5a6c6"
+    },
+    {
+      "path": "evidence/kotlin-api/TEST-whitehat.contracts.LegacyParityTest.xml",
+      "sha256": "096db48e14c0b577bf435ead43053f675152738b155c9bebd189d133c4e3bda4"
+    },
+    {
+      "path": "evidence/kotlin-api/ci-observation.json",
+      "sha256": "5c7a4d13b55cd3f697f8f2a2dd7a5a9b3c542565d9b0fd0a1b71da16abb475fc"
+    },
+    {
+      "path": "evidence/kotlin-api/initial-compile-failure.log",
+      "sha256": "68a227d5db74b6759235e71ec3b686dc41d46b8df03e1f99c88da09c1bb6c510"
+    },
+    {
+      "path": "evidence/kotlin-api/netty-test.log",
+      "sha256": "28cd3d5e97d71bb48cfe20c45363e0354486390c00b0598f19f874a0c2f9d49f"
+    },
+    {
+      "path": "evidence/kotlin-api/node-test.log",
+      "sha256": "422977511c9c913cc182d82df1e7d759c8b7f8eaee732f4b2085f8d82638b288"
+    },
+    {
+      "path": "evidence/kotlin-api/report.json",
+      "sha256": "06ab4c8be1a12b7b965b2aa6c1f9a94aff881db128a1a96ae7f6b936ea42a73b"
+    },
+    {
+      "path": "evidence/kotlin-api/test.log",
+      "sha256": "d7eb58c9ae7ed728883e2355e693ea932dc303ea19611d6c7802eb42175ce534"
+    },
+    {
+      "path": "gradle/libs.versions.toml",
+      "sha256": "c4bfab4c2df4d942bb62f62d0ed77170e62f4f5f5cb18e2c70fb357c815f085e"
+    },
+    {
+      "path": "scripts/generate_api_contract.mjs",
+      "sha256": "da17883ad81a24e177972ed12cf63dd2e6935bca2539c2301f1d0e97d52244bb"
+    },
+    {
+      "path": "scripts/generate_server_policy.mjs",
+      "sha256": "0d5ed3ad5f029c1a5026a5cca0aa6bd5ba07b67d613a1a06c8cb177b3eb7abe3"
+    },
+    {
+      "path": "scripts/verify_api_samples.py",
+      "sha256": "47ae54868da61857e829f3b1c26aad0baf4ab2d013d51f54127edfb15032a454"
+    },
+    {
+      "path": "server/.env.example",
+      "sha256": "7a4b6e1910dc395816a22ce8d78f33f2cbcdb9ed906ca160d04b1603de3df2ba"
+    },
+    {
+      "path": "server/README-FA.md",
+      "sha256": "926ff7eb4a4ec812a220144dc1f6a40ccb38bd05b33ab9286534b0a809b2a863"
+    },
+    {
+      "path": "server/adapters/build.gradle.kts",
+      "sha256": "56df62f426ad035957802023440c917c952a50378879b1cb7d2989ac988a1f6c"
+    },
+    {
+      "path": "server/adapters/src/main/kotlin/whitehat/adapters/PostgresStore.kt",
+      "sha256": "c28cbf98886182a5738bd710654f3cf0bfbd528df49c5ff4219fd84b47ef3913"
+    },
+    {
+      "path": "server/adapters/src/main/kotlin/whitehat/adapters/ResponsesProvider.kt",
+      "sha256": "abc30050f379d07cdde1d961fcb9030bbbf3977d3362ef492edc80585de3c9f3"
+    },
+    {
+      "path": "server/adapters/src/main/kotlin/whitehat/adapters/SnapshotCodec.kt",
+      "sha256": "a39a3d9beb4d0ab43eaa1874240bd19539dd6c4c336123b6c802089a23cbdec9"
+    },
+    {
+      "path": "server/adapters/src/main/resources/db/migration/V1__workspace_decision_runs.sql",
+      "sha256": "71919521b977c79ef7758bab4b7a6becdd148dec46ec990857c2d9303bd83d9e"
+    },
+    {
+      "path": "server/adapters/src/main/resources/engine/policies.json",
+      "sha256": "9f015a25e591f52a9062cf7f4044495bb1a88eb3e29caccf9cdbe690e537a8b8"
+    },
+    {
+      "path": "server/adapters/src/test/kotlin/whitehat/adapters/ResponsesProviderTest.kt",
+      "sha256": "8bc1853f1c40d655b17953527a8e2771a35b9179c4bb255973b86b4ba8f9dec9"
+    },
+    {
+      "path": "server/api/build.gradle.kts",
+      "sha256": "de8a17443bd123cd3fa80ed0c457cdf1d8eaf2817abf03f8095961c4730c65f3"
+    },
+    {
+      "path": "server/api/src/main/kotlin/whitehat/api/Api.kt",
+      "sha256": "387255c15f82b16c28d9e2f508df07a9b2c9e32260fd5d860416e1d044fc4826"
+    },
+    {
+      "path": "server/api/src/main/kotlin/whitehat/api/Main.kt",
+      "sha256": "303b36e5e73263ad7da71accd8337fe9bb83ec6bc7d2fa662d8d782ebeba31df"
+    },
+    {
+      "path": "server/api/src/test/kotlin/whitehat/api/ApiIntegrationTest.kt",
+      "sha256": "46e72e28acfcbcf47f9c0644fef47e3b0175c4258d35a20dbadffc4c14fa2bb7"
+    },
+    {
+      "path": "server/api/src/test/resources/legacy-output-fixtures.json",
+      "sha256": "75a2ef4ce0110fa18aace9d99828d09f6c5e450cc281bdf1b5632670be0e1cdd"
+    },
+    {
+      "path": "server/application/build.gradle.kts",
+      "sha256": "b84ae4944ffbe97e6ec4a1f1629c939939c3724bd67590ff7d620d1519e0c9f3"
+    },
+    {
+      "path": "server/application/src/main/kotlin/whitehat/application/RunWorker.kt",
+      "sha256": "687579f26e0d48f8599a53ff3c57a503ee56fba79de52d6691bf3d201c7fae15"
+    },
+    {
+      "path": "server/domain/build.gradle.kts",
+      "sha256": "1132197cd8104bb143a353676bd55f3b63c3963dd3c2bc7cc55a3a4e6ca44ec2"
+    },
+    {
+      "path": "server/domain/src/main/kotlin/whitehat/domain/Model.kt",
+      "sha256": "749182562e7f65bda5836d9239cb47373f58648f6d1d97df9b93bf54e92b8983"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "sha256": "b96274ca49f0ee24ffc1a3fc87f0382ee5d3aecb3f32aee7bb320d1f88af2a58"
+    }
+  ]
+}

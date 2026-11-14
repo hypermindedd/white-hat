@@ -1,0 +1,65 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :server:adapters:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:contracts:kmpPartiallyResolvedDependenciesChecker
+> Task :shared:contracts:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:contracts:jvmProcessResources NO-SOURCE
+> Task :shared:contracts:processJvmMainResources SKIPPED
+> Task :server:domain:processResources NO-SOURCE
+> Task :server:adapters:processResources
+> Task :server:api:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:application:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :server:application:processResources NO-SOURCE
+> Task :shared:contracts:compileKotlinJvm
+> Task :shared:contracts:compileJvmMainJava NO-SOURCE
+> Task :shared:contracts:jvmMainClasses
+> Task :shared:contracts:jvmJar UP-TO-DATE
+> Task :server:domain:compileKotlin
+> Task :server:domain:compileJava NO-SOURCE
+> Task :server:domain:classes UP-TO-DATE
+> Task :server:domain:jar
+> Task :server:application:compileKotlin
+> Task :server:application:compileJava NO-SOURCE
+> Task :server:application:classes UP-TO-DATE
+> Task :server:application:jar
+> Task :server:adapters:compileKotlin
+> Task :server:adapters:compileJava NO-SOURCE
+> Task :server:adapters:classes
+> Task :server:adapters:jar
+
+> Task :server:api:compileKotlin FAILED
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Api.kt:75:26 Overload resolution ambiguity between candidates:
+typealias CancellationException = CancellationException
+typealias CancellationException = CancellationException
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:7:12 Unresolved reference 'zaxxer'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:8:12 Unresolved reference 'zaxxer'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:22:18 Unresolved reference 'HikariConfig'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:22:33 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:22:39 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:23:9 Unresolved reference 'jdbcUrl'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:23:48 Unresolved reference 'username'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:23:89 Unresolved reference 'password'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:24:9 Unresolved reference 'maximumPoolSize'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:24:30 Unresolved reference 'minimumIdle'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:24:47 Unresolved reference 'connectionTimeout'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:26:5 Unresolved reference 'HikariDataSource'.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:26:30 Cannot infer type for type parameter 'T'. Specify it explicitly.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:26:30 Cannot infer type for type parameter 'R'. Specify it explicitly.
+e: file:///workspace/scratch/a513e6900a3e/white-hat/server/api/src/main/kotlin/whitehat/api/Main.kt:26:36 Cannot infer type for type parameter 'T'. Specify it explicitly.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':server:api:compileKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 53s
+11 actionable tasks: 10 executed, 1 up-to-date

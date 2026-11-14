@@ -1,0 +1,13 @@
+{
+  "code_commit": "19fe6c66e50d81185b48155c0af66ff95494a324",
+  "run_id": 43022447747,
+  "job_id": 130528711821,
+  "run_url": "https://github.com/hypermindedd/white-hat/actions/runs/43022447747",
+  "status": "completed",
+  "conclusion": "failure",
+  "observed_steps": [],
+  "logs_available": false,
+  "root_cause": "NOT_RETRIEVABLE_WITH_CURRENT_CONNECTED_CAPABILITIES",
+  "browser_observation": "Private run page requires a signed-in browser; no authentication was attempted.",
+  "interpretation": "Remote CI is not passed. No test step executed in this observed run; local test evidence is separate. No billing, permission or code root cause is asserted."
+}

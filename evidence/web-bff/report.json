@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-11-11",
+  "stage": "S2 web BFF / Kotlin API integration slice",
+  "repo": "hypermindedd/white-hat",
+  "pull_request": 2,
+  "pre_change_head": "7429f348c6b84b28c209cd64ed9d9128141af651",
+  "status": "LOCAL_FIXTURE_TESTED_REMOTE_CI_AND_LIVE_INTEGRATION_OPEN",
+  "local": {
+    "toolchain": "Node 22.16.0 (container); target Node >=24.15; mismatch must be retested",
+    "command": "cd apps/web-bff && node --test test/*.test.mjs",
+    "tests": 4,
+    "passed": 4,
+    "failed": 0,
+    "coverage": [
+      "OIDC Authorization Code + S256 PKCE fixture",
+      "RS256 ID token verification and tamper rejection",
+      "state and callback replay rejection",
+      "HttpOnly session cookie, no browser bearer",
+      "Origin/CSRF denial",
+      "Kotlin API proxy route allowlist",
+      "upstream 403 and null token usage preserved",
+      "refresh token flow",
+      "IdP refresh-token revocation attempt on logout",
+      "local session invalidation",
+      "Path-scoped OIDC discovery regression"
+    ]
+  },
+  "source": {
+    "existing_kotlin_api_preserved": true,
+    "alpha_assets_unchanged": true,
+    "frontend_kotlin_api_adapter_added": true,
+    "new_database_or_engine": false
+  },
+  "github_actions_observed_before_change": [
+    {
+      "id": 43022447747,
+      "conclusion": "failure",
+      "steps": null,
+      "logs": "404 BlobNotFound"
+    },
+    {
+      "id": 43022999862,
+      "conclusion": "failure",
+      "steps": null,
+      "logs": "404 BlobNotFound"
+    }
+  ],
+  "unverified": [
+    "Node 24 runtime",
+    "post-commit remote CI PASS",
+    "actual Kotlin API and PostgreSQL behind BFF",
+    "real IdP/JWKS rotation",
+    "browser E2E, RTL and accessibility",
+    "production session storage/CSRF review",
+    "RLS, operator reconciliation UI, comprehensive support/permission builder",
+    "real AI/model evaluation",
+    "desktop/mobile builds"
+  ],
+  "rollback": "No live deploy, migration or secrets changed; revert this S2 source commit/PR.",
+  "browser_e2e": {
+    "status": "BLOCKED_BY_ENVIRONMENT_POLICY",
+    "attempted": "Chromium headless via Playwright against loopback BFF",
+    "observed": "net::ERR_BLOCKED_BY_ADMINISTRATOR at http://127.0.0.1:<dynamic-port>/",
+    "passed": false,
+    "note": "Do not count as a test PASS; requires permitted browser environment."
+  }
+}

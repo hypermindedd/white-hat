@@ -1,0 +1,80 @@
+{
+  "schema_version": "2.0",
+  "date": "2026-11-03",
+  "version": "0.3.0-alpha.1",
+  "scope": "independent application and adapter software tests only",
+  "command": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "apps/second-mind/tests/integration.test.mjs",
+    "apps/second-mind/tests/provider.test.mjs"
+  ],
+  "exit_code": 0,
+  "tests": 23,
+  "passed": 23,
+  "failed": 0,
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "provider_mode": "explicit fixture injected in tests; no fixture mode in user app",
+  "live_model_runs": 0,
+  "engine_intelligence_benchmark": "NOT_RUN",
+  "browser_verification": {
+    "preview_url": "http://terminal.local:4173/",
+    "entry_page_rendered": true,
+    "entry_page_visual_review": true,
+    "authenticated_ui_end_to_end": "NOT_COMPLETED_USER_ACCOUNT_NOT_CREATED"
+  },
+  "native_os_installation_tests": "NOT_RUN",
+  "commercial_release_approved": false,
+  "observed_software_failures": [
+    "APP-001",
+    "APP-002"
+  ],
+  "stdout": "TAP version 13\n# Subtest: setup creates one admin; password hashed and session protected\nok 1 - setup creates one admin; password hashed and session protected\n  ---\n  duration_ms: 161.697583\n  type: 'test'\n  ...\n# Subtest: unauthenticated access and cross-origin writes are rejected\nok 2 - unauthenticated access and cross-origin writes are rejected\n  ---\n  duration_ms: 128.54666\n  type: 'test'\n  ...\n# Subtest: members cannot access another owner or admin routes\nok 3 - members cannot access another owner or admin routes\n  ---\n  duration_ms: 304.531535\n  type: 'test'\n  ...\n# Subtest: drafts persist in SQLite and input edits invalidate old conversational context\nok 4 - drafts persist in SQLite and input edits invalidate old conversational context\n  ---\n  duration_ms: 144.648176\n  type: 'test'\n  ...\n# Subtest: missing provider never generates a fake analysis\nok 5 - missing provider never generates a fake analysis\n  ---\n  duration_ms: 120.403688\n  type: 'test'\n  ...\n# Subtest: idempotency prevents duplicate model calls and rejects key reuse for changed requests\nok 6 - idempotency prevents duplicate model calls and rejects key reuse for changed requests\n  ---\n  duration_ms: 132.944917\n  type: 'test'\n  ...\n# Subtest: daily quota is enforced even across separate decisions\nok 7 - daily quota is enforced even across separate decisions\n  ---\n  duration_ms: 126.124883\n  type: 'test'\n  ...\n# Subtest: failed paid attempts consume request quota and never become successful output\nok 8 - failed paid attempts consume request quota and never become successful output\n  ---\n  duration_ms: 113.071175\n  type: 'test'\n  ...\n# Subtest: followup preserves active decision and records the new user evidence\nok 9 - followup preserves active decision and records the new user evidence\n  ---\n  duration_ms: 108.174894\n  type: 'test'\n  ...\n# Subtest: human evaluations require all 15 evidence entries and cannot approve release\nok 10 - human evaluations require all 15 evidence entries and cannot approve release\n  ---\n  duration_ms: 110.076964\n  type: 'test'\n  ...\n# Subtest: provider credentials never enter database, audit or client responses\nok 11 - provider credentials never enter database, audit or client responses\n  ---\n  duration_ms: 107.845743\n  type: 'test'\n  ...\n# Subtest: last admin cannot be disabled; disabled member sessions are revoked\nok 12 - last admin cannot be disabled; disabled member sessions are revoked\n  ---\n  duration_ms: 268.811656\n  type: 'test'\n  ...\n# Subtest: audit is append-only and delete removes owned decision data\nok 13 - audit is append-only and delete removes owned decision data\n  ---\n  duration_ms: 109.738595\n  type: 'test'\n  ...\n# Subtest: bad credentials and invalid modes are refused\nok 14 - bad credentials and invalid modes are refused\n  ---\n  duration_ms: 200.121377\n  type: 'test'\n  ...\n# Subtest: public shell has security headers and cannot serve database or source files\nok 15 - public shell has security headers and cannot serve database or source files\n  ---\n  duration_ms: 96.280743\n  type: 'test'\n  ...\n# Subtest: database and owned drafts survive a server restart\nok 16 - database and owned drafts survive a server restart\n  ---\n  duration_ms: 184.345484\n  type: 'test'\n  ...\n# Subtest: invalid combined settings never partially apply the daily limit\nok 17 - invalid combined settings never partially apply the daily limit\n  ---\n  duration_ms: 99.963159\n  type: 'test'\n  ...\n# Subtest: mode switch preserves the decision and truth context while changing analytic mode\nok 18 - mode switch preserves the decision and truth context while changing analytic mode\n  ---\n  duration_ms: 103.397085\n  type: 'test'\n  ...\n# Subtest: Responses adapter sends strict schema/store:false and accepts only completed structured output\nok 19 - Responses adapter sends strict schema/store:false and accepts only completed structured output\n  ---\n  duration_ms: 4.455989\n  type: 'test'\n  ...\n# Subtest: provider authentication errors never expose remote error body or secrets\nok 20 - provider authentication errors never expose remote error body or secrets\n  ---\n  duration_ms: 0.740133\n  type: 'test'\n  ...\n# Subtest: missing provider config does not call transport\nok 21 - missing provider config does not call transport\n  ---\n  duration_ms: 0.343367\n  type: 'test'\n  ...\n# Subtest: refusal and incomplete output cannot be promoted to valid judgment\nok 22 - refusal and incomplete output cannot be promoted to valid judgment\n  ---\n  duration_ms: 1.740226\n  type: 'test'\n  ...\n# Subtest: confidence ceilings, mode vocabulary, malformed fields and missing next actions are enforced\nok 23 - confidence ceilings, mode vocabulary, malformed fields and missing next actions are enforced\n  ---\n  duration_ms: 0.758951\n  type: 'test'\n  ...\n1..23\n# tests 23\n# suites 0\n# pass 23\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 2720.21938\n",
+  "stderr": "",
+  "tested_source_manifest": {
+    "README-FA.md": "295c4711fe5d9c87828a78b6ecafc2e69696fd7209d8396b20682d60d0f0df3d",
+    "START-MAC.command": "d63f1123fcc82d1eb1141cb52327c48d61ed94c0be21a1c772681156fcb9795c",
+    "START-WINDOWS.cmd": "5135632bf43a49a6f69c818e2546c56b6b506f4a846c7abbc02ed971bff69e6f",
+    "package.json": "6f030422cf717bfab83f977c3451438ec5af2e7769098e8a7dca9491e6fef117",
+    "public/app.js": "bf46298298b2d27965fa81da62edcbb843f124cfac699e4b17f113279e2da4e0",
+    "public/icon.svg": "3aae740f66cc6fe114a13ccd44595a0fbcda9219fff76e197225b3d5427d3c99",
+    "public/index.html": "cdbf18f3aa2a96102afbe06d8c5820babc5eb6552f55f3b76fe143f7051a2e20",
+    "public/manifest.webmanifest": "327cb1c08fbc3974f15ab50c88844e83ee8ec9e5adccf9c2a23cf58d08144d02",
+    "public/style.css": "1d6c6332bf1db2d088248bb12c95746226bd5c386c8008d507574fedb0b530da",
+    "public/sw.js": "886b7e8c772932edcd0ac533a298ccb2d9ab7716b3e99af14f970ddb24d48ceb",
+    "server/app.mjs": "408c21a96810e48d7e1474a17f460460475ce0be3cf4f41b0aceeb183365615c",
+    "server/auth.mjs": "282ba56140a821daeb8f64743948a55b57ed5554b465dc2a3a72ffe98bb42d93",
+    "server/core/engine.mjs": "82842b96b6f5f51d9dbb61fbd2258dd71d84d4a270eff44785eab8ba16df6334",
+    "server/core/evaluation-policy.json": "01cd2db54dc62d0df6314d2c280501cb0c1b38e58a1f44fb175bb5f8958b9ef7",
+    "server/core/system.md": "b5b3a2a80dd9a809d8c93de1136544b9183d063d42315302f2a3437b08c5c375",
+    "server/index.mjs": "b2d556f1c82c57bd9c4353e10b560cc235e17e23e01adb2aafa9959f7bfc09cd",
+    "server/provider.mjs": "2ae48696cac0860e06763f28336b90a34a11377257934ae08548992d0f59663d",
+    "server/store.mjs": "de1bd17ef208d25805cfa74b28787fb7519e94df64cc11663089d093c10fbf4a",
+    "tests/fixtures.mjs": "a11c28b8d17c768dabc1409d3e9f7141311c5526051e6e458b7fdfc3d8099111",
+    "tests/integration.test.mjs": "bde941e5ed928bc70d83c7ef435cdd83a37e0df900dcf696b4b830270659e50a",
+    "tests/provider.test.mjs": "578c4fb2a42861471f62d89c5e9057e30238b0921267459300d116e84e2f3754"
+  },
+  "isolated_distribution_boot": {
+    "result": "PASS",
+    "method": "extract ZIP into fresh directory; start real server with no key/model; GET health and public assets",
+    "health": {
+      "status": "ok",
+      "version": "0.3.0-alpha.1",
+      "setup_required": true
+    },
+    "public_asset_status": {
+      "/": 200,
+      "/app.js": 200,
+      "/style.css": 200,
+      "/manifest.webmanifest": 200
+    },
+    "app_manifest_sha256": "95985644352890165bef401037b3c190920bf8555e73c52121727e4e783eb283",
+    "auth_account_created": false,
+    "model_called": false
+  }
+}
