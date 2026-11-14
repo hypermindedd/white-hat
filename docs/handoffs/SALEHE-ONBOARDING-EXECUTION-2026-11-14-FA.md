@@ -3,7 +3,7 @@
 **تاریخ بازبینی:** 2026-11-14  
 **مرجع اجرایی:** `hypermindedd/white-hat`، PR [#2](https://github.com/hypermindedd/white-hat/pull/2)، شاخه `build/kotlin-platform-foundation-20261111`  
 **HEAD بررسی‌شده پیش از نگارش:** `65523c4bf92abc4b3f8315b2c287ee83634d0ba7`  
-**وضعیت:** Handover / NOT a production release / NOT S2 acceptance  
+**وضعیت:** Handover / CI green on prior handoff commit / NOT a production release / NOT S2 acceptance  
 **مخاطب:** Salehe، Chief، مهندسان و بازبینان فنی White Hat.
 
 > این سند راهنمای عملیاتی بر اساس شواهد موجود در تاریخ بالاست. پیش از هر توسعه، HEAD/CI/اسناد جدیدتر را مجدداً بخوان. ادعای PASS فقط با لاگ/تست واقعی روی نسخه مشخص مجاز است. این فایل جایگزین کد یا گزارش اجرای جدید نیست.
@@ -54,7 +54,7 @@
 | فاز | خروجی مقرر | وضعیت در 2026-11-14 | Gate لازم |
 |---|---|---|---|
 | S0 — بازیابی و معماری | alpha preserved، ADR، قرارداد مشترک، hash و baseline | **انجام و شواهد محلی ثبت**؛ بازبینی مستقل باز | provenance و regression قابل تکرار |
-| S1 — API Kotlin | PostgreSQL، Ktor، auth resource server، ownership، queue/runs، OpenAPI | **برش کد و تست محلی انجام**؛ remote CI شکست خورده و release gate باز | CI سبز، مرور معماری و آزمون یکپارچگی |
+| S1 — API Kotlin | PostgreSQL، Ktor، auth resource server، ownership، queue/runs، OpenAPI | **برش کد و تست محلی انجام**؛ workflow روی commit گزارش‌شده زیر سبز شد | مرور معماری و آزمون یکپارچگی واقعی |
 | S2 — وب، پنل، BFF و نقش‌ها | login OIDC و وب متصل به API، roles، UX و browser E2E | **در حال اجرا / ناقص**؛ BFF و UI adapter روی mock تست شده‌اند | اتصال واقعی، نشست پایدار، RBAC/پنل پشتیبانی، RTL/دسترسی‌پذیری و E2E |
 | S3 — هوشمندی معتبر و صوت زنده | 60 case کامل، ارزیابی انسانی 15بعدی، provider واقعی، transport صوت | **انجام نشده**؛ design صوت موجود | quality benchmark، امنیت/مصرف صوت و همه تست‌های واقعی |
 | S4 — اپ‌های Android/iOS/macOS/Windows | KMP client + Compose، بسته‌های واقعی، UX و device test | **انجام نشده** | build/install/signing و آزمون دستگاه/ارتقا |
@@ -67,9 +67,9 @@
 - HEAD پیش از نگارش این handoff: `65523c4bf92abc4b3f8315b2c287ee83634d0ba7`.
 - Kotlin API workflow run [43047177904](https://github.com/hypermindedd/white-hat/actions/runs/43047177904): **failure**.
 - Web BFF workflow run [43047177933](https://github.com/hypermindedd/white-hat/actions/runs/43047177933): **failure**.
-- در اتصال GitHub فعلی، jobs برای هر دو run `steps: null` و `logs_url: null` داشتند؛ دریافت job log خطای `404 BlobNotFound` داد. علت شکست احراز نشده است. «کد خراب است»، «مشکل پول است» یا «مجوز Action» هیچ‌کدام نتیجه قطعی نیستند.
-- نخست در UI GitHub، Job Summary / annotations / billing/runner eligibility / workflow permissions و خطای scheduler را بررسی کن؛ سپس rerun پس از رفع علت و لاگ قابل ارجاع ثبت کن. status workflow و commit SHA را با زمان بررسی بنویس.
-- PASS محلی S1 یا چهار تست mock BFF به‌معنی PASS CI یا production نیست.
+- در اتصال GitHub، jobs برای آن دو run قدیمی `steps: null` و `logs_url: null` داشتند؛ علت شکست‌های قدیمی احراز نشده است.
+- **به‌روزرسانی پس از اولین ثبت همین راهنما:** روی commit `bd9f141827bfd9659cd5100ca55d5aa79fc421e6` هر دو GitHub Actions واقعاً **SUCCESS** شدند: [Kotlin API run 43591101729](https://github.com/hypermindedd/white-hat/actions/runs/43591101729) شامل موفقیت PostgreSQL/API/schema، و [Web BFF run 43591101761](https://github.com/hypermindedd/white-hat/actions/runs/43591101761) شامل موفقیت Node 24 و fixture tests. بنابراین مانع CI برای آن **commit** رفع‌شده است؛ علت شکست‌های قدیمی ثابت نشده. commit جدیدِ اصلاح این فایل باید جداگانه وضعیت CI خود را بگیرد.
+- این موفقیت CI فقط تست‌های موجود را پوشش می‌دهد؛ E2E واقعی Kotlin+BFF+IdP، browser، production auth، AI واقعی و release هنوز PASS نیستند. هر بار وضعیت HEAD تازه را بخوان.
 
 ## 5. معماری واحد و قوانین غیرقابل نقض
 
@@ -116,7 +116,7 @@
    python3 scripts/verify_api_samples.py
    ```
    *یادآوری:* verifier نمونه‌ها به `jsonschema` نیاز دارد (مطابق workflow pin شده). هر شکست را با نسخه toolchain، فرمان و log جدا ثبت کن؛ از خروجی تاریخی به جای اجرای خودت استفاده نکن.
-5. دو Actions fail اخیر را بررسی کن و نخست علت مشخص و قابل‌تکرار را رفع کن؛ اقدام حدسی روی YAML نکن. پنل جدیدتر ادعاشده را با source pin بررسی کن.
+5. ابتدا SUCCESS دو workflow جدید روی commit `bd9f141` و وضعیت HEAD بعدی را بررسی کن؛ شکست‌های قدیمی را مستند نگه دار ولی تا وقتی تکرار نشده‌اند تغییر حدسی YAML نده. پنل جدیدتر ادعاشده را با source pin بررسی کن.
 
 **خروجی A:** `evidence/s2b/baseline-<date>.md` با SHA، نسخه ابزار، counts، نتیجه فرمان، وضعیت CI و blocker، و تصمیم روشن source-of-truth پنل.
 
@@ -145,7 +145,7 @@
 
 ## 7. تعریف «تمام‌شدن» و اولویت‌های بعدی
 
-**اولویت 1 — Blocker:** خواندن دقیق آخرین HEAD، رفع CI بر اساس root cause قابل مشاهده، baseline مطابق toolchain.  
+**اولویت 1 — Baseline Gate:** خواندن HEAD جدید، اطمینان از green ماندن CI در commit جاری و بازتولید baseline مطابق toolchain.  
 **اولویت 2 — Blocker:** اتصال واقعی Kotlin + PostgreSQL + BFF + fixture IdP و E2E مرورگر.  
 **اولویت 3 — پیش از S2 closure:** نقش/پشتیبانی و access test، session پایدار، UX و خطاهای کامل.  
 **اولویت 4 — پیش از release:** AI benchmark واقعی، migrate/restore، امنیت/بار، سرویس billing، اپ‌ها/صوت مطابق گیت مستقل.
@@ -176,4 +176,4 @@
 
 **نام چت/Work بعدی:** `White Hat | S2B — CI + Real Kotlin-BFF E2E + Salehe Handoff`.
 
-**پرامپت:** «در مخزن `hypermindedd/white-hat`، PR #2 را از HEAD واقعی آغاز کن. سند `docs/handoffs/SALEHE-ONBOARDING-EXECUTION-2026-11-14-FA.md` و فایل‌های مرجع آن را بخوان. سرور Kotlin، alpha یا هسته هفت Mode را دوباره نساز. ابتدا CI failure را با شواهد ریشه‌یابی و toolchain را تکرار کن؛ سپس Kotlin+PostgreSQL+BFF+local IdP را یکپارچه و E2E مرورگر/دسترسی‌ها/RTL را اجرا کن. پنل جامع جدیدتر را source-pin کن یا شکاف آن را صریح ثبت کن. تغییرهای کد، تست، evidence، rollback و گزارش گیت را در همان مخزن و PR ثبت کن. هیچ تست mock را real یا CI PASS ننام. در انتهای مرحله سند closure و دستور چت بعدی را ارائه کن.»
+**پرامپت:** «در مخزن `hypermindedd/white-hat`، PR #2 را از HEAD واقعی آغاز کن. سند `docs/handoffs/SALEHE-ONBOARDING-EXECUTION-2026-11-14-FA.md` و فایل‌های مرجع آن را بخوان. سرور Kotlin، alpha یا هسته هفت Mode را دوباره نساز. دو run موفق CI روی commit bd9f141 را با HEAD جدید تطبیق بده و baseline را روی toolchain صحیح تکرار کن؛ سپس Kotlin+PostgreSQL+BFF+local IdP را یکپارچه و E2E مرورگر/دسترسی‌ها/RTL را اجرا کن. پنل جامع جدیدتر را source-pin کن یا شکاف آن را صریح ثبت کن. تغییرهای کد، تست، evidence، rollback و گزارش گیت را در همان مخزن و PR ثبت کن. هیچ تست mock را real یا production PASS ننام. در انتهای مرحله سند closure و دستور چت بعدی را ارائه کن.»
