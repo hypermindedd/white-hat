@@ -61,7 +61,7 @@ def run(manifest, args):
             if n == 1:
                 decision = request("POST", "/decisions", turn)
             else:
-                decision = request("PUT", f"/decisions/{decision_id}", {
+                decision = request("PUT", f"/decisions/{decision['id']}", {
                     **turn, "expected_revision": decision["revision"],
                 })
             decision_id = str(UUID(decision["id"]))

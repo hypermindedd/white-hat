@@ -10,3 +10,5 @@ data/
 
 .qa/out/
 /_pqe/
+__pycache__/
+*.py[cod]

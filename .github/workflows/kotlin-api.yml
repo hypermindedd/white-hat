@@ -32,10 +32,25 @@ jobs:
         working-directory: apps/second-mind
         run: npm test
       - name: Check blind evaluation receipt integrity
-        run: python3 -B -m unittest discover -s evaluation -p test_blind_s3.py
-      - name: Check payment extract reconciliation
-        run: python3 -B -m unittest discover -s scripts -p test_reconcile_c6_payments.py
+        run: |
+          python3 -m pip install 'jsonschema==4.23.0' 'ruff==0.17.5' 'bandit==1.9.4'
+          python3 -B -m unittest discover -s evaluation -p 'test_*.py'
+      - name: Check payment reconciliation and contract verifier regressions
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
+      - name: Check Python defects and production source security
+        run: |
+          ruff check --select E9,F63,F7,F82 evaluation scripts
+          bandit -r evaluation scripts -x '*test_*.py'
+      - name: Prepare Chromium integration against real Ktor and PostgreSQL
+        run: |
+          npm ci --ignore-scripts --prefix apps/web-bff
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/whitehat-browser" 'playwright@1.56.1'
+          "$RUNNER_TEMP/whitehat-browser/node_modules/.bin/playwright" install --with-deps chromium
       - name: Test Kotlin with actual embedded PostgreSQL
+        env:
+          WH_BROWSER_E2E: 'true'
+          WH_REVIEW_REPO: ${{ github.workspace }}
+          WH_PLAYWRIGHT_MODULE: ${{ runner.temp }}/whitehat-browser/package.json
         run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :shared:client:jvmTest :shared:client:compileCommonMainKotlinMetadata :shared:client:compileKotlinIosArm64 :shared:client:compileKotlinIosSimulatorArm64 :server:api:test :server:adapters:test :server:api:installDist
       - name: Validate actual HTTP response contracts
         run: |
@@ -52,5 +67,6 @@ jobs:
             server/*/build/reports/tests/
             server/api/build/contract-samples/
             server/api/build/c6-evidence/
+            server/api/build/browser-evidence/
             shared/contracts/build/test-results/
             shared/client/build/test-results/

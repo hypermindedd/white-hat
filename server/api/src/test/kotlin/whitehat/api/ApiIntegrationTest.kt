@@ -813,4 +813,41 @@ class ApiIntegrationTest {
             }
         } finally { server.stop(0, 3000) }
     }
+
+    @org.junit.Test(timeout = 120000)
+    fun stageCBrowserWithRealKtorAndPostgres() {
+        assumeTrue("Enable WH_BROWSER_E2E with Node, Playwright and BFF dependencies", System.getenv("WH_BROWSER_E2E") == "true")
+        val repo = Path.of(requireNotNull(System.getenv("WH_REVIEW_REPO")))
+        val evidence = repo.resolve("server/api/build/browser-evidence")
+        Files.createDirectories(evidence)
+        store.setMember("alice", workspace.id, "support", Role.SUPPORT, true)
+        store.setMember("alice", workspace.id, "member", Role.MEMBER, true)
+        store.setMember("alice", workspace.id, "admin", Role.ADMIN, true)
+        store.createWorkspace("outside", "Second tenant")
+        val decision = draft()
+        val run = store.enqueue("alice", workspace.id, decision.id, 1, "browser-synthetic-receipt")
+        store.cancel("alice", workspace.id, run.id)
+        store.recordConfirmedCost("alice", workspace.id, run.id, 1250, "synthetic-receipt")
+        val server = embeddedServer(Netty, host = "127.0.0.1", port = 0) {
+            whiteHatApi(store, verifier) { true }
+        }.start(wait = false)
+        try {
+            val port = runBlocking { server.engine.resolvedConnectors().single().port }
+            val actors = listOf("alice", "admin", "support", "member", "outside")
+            val log = evidence.resolve("joint-browser.log")
+            val process = ProcessBuilder("node", repo.resolve("apps/web-bff/test/e2e/stage-c-browser.mjs").toString()).apply {
+                environment().putAll(mapOf(
+                    "WH_AUDIT_REPO" to repo.toString(), "WH_AUDIT_API" to "http://127.0.0.1:$port",
+                    "WH_AUDIT_WORKSPACE" to workspace.id.toString(),
+                    "WH_AUDIT_DB" to "postgresql://postgres@127.0.0.1:${pg.port}/${source.databaseName}",
+                    "WH_AUDIT_TOKENS" to buildJsonObject { actors.forEach { put(it, token(it)) } }.toString()
+                ))
+            }.redirectErrorStream(true).redirectOutput(log.toFile()).start()
+            if (!process.waitFor(100, TimeUnit.SECONDS)) {
+                process.destroyForcibly()
+                error("Browser E2E timed out; inspect browser-evidence/joint-browser.log")
+            }
+            assertEquals(0, process.exitValue(), Files.readString(log))
+        } finally { server.stop(0, 3000) }
+    }
 }
