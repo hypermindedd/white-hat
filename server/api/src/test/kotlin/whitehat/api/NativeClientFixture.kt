@@ -67,7 +67,7 @@ fun main(args: Array<String>) {
     val pending = ready.resolveSibling(ready.fileName.toString() + ".pending")
     Files.createFile(pending, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")))
     Files.writeString(pending, buildJsonObject {
-        put("origin", "http://127.0.0.1:$port"); put("token", token)
+        put("origin", "http://127.0.0.1:$port/api/v1"); put("token", token)
     }.toString())
     Files.move(pending, ready, StandardCopyOption.ATOMIC_MOVE)
     stopped.await()
