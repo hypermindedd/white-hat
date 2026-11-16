@@ -814,6 +814,77 @@ class ApiIntegrationTest {
         } finally { server.stop(0, 3000) }
     }
 
+    @org.junit.Test(timeout = 5000) fun lockContentionReturnsBoundedBusyAndRollsBackWithoutChangingTheDecision() {
+        val decision = draft()
+        source.connection.use { lock ->
+            lock.autoCommit = false
+            lock.prepareStatement("SELECT id FROM decisions WHERE id=? FOR UPDATE").use {
+                it.setObject(1, decision.id); it.executeQuery().close()
+            }
+            val bounded = PostgresStore(source, policy.hash, statementTimeoutMillis = 1000, lockTimeoutMillis = 50)
+            val busy = assertFailsWith<Fault> {
+                bounded.editDecision("alice", workspace.id, decision.id, 1, decision.input.copy(title = "blocked"))
+            }
+            assertEquals(503, busy.status); assertEquals("DATABASE_BUSY", busy.code)
+            lock.rollback()
+        }
+        assertEquals(1L, store.decision("alice", workspace.id, decision.id).revision)
+        assertEquals(2L, store.editDecision("alice", workspace.id, decision.id, 1, decision.input.copy(title = "recovered")).revision)
+    }
+
+    @org.junit.Test(timeout = 5000) fun statementTimeoutRollsBackWritesAndReleasesTheConnection() {
+        source.connection.use { c -> c.createStatement().use { s ->
+            s.execute("""CREATE FUNCTION synthetic_slow_insert() RETURNS trigger AS
+                $$ BEGIN PERFORM pg_sleep(0.2); RETURN NEW; END; $$ LANGUAGE plpgsql""")
+            s.execute("CREATE TRIGGER synthetic_delay BEFORE INSERT ON decisions FOR EACH ROW EXECUTE FUNCTION synthetic_slow_insert()")
+        } }
+        val bounded = PostgresStore(source, policy.hash, statementTimeoutMillis = 50, lockTimeoutMillis = 20)
+        val busy = assertFailsWith<Fault> { bounded.createDecision("alice", workspace.id, DecisionInput("delay", "synthetic")) }
+        assertEquals(503, busy.status); assertEquals("DATABASE_BUSY", busy.code)
+        assertTrue(store.decisions("alice", workspace.id).isEmpty())
+        source.connection.use { c -> c.createStatement().use { it.execute("DROP TRIGGER synthetic_delay ON decisions") } }
+        assertNotNull(bounded.createDecision("alice", workspace.id, DecisionInput("recovered", "synthetic")))
+    }
+
+    @Test fun readinessDistinguishesLivenessFromDatabaseFailureWithoutLeakingDetails() = testApplication {
+        val unavailable = PostgresStore(object : javax.sql.DataSource by source {
+            override fun getConnection(): java.sql.Connection = throw java.sql.SQLTransientConnectionException("synthetic-password-and-sql")
+        }, policy.hash)
+        application { whiteHatApi(unavailable, verifier) { true } }
+        assertEquals(HttpStatusCode.OK, client.get("/api/v1/health").status)
+        val response = client.get("/api/v1/ready")
+        assertEquals(HttpStatusCode.ServiceUnavailable, response.status)
+        val body = response.bodyAsText()
+        assertTrue(body.contains("DATABASE_UNAVAILABLE")); assertFalse(body.contains("synthetic-password"))
+    }
+
+    @Test fun commercialPreviewIsScopedExactAndNeverChangesEntitlements() = testApplication {
+        store.setMember("alice", workspace.id, "admin", Role.ADMIN, true)
+        store.setMember("alice", workspace.id, "member", Role.MEMBER, true)
+        store.setMember("alice", workspace.id, "support", Role.SUPPORT, true)
+        application { whiteHatApi(store, verifier) { true } }
+        assertEquals(HttpStatusCode.OK, client.get("/api/v1/ready").status)
+        val url = path("/admin/plan-preview")
+        assertEquals(HttpStatusCode.Unauthorized, client.requestJson(HttpMethod.Get, url, actor = null).status)
+        for (actor in listOf("support", "member")) assertEquals(HttpStatusCode.Forbidden, client.requestJson(HttpMethod.Get, url, actor).status)
+        assertEquals(HttpStatusCode.NotFound, client.requestJson(HttpMethod.Get, url, "outside").status)
+        assertEquals(HttpStatusCode.OK, client.requestJson(HttpMethod.Get, url, "admin").status)
+        val before = store.pilotUsage("alice", workspace.id)
+        val catalog = client.requestJson(HttpMethod.Get, url).obj()
+        assertEquals(false, catalog["billing_enabled"]!!.jsonPrimitive.boolean)
+        assertTrue(catalog["items"]!!.jsonArray.all { it.jsonObject["revenue_floor_usd_micros"] == JsonNull })
+        val estimate = client.requestJson(HttpMethod.Post, url, body = """{"assumed_cost_per_run_usd_micros":1,"fixed_monthly_cost_usd_micros":0,"target_margin_bps":7000}""")
+        assertEquals(HttpStatusCode.OK, estimate.status)
+        val estimated = estimate.obj()
+        assertEquals("334", estimated["items"]!!.jsonArray.first().jsonObject["revenue_floor_usd_micros"]!!.jsonPrimitive.content)
+        for ((name, sample) in listOf("plan-catalog" to catalog, "plan-estimate" to estimated)) {
+            java.io.File("build/contract-samples/$name.json").apply { parentFile.mkdirs(); writeText(sample.toString()) }
+        }
+        val invalid = client.requestJson(HttpMethod.Post, url, body = """{"assumed_cost_per_run_usd_micros":-1,"fixed_monthly_cost_usd_micros":0,"target_margin_bps":7000}""")
+        assertEquals(HttpStatusCode.BadRequest, invalid.status)
+        assertEquals(before, store.pilotUsage("alice", workspace.id))
+    }
+
     @org.junit.Test(timeout = 120000)
     fun stageCBrowserWithRealKtorAndPostgres() {
         assumeTrue("Enable WH_BROWSER_E2E with Node, Playwright and BFF dependencies", System.getenv("WH_BROWSER_E2E") == "true")

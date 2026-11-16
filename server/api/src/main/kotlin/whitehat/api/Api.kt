@@ -65,6 +65,19 @@ private fun Run.json() = buildJsonObject {
     put("input_tokens", inputTokens?.let(::JsonPrimitive) ?: JsonNull); put("output_tokens", outputTokens?.let(::JsonPrimitive) ?: JsonNull)
 }
 
+private fun planPreview(estimates: List<PlanEstimate>) = buildJsonObject {
+    put("catalog_version", CommercialPlans.version); put("status", "proposal"); put("billing_enabled", false)
+    putJsonArray("items") { estimates.forEach { estimate -> add(buildJsonObject {
+        put("id", estimate.plan.id)
+        put("seats", estimate.plan.seats?.let(::JsonPrimitive) ?: JsonNull)
+        put("monthly_attempts", estimate.plan.monthlyAttempts?.let(::JsonPrimitive) ?: JsonNull)
+        put("estimated_cost_usd_micros", estimate.estimatedCostMicros?.let(::JsonPrimitive) ?: JsonNull)
+        put("revenue_floor_usd_micros", estimate.revenueFloorMicros?.let(::JsonPrimitive) ?: JsonNull)
+    }) } }
+}
+private fun JsonObject.costAssumption(name: String): Long = (get(name) as? JsonPrimitive)
+    ?.takeUnless { it.isString }?.longOrNull?.takeIf { it >= 0 } ?: throw Fault(400, "INVALID_PLAN_ASSUMPTION")
+
 fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, providerConfigured: () -> Boolean) {
     install(CallId) { generate { UUID.randomUUID().toString() }; replyToHeader("X-Request-ID") }
     install(DefaultHeaders) {
@@ -90,10 +103,29 @@ fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, pr
     }
     routing {
         get("/api/v1/health") { call.json(buildJsonObject { put("status", "ok"); put("version", "0.4.0-alpha.1") }) }
+        get("/api/v1/ready") {
+            db { store.checkReady() }
+            call.json(buildJsonObject { put("status", "ready") })
+        }
         get("/api/v1/openapi.json") {
             call.respondText(requireNotNull(javaClass.getResourceAsStream("/openapi.json")).use { it.readBytes().toString(Charsets.UTF_8) }, ContentType.Application.Json)
         }
         authenticate("access") {
+            get("/api/v1/workspaces/{workspace}/admin/plan-preview") {
+                val actor = call.subject(); val workspace = call.id("workspace")
+                db { store.requireAdministrator(actor, workspace) }
+                call.json(planPreview(CommercialPlans.proposals.map { PlanEstimate(it, null, null) }))
+            }
+            post("/api/v1/workspaces/{workspace}/admin/plan-preview") {
+                val actor = call.subject(); val workspace = call.id("workspace")
+                db { store.requireAdministrator(actor, workspace) }
+                val body = call.objectBody()
+                body.checkKeys(setOf("assumed_cost_per_run_usd_micros", "fixed_monthly_cost_usd_micros", "target_margin_bps"))
+                val margin = (body["target_margin_bps"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
+                    ?: throw Fault(400, "INVALID_PLAN_ASSUMPTION")
+                call.json(planPreview(CommercialPlans.estimate(body.costAssumption("assumed_cost_per_run_usd_micros"),
+                    body.costAssumption("fixed_monthly_cost_usd_micros"), margin)))
+            }
             get("/api/v1/me") {
                 val actor = call.subject(); val workspaces = db { store.workspaces(actor) }
                 call.json(buildJsonObject { put("subject", actor); put("workspaces", JsonArray(workspaces.map { it.json() })) })

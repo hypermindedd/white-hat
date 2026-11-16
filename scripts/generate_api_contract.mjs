@@ -15,6 +15,8 @@ const nonnegative={type:'integer',minimum:0};
 const rating={type:'integer',minimum:1,maximum:5};
 const resultSchemas=MODES.map(mode=>outputSchema(mode.id));
 const schemas={
+ PlanPreview:obj({catalog_version:{const:1,type:'integer'},status:{const:'proposal',type:'string'},billing_enabled:{const:false,type:'boolean'},items:array(obj({id:{enum:['solo','team','business','enterprise']},seats:nullable({type:'integer',minimum:1}),monthly_attempts:nullable(nonnegative),estimated_cost_usd_micros:nullable({type:'string',pattern:'^[0-9]+$'}),revenue_floor_usd_micros:nullable({type:'string',pattern:'^[0-9]+$'})}))}),
+ PlanAssumptions:obj({assumed_cost_per_run_usd_micros:{type:'integer',format:'int64',minimum:0},fixed_monthly_cost_usd_micros:{type:'integer',format:'int64',minimum:0},target_margin_bps:{type:'integer',minimum:0,maximum:9500}}),
  Error:obj({error:str(),request_id:uuid}),
  Workspace:obj({id:uuid,name:str(120),role:{type:'string',enum:['OWNER','ADMIN','MEMBER','SUPPORT']}}),
  WorkspaceInput:obj({name:{...str(120),minLength:1}}),
@@ -52,13 +54,14 @@ const schemas={
  Ok:obj({ok:{const:true,type:'boolean'}})
 };
 const content=schema=>({'application/json':{schema}});
-const errors=Object.fromEntries([400,401,403,404,409,413,415,429,500].map(status=>[status,{description:'Stable redacted error; no token, SQL or provider body.',content:content(ref('Error'))}]));
+const errors=Object.fromEntries([400,401,403,404,409,413,415,429,500,503].map(status=>[status,{description:'Stable redacted error; no token, SQL or provider body. DATABASE_BUSY/DATABASE_UNAVAILABLE are temporary; never blindly replay a mutation.',content:content(ref('Error'))}]));
 const param=name=>({in:'path',name,required:true,schema:uuid});
 const operation=(id,response,status=200,body=null,parameters=[])=>({operationId:id,parameters,responses:{[status]:{description:'Success',content:content(response)},...errors},...(body?{requestBody:{required:true,content:content(body)}}:{})});
 const ws='/workspaces/{workspace}', dec=ws+'/decisions', run=ws+'/runs/{run}';
 const w=[param('workspace')], d=[...w,param('decision')], r=[...w,param('run')];
 const paths={
  '/health':{get:{...operation('health',ref('Health')),security:[],description:'Liveness only; not proof of database or AI readiness.'}},
+ '/ready':{get:{...operation('readiness',obj({status:{const:'ready',type:'string'}})),security:[],description:'Bounded database readiness probe. 503 when unavailable; no provider or schema details exposed.'}},
  '/openapi.json':{get:{...operation('openapi',{type:'object',additionalProperties:true}),security:[]}},
  '/me':{get:operation('me',ref('Me'))},
  '/modes':{get:operation('modes',ref('Modes'))},
@@ -78,6 +81,9 @@ const paths={
  [ws+'/support-role-assignment']:{put:operation('assignSupportRole',ref('Ok'),200,ref('SupportRoleAssignment'),w)},
  [ws+'/operations-metrics']:{get:{...operation('getOperationsMetrics',ref('OperationsMetrics'),200,null,w),description:'30-day workspace aggregate; OWNER or SUPPORT with READ_RUN_METRICS.'}},
  [ws+'/admin/pilot-usage']:{get:{...operation('getPilotUsage',ref('PilotUsage'),200,null,w),description:'OWNER/ADMIN only. Reconciles the current UTC month attempt meter to admitted pilot runs and reports confirmed provider cost coverage.'}},
+ [ws+'/admin/plan-preview']:{
+   get:{...operation('getPlanProposals',ref('PlanPreview'),200,null,w),description:'OWNER/ADMIN only; draft capacity proposals, all unpriced, no entitlement or billing activation.'},
+   post:{...operation('estimatePlanEconomics',ref('PlanPreview'),200,ref('PlanAssumptions'),w),description:'Read-only planning from supplied cost assumptions. Integer micro-USD ceiling for target gross margin; excludes tax, refunds and unprovided costs. Never creates a charge or paid access.'}},
  [ws+'/admin/costs']:{get:{...operation('getConfirmedCosts',ref('ConfirmedCosts'),200,null,w),description:'30-day subtotal of manually confirmed USD receipts; null when none. OWNER/ADMIN only.'}},
  [ws+'/admin/costs/{run}']:{put:operation('recordConfirmedCost',ref('Ok'),200,ref('ConfirmedCostInput'),r)},
  [ws+'/admin/costs/{run}/corrections/{correction}']:{put:operation('correctConfirmedCost',ref('Ok'),200,

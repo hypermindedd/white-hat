@@ -16,6 +16,8 @@ const decodePart = value => JSON.parse(Buffer.from(value,'base64url').toString('
 const uuid = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 const allowed = [
  ['GET',/^\/api\/v1\/(me|modes)$/], ['POST',/^\/api\/v1\/workspaces$/],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/admin/plan-preview$')],
+ ['POST',new RegExp('^/api/v1/workspaces/'+uuid+'/admin/plan-preview$')],
  ['GET',/^\/api\/v1\/workspaces\/[^/]+\/decisions$/], ['POST',/^\/api\/v1\/workspaces\/[^/]+\/decisions$/],
  ['GET',/^\/api\/v1\/workspaces\/[^/]+\/decisions\/[^/]+$/], ['PUT',/^\/api\/v1\/workspaces\/[^/]+\/decisions\/[^/]+$/],
  ['POST',/^\/api\/v1\/workspaces\/[^/]+\/decisions\/[^/]+\/runs$/],
@@ -40,7 +42,7 @@ const allowed = [
 ];
 const allowedPath = (method,path) => allowed.some(([m,r])=>m===method&&r.test(path)) &&
   path.split('/').every(p=>!p.includes('%')&&!p.includes('..')) &&
-  path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||p==='pilot-usage'||p==='incidents'||p==='operator-permissions'||p==='costs'||p==='corrections'||p==='review'||p==='withdraw'||p==='purge'||new RegExp('^'+uuid+'$').test(p));
+  path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||p==='plan-preview'||p==='pilot-usage'||p==='incidents'||p==='operator-permissions'||p==='costs'||p==='corrections'||p==='review'||p==='withdraw'||p==='purge'||new RegExp('^'+uuid+'$').test(p));
 
 export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now(), rateClock=()=>Date.now(), sessionStore}={}) {
   const origin = new URL(env.WH_WEB_ORIGIN || 'https://localhost:3030');

@@ -20,9 +20,13 @@ import whitehat.application.RunWorker
 fun main(args: Array<String>) {
     require(args.isEmpty() || args.contentEquals(arrayOf("--migrate"))) { "Unsupported command" }
     fun required(name: String) = requireNotNull(System.getenv(name)?.takeIf { it.isNotBlank() }) { "Missing configuration: $name" }
+    val databaseSettings = DatabaseRuntimeSettings.from(System.getenv())
     val config = HikariConfig().apply {
         jdbcUrl = required("WH_DATABASE_URL"); username = required("WH_DATABASE_USER"); password = required("WH_DATABASE_PASSWORD")
-        maximumPoolSize = 8; minimumIdle = 1; connectionTimeout = 10000
+        maximumPoolSize = databaseSettings.poolSize; minimumIdle = 1
+        connectionTimeout = databaseSettings.connectionTimeoutMillis.toLong(); validationTimeout = 250
+        addDataSourceProperty("connectTimeout", 5)
+        addDataSourceProperty("socketTimeout", (databaseSettings.statementTimeoutMillis + 999) / 1000 + 5)
     }
     HikariDataSource(config).use { dataSource ->
         if (args.contentEquals(arrayOf("--migrate"))) { PostgresStore.migrate(dataSource); return }
@@ -38,7 +42,7 @@ fun main(args: Array<String>) {
         val verifier = JWT.require(algorithm).withIssuer(issuer).withAudience(audience).withClaim("token_use", "access").build()
         val policy = EnginePolicy()
         val limit = System.getenv("WH_DAILY_RUN_LIMIT")?.toIntOrNull() ?: 20
-        val store = PostgresStore(dataSource, policy.hash, limit)
+        val store = PostgresStore(dataSource, policy.hash, limit, databaseSettings.statementTimeoutMillis, databaseSettings.lockTimeoutMillis)
         ResponsesProvider(System.getenv("WH_AI_API_KEY").orEmpty(), System.getenv("WH_AI_MODEL").orEmpty(), policy).use { provider ->
             embeddedServer(Netty, host = System.getenv("WH_HOST") ?: "127.0.0.1", port = System.getenv("WH_PORT")?.toInt() ?: 8081) {
                 whiteHatApi(store, verifier) { provider.configured }

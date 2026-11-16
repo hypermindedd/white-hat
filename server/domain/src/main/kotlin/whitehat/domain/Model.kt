@@ -46,6 +46,8 @@ interface DecisionProvider {
 
 /** Only a server repository adapter implements durable writes. */
 interface DecisionStore {
+    fun checkReady()
+    fun requireAdministrator(actor: String, workspace: UUID)
     fun createWorkspace(subject: String, name: String): Workspace
     fun workspaces(subject: String): List<Workspace>
     fun setMember(actor: String, workspace: UUID, subject: String, role: Role, active: Boolean)

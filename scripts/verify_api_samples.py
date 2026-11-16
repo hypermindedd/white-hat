@@ -18,3 +18,9 @@ pilot = {"$ref": "#/components/schemas/PilotUsage", "components": api["component
 pilot_sample = root / "server/api/build/contract-samples/pilot-usage.json"
 Draft202012Validator(pilot, format_checker=FormatChecker()).validate(json.loads(pilot_sample.read_text()))
 print("Actual Ktor pilot usage response validates against OpenAPI.")
+
+for name in ("plan-catalog", "plan-estimate"):
+    sample = root / f"server/api/build/contract-samples/{name}.json"
+    plan_schema = {"$ref": "#/components/schemas/PlanPreview", "components": api["components"]}
+    Draft202012Validator(plan_schema, format_checker=FormatChecker()).validate(json.loads(sample.read_text()))
+print("Actual Kotlin commercial planning responses validate; no billing or entitlement activation.")

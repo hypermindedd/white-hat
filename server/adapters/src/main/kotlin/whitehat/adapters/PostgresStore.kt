@@ -3,6 +3,8 @@ package whitehat.adapters
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.sql.SQLTransientConnectionException
+import java.sql.SQLTimeoutException
 import java.security.MessageDigest
 import java.time.LocalDate
 import java.util.UUID
@@ -11,8 +13,12 @@ import org.flywaydb.core.Flyway
 import whitehat.contracts.Mode
 import whitehat.domain.*
 
-class PostgresStore(private val dataSource: DataSource, private val engineHash: String, private val dailyLimit: Int = 20) : DecisionStore {
-    init { require(engineHash.matches(Regex("[a-f0-9]{64}"))); require(dailyLimit in 1..10000) }
+class PostgresStore(private val dataSource: DataSource, private val engineHash: String, private val dailyLimit: Int = 20,
+    private val statementTimeoutMillis: Int = 10000, private val lockTimeoutMillis: Int = 2000) : DecisionStore {
+    init {
+        require(engineHash.matches(Regex("[a-f0-9]{64}"))); require(dailyLimit in 1..10000)
+        require(statementTimeoutMillis in 1..120000 && lockTimeoutMillis in 1..statementTimeoutMillis)
+    }
 
     companion object {
         fun migrate(source: DataSource): Int = Flyway.configure().dataSource(source).locations("classpath:db/migration").load().migrate().migrationsExecuted
@@ -23,9 +29,11 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
         }
     }
 
-    private fun <T> tx(workspace: UUID? = null, worker: Boolean = false, block: (Connection) -> T): T = dataSource.connection.use { c ->
+    private fun <T> tx(workspace: UUID? = null, worker: Boolean = false, block: (Connection) -> T): T = try { dataSource.connection.use { c ->
         c.autoCommit = false
         try {
+            c.query("SELECT set_config('statement_timeout', ?, true), set_config('lock_timeout', ?, true)",
+                statementTimeoutMillis.toString(), lockTimeoutMillis.toString()) { Unit }
             c.query("SELECT set_config('whitehat.workspace', ?, true), set_config('whitehat.worker', ?, true)",
                 workspace?.toString().orEmpty(), if (worker) "on" else "off") { Unit }
             val result = block(c)
@@ -33,11 +41,19 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
             result
         }
         catch (failure: Exception) {
-            c.rollback()
-            if (failure is SQLException && failure.sqlState == "23505") throw Fault(409, "CONCURRENT_CONFLICT")
+            runCatching { c.rollback() }.exceptionOrNull()?.let(failure::addSuppressed)
             throw failure
         }
+    } } catch (failure: SQLException) {
+        when {
+            failure.sqlState == "23505" -> throw Fault(409, "CONCURRENT_CONFLICT")
+            failure is SQLTransientConnectionException || failure.sqlState?.startsWith("08") == true ||
+                failure.sqlState in setOf("53300", "57P01", "57P02", "57P03") -> throw Fault(503, "DATABASE_UNAVAILABLE")
+            failure is SQLTimeoutException || failure.sqlState in setOf("57014", "55P03", "40P01", "40001") -> throw Fault(503, "DATABASE_BUSY")
+            else -> throw failure
+        }
     }
+    override fun checkReady() { tx { c -> c.query("SELECT 1") { it.getInt(1) }.single().also { check(it == 1) } } }
     private fun <T> Connection.query(sql: String, vararg values: Any?, map: (ResultSet) -> T): List<T> = prepareStatement(sql).use { statement ->
         values.forEachIndexed { i, v -> statement.setObject(i + 1, v) }
         statement.executeQuery().use { rows -> buildList { while (rows.next()) add(map(rows)) } }
@@ -54,6 +70,9 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
         return role
     }
     private val readers = setOf(Role.OWNER, Role.ADMIN, Role.MEMBER)
+    override fun requireAdministrator(actor: String, workspace: UUID) {
+        tx(workspace) { c -> requireRole(c, workspace, actor, setOf(Role.OWNER, Role.ADMIN)) }
+    }
     private fun readDecision(c: Connection, workspace: UUID, subject: String, id: UUID, lock: Boolean = false): Decision =
         c.query("SELECT * FROM decisions WHERE workspace_id=? AND owner_subject=? AND id=?" + if (lock) " FOR UPDATE" else "", workspace, subject, id, map = ::decisionRow).singleOrNull() ?: throw Fault(404, "NOT_FOUND")
 

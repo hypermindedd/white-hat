@@ -3,6 +3,17 @@ name = "White Hat web"
 goal = "Verify the web C1/C2 candidate for PR #2."
 
 [[commands]]
+id = "kotlin-architecture"
+title = "Unified Kotlin/BFF architecture contract"
+argv = ["python3", "scripts/verify_architecture.py"]
+
+[[goals]]
+id = "ARCHITECTURE"
+title = "Single Kotlin business authority and module boundaries"
+hard_gate = true
+criteria = [{kind="check",check="command.kotlin-architecture"}]
+
+[[commands]]
 id = "web-bff"
 title = "BFF syntax and OIDC regression"
 argv = ["bash", "-ec", "npm run check && npm test"]

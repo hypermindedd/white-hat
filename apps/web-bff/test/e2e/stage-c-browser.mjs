@@ -111,6 +111,12 @@ try {
  const nav=(page,key)=>page.locator('nav [data-screen="'+key+'"]');
  const owner=await open('alice'), support=await open('support'), admin=await open('admin'), outside=await open('outside');
  const member=await open('member',{width:390,height:844});
+ const proposals=await get(owner,ws+'/admin/plan-preview');assert.equal(proposals.status(),200);
+ const proposalBody=await proposals.json();assert.equal(proposalBody.billing_enabled,false);
+ assert.equal(proposalBody.items.length,4);assert.ok(proposalBody.items.every(x=>x.revenue_floor_usd_micros===null));
+ for(const page of [support,member])assert.equal((await get(page,ws+'/admin/plan-preview')).status(),403);
+ assert.equal((await get(outside,ws+'/admin/plan-preview')).status(),404);
+ report('commercial_proposals_are_scoped_and_inactive',{billingEnabled:false,privateCostsNotInvented:true});
  // A transient boot failure must allow retry without claiming the user is signed out.
  for(const endpoint of ['/bff/session','/bff/api/v1/me']){
   await owner.route('**'+endpoint,route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'IDENTITY_PROVIDER_UNAVAILABLE'})}));
