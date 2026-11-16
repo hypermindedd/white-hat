@@ -12,7 +12,7 @@ permissions:
   contents: read
 jobs:
   android-build:
-    # Ubuntu 26.04 no longer supplies the Android SDK used by this workflow.
+    # Install the SDK explicitly instead of depending on runner image contents.
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -23,6 +23,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Install pinned Android command-line tools
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools'
+          log-accepted-android-sdk-licenses: 'false'
       - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - run: ./gradlew --no-daemon -PwhiteHatAndroid=true :apps:android:assembleDebug :apps:android:assembleDebugAndroidTest
       - run: |
