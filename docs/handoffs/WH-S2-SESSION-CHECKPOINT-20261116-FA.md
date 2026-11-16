@@ -1,5 +1,60 @@
 # White Hat — نقطهٔ اتمام وظیفه و ادامهٔ صالحه
 
+## نقطهٔ ادامهٔ جاری — WH-S2-AUTH-20261116-05
+
+**نتیجهٔ نهایی این وظیفه:** وب SUCCESS (۱۹ PASS/۰ FAIL/۱ SKIP)، Kotlin/مرورگر واقعی/کلاینت/cutover SUCCESS، موتور کیفیت SUCCESS با GO فقط برای دامنهٔ فعال. log نهایی مستقلاً خوانده شد: `stageCBrowserWithRealKtorAndPostgres PASSED`؛ تست lifecycle کلاینت ابتدا در مجموعهٔ پیش‌فرض SKIP و سپس در اجرای مستقل همان workflow PASSED است؛ cutover سه PASS و صفر SKIP داشت. هیچ ادعای صفر SKIP برای همهٔ workflowها یا پذیرش محصول صادر نشده است.
+
+رسید نسخه‌دار: `evidence/stage-c-review/auth-recovery-20261116.json`. Artifact کاتلین `14266600975` با SHA256 `1c6acc20049c506f589d6e499a9d5713e3e64bbdb528dafc9783ee246aac76cf` و quality `14266295698` با SHA256 `7fdf496c1aa312c69a696450b878a7d4629a103ac249d683d353db7f87cc9749` ثبت شدند. metadata و log بررسی شدند؛ محتوای ZIP/JUnit در این نوبت مستقلاً استخراج نشده و باید در بازبینی صالحه کنترل شود.
+
+این بخش جایگزین دستور ادامهٔ checkpoint 04 در پایین است؛ بخش پایین سابقهٔ ورود بسته است. صالحه از **کد اصلاح‌شدهٔ `8cf12de7b9146189c58ada3dc42d7d0323283df4`** ادامه بدهد، نه از کاندید صرفاً واردشدهٔ d0c5ab9.
+
+درخت نسخهٔ اصلاح‌شده: `7553c7819b161813b4a3ce46915348fc1740065d`.
+
+نقطهٔ بازیابی جدید: `recovery/wh-s2-auth-fixes-20261116` روی همین SHA. نقطهٔ قبلی `recovery/wh-s2-session-20261116` برای بررسی پیش از اصلاح runtime حفظ شده است. شاخهٔ ادامه همان `review/salehe-stage-c-verified-20261116` و PR #3 است.
+
+### ایرادهای رفع‌شده
+
+| ایراد واقعی | علت | اصلاح و شاهد |
+|---|---|---|
+| رد ورود معتبر پس از چرخش کلید IdP | JWKS پنج دقیقه cache می‌شد و kid تازه هیچ بازخوانی ایجاد نمی‌کرد | refresh محدود برای kid ناشناخته، تجمیع درخواست درحال اجرا، فاصلهٔ ۳۰ ثانیه برای refresh اجباری؛ کلید ناشناخته همچنان رد می‌شود |
+| خروج اجباری پس از اختلال یا 429 هنگام تمدید | catch تمام خطاها نشست را حذف می‌کرد | خطای موقت با 503 و حفظ نشست؛ هیچ توکن منقضی به API نمی‌رود؛ رد قطعی refresh و امضای نامعتبر نشست را باطل می‌کنند |
+| نمایش صفحهٔ ورود پس از اختلال موقت بارگذاری | boot هر خطایی را خروج از حساب فرض می‌کرد | وضعیت خطای قابل‌دسترسی با دکمهٔ تلاش دوباره؛ فقط 401 به ورود می‌رود |
+| نمایش موفقیت خروج با وجود شکست درخواست logout | پاک‌کردن state داخل finally بود | فقط بعد از موفقیت پاسخ سرور، خروج نمایش داده می‌شود؛ شکست امکان تلاش دوباره دارد |
+
+مرز اصلاح: `apps/web-bff/server.mjs`، `public/panel.js`، `test/integration.test.mjs` و `test/e2e/stage-c-browser.mjs`. قرارداد Kotlin/API، هفت Mode، دیتابیس تصمیم، migration و آلفای تاریخی تغییر نکرده‌اند. سیاست retry خودکار عملیات تصمیم یا مدل هزینه‌زا اضافه نشده است.
+
+چهار آزمون هدفمند پیش از اصلاح: سه شکست و یک موفقیت؛ شکست‌های functional شامل چرخش کلید و حفظ نشست در اختلال بودند. پس از اصلاح، هر چهار موفق شدند. کل وب محلی: ۱۲ PASS و دو SKIP ناشی از نبود fixture DB. CI وب روی نسخهٔ جدید و PostgreSQL: **۱۹ PASS، صفر FAIL، یک SKIP** مربوط به تمرین مستقل انتقال؛ log واقعاً خوانده شد. این یک SKIP باید با گردش‌کار Kotlin/cutover پوشش داده شود.
+
+CI وب: https://github.com/hypermindedd/white-hat/actions/runs/43948199800
+
+checkout واقعی PR: `9ecf2f9172cbd6a705a1125b82143ad3481e9206`؛ درخت آن مستقل خوانده شد و با درخت نسخهٔ اصلاح‌شده برابر است. کد پیش از این اصلاح هم CI سبز داشت؛ نتیجهٔ قبلی به این نسخه تعمیم داده نشده است.
+
+رسیدهای نسخهٔ جدید برای تکمیل بازبینی:
+
+- Kotlin، مرورگر واقعی، native client و cutover: https://github.com/hypermindedd/white-hat/actions/runs/43948200345
+- موتور کیفیت پین‌شده: https://github.com/hypermindedd/white-hat/actions/runs/43948199765
+- Android: https://github.com/hypermindedd/white-hat/actions/runs/43948199754
+- iOS: https://github.com/hypermindedd/white-hat/actions/runs/43948199835
+- Desktop: https://github.com/hypermindedd/white-hat/actions/runs/43948199827
+
+آزمون مرورگر دو boot failure در `/bff/session` و `/me` و بازیابی با کیبورد، سپس شکست logout و باقی‌ماندن نشست را به harness واقعی Ktor/PostgreSQL اضافه می‌کند. نتیجهٔ نهایی این workflow و کیفیت در کامنت نسخه‌دار checkpoint همین PR/Issue #9 ثبت می‌شود؛ وجود تست معادل اجرای موفق آن نیست. فایل‌های مستندات بعدی با skip-ci ثبت می‌شوند؛ CI به SHA کد بالا تعلق دارد و ادعای CI روی کامیت صرفاً مستندات نیست.
+
+### دستور اجرایی تازه به صالحه
+
+۱. checkpoint 05 و آخرین کامنت PR #3/Issue #9 را بخوان و ACK بده. import بسته و اصلاحات بالا انجام شده‌اند؛ تکرارشان نکن. آخرین head را با `8cf12de...` مقایسه کن؛ تغییر جدید را مستقل بازبینی و تست کن.
+
+۲. نتیجهٔ نهایی CIهای همین نسخه و JUnit/skipها و checksum artifact را ثبت کن. نقص تازهٔ اثبات‌شده را با رگرسیون و اصلاح روی همین معماری برطرف کن؛ گزارش‌کردنِ صرف پایان تسک فنی نیست.
+
+۳. باقی اولویت‌ها: source pin معتبر پنل (Issue #5)، staging TLS/IdP واقعی، session/failover/a11y کامل و سیاست داده/backup/restore با RPO/RTO (Issue #6)، سپس بستهٔ تصمیم Chief (Issue #7). source pin و مصوبات ناموجود را حدس نزن. S2 تا پذیرش C1/C2 همچنان BLOCKED است؛ voice/real-model/device/billing گیت‌های مستقل‌اند.
+
+۴. در پایان هر وظیفهٔ اجرایی، کد و تست و raw evidence، SHA، ref بازیابی و دستور بعدی را در Issue #9 و PR #3 ثبت کن. این سند اتمام بخش اصلاحات احراز هویت را ثبت می‌کند؛ ACK یا اجرای صالحه و پذیرش کل محصول را اثبات نمی‌کند.
+
+بازیابی امن سورس: `git worktree add --detach ../whitehat-auth-recovery 8cf12de7b9146189c58ada3dc42d7d0323283df4` پس از fetch در محیط تمیز. rollback پیش از write واقعی با revert بازبینی‌شدهٔ دو کامیت اصلاح auth/web ممکن است؛ پس از write واقعی همان قواعد ADR-010 لازم است.
+
+پرامپت ادامه: «White Hat را از checkpoint WH-S2-AUTH-20261116-05 و PR #3 ادامه بده. کد اصلاح‌شده 8cf12de7b9146189c58ada3dc42d7d0323283df4 و ref recovery/wh-s2-auth-fixes-20261116 مرجع‌اند. آخرین HEAD و رسیدها را بخوان؛ import و رفع rotation/outage/logout انجام شده‌اند. ایراد جدید را بازتولید، رفع و تست کن؛ سپس source pin پنل، staging و سیاست/restore داده را تکمیل کن. معماری Kotlin/PostgreSQL/BFF واحد بماند. پایان وظیفه با checkpoint و بازیابی و دستور بعدی؛ S2 پیش از sign-off پذیرفته اعلام نشود.»
+
+## سابقهٔ checkpoint 04 — ورود بسته و آزمون نشست
+
 شناسه: `WH-S2-SESSION-20261116-04` · تاریخ: ۱۶ نوامبر ۲۰۲۶ · مسئول ادامه: صالحه، `saleheebrahimi2029-hub` طبق Issue #9.
 
 ## مرز اتمام این وظیفه
