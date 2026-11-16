@@ -111,6 +111,17 @@ try {
  const nav=(page,key)=>page.locator('nav [data-screen="'+key+'"]');
  const owner=await open('alice'), support=await open('support'), admin=await open('admin'), outside=await open('outside');
  const member=await open('member',{width:390,height:844});
+ // A transient boot failure must allow retry without claiming the user is signed out.
+ for(const endpoint of ['/bff/session','/bff/api/v1/me']){
+  await owner.route('**'+endpoint,route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'IDENTITY_PROVIDER_UNAVAILABLE'})}));
+  await owner.reload();
+  const retry=owner.getByRole('button',{name:'تلاش دوباره',exact:true});await retry.waitFor();
+  assert.equal(await owner.locator('a[href="/auth/login"]').count(),0);
+  await owner.unroute('**'+endpoint);
+  await retry.focus();await owner.keyboard.press('Enter');
+  await owner.waitForFunction(()=>document.querySelector('.wh-side-bottom b')?.textContent==='alice');
+ }
+ report('transient_boot_recovery',{sessionAndApiUnavailable:true,keyboardRetry:true,existingSessionRetained:true});
  assert.equal(await member.locator('html').getAttribute('dir'),'rtl');
  assert.ok(await member.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
  assert.equal(await nav(member,'usage').count(),0);

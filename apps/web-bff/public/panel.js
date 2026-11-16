@@ -1,6 +1,7 @@
 const app=document.querySelector('#app'),toast=document.querySelector('#toast');
 const names={challenge:'چالش',kill:'تصمیم حذف یا ساخت',blind:'نقاط کور',premortem:'پیش‌مرگ',reality:'سنجش واقعیت',compare:'مقایسه',devil:'وکیل مدافع مخالف'};
 const errorTexts={PILOT_LIMIT_REACHED:'سهمیهٔ ماهانهٔ پایلوت این فضا تکمیل شده است.',ANALYSIS_PAUSED:'ثبت تحلیل‌های جدید در این فضا موقتاً متوقف است.',AUTH_REQUIRED:'نشست فعال نیست؛ وارد شو.',SESSION_EXPIRED:'نشست منقضی شده؛ دوباره وارد شو.',SESSION_REAUTH_REQUIRED:'اعتبار دسترسی تغییر کرده؛ ورود مجدد لازمه.',CSRF_REJECTED:'نشست یا فرم نامعتبره؛ صفحه رو دوباره بارگذاری کن.',ORIGIN_REJECTED:'مبدأ درخواست پذیرفته نشد.',FORBIDDEN:'دسترسی مجاز نیست.',PERMISSION_DENIED:'دسترسی مجاز نیست.',NOT_FOUND:'منبع پیدا نشد یا اجازه مشاهده نداری.',COMPARE_OBJECTIVE_REQUIRED:'برای مقایسه، هدف تصمیم را وارد کن.',ACTIVE_RUN_EXISTS:'برای این تصمیم یک اجرای باز وجود دارد. وضعیت آن را بررسی کن.',REVISION_CONFLICT:'این تصمیم در جای دیگه تغییر کرده؛ اطلاعات رو تازه‌سازی کن.',IDEMPOTENCY_CONFLICT:'شناسه درخواست با عملیات قبلی ناسازگاره.',PROVIDER_NOT_CONFIGURED:'ارائه‌دهنده AI هنوز در سرور تنظیم نشده.',DAILY_LIMIT_REACHED:'سهمیه روزانه تکمیل شده.',RECONCILIATION_REQUIRED:'وضعیت هزینه/اجرا نامطمئنه؛ نیازمند بررسی اپراتور، بدون تکرار خودکار.'};
+errorTexts.IDENTITY_PROVIDER_UNAVAILABLE='سرویس ورود موقتاً در دسترس نیست؛ چند لحظه بعد دوباره تلاش کن.';
 const permissionLabels={REVIEW_RUN_INCIDENTS:'پیگیری اجراها',READ_RUN_METRICS:'شاخص‌های عملیات',REVIEW_QUALITY_FEEDBACK:'بازبینی کیفیت'};
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nullable=v=>v==null?'نامشخص':new Intl.NumberFormat('fa-IR').format(v);
@@ -283,5 +284,13 @@ async function usage(root){
 }
 async function loadMe(){const [me,modes]=await Promise.all([api(path('/me')),api(path('/modes'))]);state.me=me;state.modes=modes.items; if(!me.workspaces.some(w=>w.id===state.workspace))state.workspace=me.workspaces[0]?.id||null;}
 async function loadDecisions(){const load=++decisionLoad;if(!state.workspace||state.me.workspaces.find(w=>w.id===state.workspace)?.role==='SUPPORT'){state.decisions=[];return;}const workspace=state.workspace;const data=await api(path(`/workspaces/${workspace}/decisions`));if(state.workspace===workspace&&load===decisionLoad)state.decisions=data.items;}
-async function boot(){try{state.session=await api('/bff/session');await loadMe();await loadDecisions();render();}catch(e){if(e.status!==401)showError(e);renderLogin();}}
+async function boot(){
+ try{state.session=await api('/bff/session');await loadMe();await loadDecisions();render();}
+ catch(e){
+  if(e.status===401){state.session=null;renderLogin();return;}
+  clearInterval(state.poll);showError(e);
+  app.innerHTML='<main class="wh-auth wh-panel"><h1>اتصال موقتاً برقرار نیست</h1><p role="status">دریافت فضای کاری ممکن نشد. برای بررسی دوبارهٔ نشست و اتصال، تلاش کن.</p><button id="retry-connection" type="button">تلاش دوباره</button></main>';
+  document.querySelector('#retry-connection').onclick=event=>{event.currentTarget.disabled=true;boot();};
+ }
+}
 boot();

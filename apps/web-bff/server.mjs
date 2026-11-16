@@ -63,7 +63,8 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   const store=sessionStore ?? (dsn ? createPostgresSessionStore(dsn,keys) : createMemorySessionStore());
   const request = async (url,opts={}) => httpClient(url,{...opts,redirect:'error',signal:AbortSignal.timeout(10000)});
   const readJson = async response => {if(!response.ok) throw fail(502,'IDENTITY_PROVIDER_UNAVAILABLE');const body=await response.json();if(!body||typeof body!=='object')throw fail(502,'IDENTITY_PROVIDER_INVALID');return body;};
-  let discoveryCache, jwksCache;
+  let discoveryCache, jwksCache, jwksPending;
+  let lastJwksRefresh=-Infinity;
   async function discovery(){
     if(discoveryCache && discoveryCache.expires>clock())return discoveryCache.value;
     const base=new URL(issuer);const path=base.pathname.replace(/\/$/,'');
@@ -75,11 +76,18 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     }
     discoveryCache={value:data,expires:clock()+300000};return data;
   }
-  async function jwks(config){
-    if(jwksCache&&jwksCache.expires>clock())return jwksCache.value;
-    const data=await readJson(await request(config.jwks_uri));
-    if(!Array.isArray(data.keys))throw fail(502,'OIDC_JWKS_INVALID');
-    jwksCache={value:data.keys,expires:clock()+300000};return data.keys;
+  async function jwks(config,refresh=false){
+    if(jwksPending)return jwksPending;
+    if(jwksCache&&((!refresh&&jwksCache.expires>clock())||
+       (refresh&&clock()-lastJwksRefresh<30000)))return jwksCache.value;
+    // A new kid may mean provider rotation. Bound forced reloads and share in-flight reads.
+    if(refresh)lastJwksRefresh=clock();
+    jwksPending=(async()=>{
+      const data=await readJson(await request(config.jwks_uri));
+      if(!Array.isArray(data.keys))throw fail(502,'OIDC_JWKS_INVALID');
+      jwksCache={value:data.keys,expires:clock()+300000};return data.keys;
+    })();
+    try{return await jwksPending;}finally{jwksPending=undefined;}
   }
   async function verifyIdToken(raw,nonce,config){
     if(typeof raw!=='string'||raw.length>12000)throw fail(401,'OIDC_ID_TOKEN_REQUIRED');
@@ -87,7 +95,8 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     let header,claims;try{header=decodePart(parts[0]);claims=decodePart(parts[1]);}catch{throw fail(401,'OIDC_TOKEN_INVALID');}
     if(header.alg!=='RS256'||typeof header.kid!=='string')throw fail(401,'OIDC_ALGORITHM_REJECTED');
     const keys=await jwks(config);
-    const jwk=keys.find(k=>k.kid===header.kid&&k.kty==='RSA'&&(!k.use||k.use==='sig')&&(!k.alg||k.alg==='RS256'));
+    const matching=keys=>keys.find(k=>k&&k.kid===header.kid&&k.kty==='RSA'&&(!k.use||k.use==='sig')&&(!k.alg||k.alg==='RS256'));
+    const jwk=matching(keys)||matching(await jwks(config,true));
     if(!jwk)throw fail(401,'OIDC_KEY_NOT_FOUND');
     let valid=false;try{valid=verify('RSA-SHA256',Buffer.from(parts[0]+'.'+parts[1]),createPublicKey({key:jwk,format:'jwk'}),Buffer.from(parts[2],'base64url'));}catch{}
     const seconds=Math.floor(clock()/1000);
@@ -100,7 +109,10 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   async function exchange(config,params){
     const headers={'Content-Type':'application/x-www-form-urlencoded'};
     if(env.WH_OIDC_CLIENT_SECRET){headers.Authorization='Basic '+Buffer.from(clientId+':'+env.WH_OIDC_CLIENT_SECRET).toString('base64');}
-    const body=await readJson(await request(config.token_endpoint,{method:'POST',headers,body:new URLSearchParams(params)}));
+    const response=await request(config.token_endpoint,{method:'POST',headers,body:new URLSearchParams(params)});
+    if(params.grant_type==='refresh_token'&&[400,401,403].includes(response.status))throw fail(401,'SESSION_EXPIRED');
+    if(response.status===429||response.status>=500)throw fail(503,'IDENTITY_PROVIDER_UNAVAILABLE');
+    const body=await readJson(response);
     if(body.token_type?.toLowerCase()!=='bearer'||typeof body.access_token!=='string'||!Number.isInteger(body.expires_in)||body.expires_in<1)throw fail(502,'OIDC_TOKEN_RESPONSE_INVALID');
     return body;
   }
@@ -127,9 +139,13 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
         const updated={...session,access:token.access_token,expires:clock()+token.expires_in*1000,
           refresh:token.refresh_token||session.refresh};
         return {session:updated,value:{session:updated}};
-      } catch { return {value:{error:'SESSION_EXPIRED'}}; }
+      } catch(error) {
+        if(error.status===401)return {value:{error:'SESSION_EXPIRED'}};
+        // A provider outage must not erase durable credentials or forward an expired token.
+        return {session,value:{error:'IDENTITY_PROVIDER_UNAVAILABLE',status:503}};
+      }
     });
-    if(result.error)throw fail(logout?403:401,result.error);
+    if(result.error)throw fail(result.status||(logout?403:401),result.error);
     return result.session;
   }
   const securityHeaders={

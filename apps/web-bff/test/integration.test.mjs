@@ -6,30 +6,33 @@ import {createBff} from '../server.mjs';
 
 const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048});
 const jwk={...publicKey.export({format:'jwk'}),kid:'local-key',alg:'RS256',use:'sig'};
+const rotatedPair=generateKeyPairSync('rsa',{modulusLength:2048});
+const rotatedKey={privateKey:rotatedPair.privateKey,jwk:{...rotatedPair.publicKey.export({format:'jwk'}),kid:'rotated-key',alg:'RS256',use:'sig'}};
 const toJson=(res,status,value)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(value));};
 const listen=server=>new Promise(resolve=>server.listen(0,'127.0.0.1',()=>resolve('http://127.0.0.1:'+server.address().port)));
 const close=server=>new Promise((resolve,reject)=>server.close(error=>error?reject(error):resolve()));
 const encode=data=>Buffer.from(JSON.stringify(data)).toString('base64url');
-function fixtureToken(issuer,nonce,sub='subject-42'){
- const h=encode({alg:'RS256',typ:'JWT',kid:'local-key'}),p=encode({iss:issuer,sub,aud:'whitehat-web',iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+3600,nonce});
- const sig=sign('RSA-SHA256',Buffer.from(h+'.'+p),privateKey).toString('base64url');return [h,p,sig].join('.');
+function fixtureToken(issuer,nonce,sub='subject-42',signing={privateKey,jwk}){
+ const h=encode({alg:'RS256',typ:'JWT',kid:signing.jwk.kid}),p=encode({iss:issuer,sub,aud:'whitehat-web',iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+3600,nonce});
+ const sig=sign('RSA-SHA256',Buffer.from(h+'.'+p),signing.privateKey).toString('base64url');return [h,p,sig].join('.');
 }
 async function fixture(){
- const access=[],state={auth:null,grant:0,revoke:0,badSignature:false,offset:0};let issuer;
+ const access=[],state={auth:null,grant:0,revoke:0,badSignature:false,offset:0,tokenStatus:0,jwksRequests:0,signing:{privateKey,jwk},keys:[jwk]};let issuer;
  const idp=http.createServer(async(req,res)=>{
   const url=new URL(req.url,'http://127.0.0.1');
   if(url.pathname==='/.well-known/openid-configuration')return toJson(res,200,{issuer,authorization_endpoint:issuer+'/authorize',token_endpoint:issuer+'/token',jwks_uri:issuer+'/jwks',revocation_endpoint:issuer+'/revoke'});
-  if(url.pathname==='/jwks')return toJson(res,200,{keys:[jwk]});
+  if(url.pathname==='/jwks'){state.jwksRequests++;return toJson(res,200,{keys:state.keys});}
   if(url.pathname==='/authorize'){state.auth=Object.fromEntries(url.searchParams);res.writeHead(302,{Location:url.searchParams.get('redirect_uri')+'?state='+url.searchParams.get('state')+'&code=fixture-code'});res.end();return;}
   if(url.pathname==='/revoke'){state.revoke++;return toJson(res,200,{});}
   if(url.pathname==='/token'){
    let raw='';for await(const c of req)raw+=c;const form=new URLSearchParams(raw);state.grant++;
+   if(state.tokenStatus)return toJson(res,state.tokenStatus,{error:state.tokenStatus===400?'invalid_grant':'temporarily_unavailable',error_description:'synthetic-provider-private-detail'});
    if(form.get('grant_type')==='authorization_code'){
     const challenge=createHash('sha256').update(form.get('code_verifier')).digest('base64url');
     if(form.get('code')!=='fixture-code'||challenge!==state.auth.code_challenge)return toJson(res,400,{error:'bad_pkce'});
    }
    if(form.get('grant_type')==='refresh_token'&&form.get('refresh_token')!=='refresh-fixture')return toJson(res,400,{error:'bad_refresh'});
-   let idToken=fixtureToken(issuer,state.auth.nonce);if(state.badSignature)idToken=idToken.slice(0,-2)+'aa';
+   let idToken=fixtureToken(issuer,state.auth.nonce,'subject-42',state.signing);if(state.badSignature)idToken=idToken.slice(0,-2)+'aa';
    return toJson(res,200,{access_token:'access-'+state.grant,token_type:'Bearer',expires_in:35,refresh_token:'refresh-fixture',id_token:idToken});
   }
   return toJson(res,404,{error:'not_found'});
@@ -108,4 +111,51 @@ test('path-scoped OIDC issuer discovers its own suffix metadata endpoint',async(
  const {server}=createBff({env,httpClient});const actual=await listen(server);
  try {const response=await fetch(actual+'/auth/login',{redirect:'manual'});assert.equal(response.status,302);assert.equal(seen[0],issuer+'/.well-known/openid-configuration');}
  finally{await close(server);}
+});
+
+test('accepts a newly published signing key before the JWKS cache expires',async()=>{
+ const f=await fixture();try{
+  assert.equal((await login(f)).callback.status,303);assert.equal(f.state.jwksRequests,1);
+  f.state.signing=rotatedKey;f.state.keys=[rotatedKey.jwk];
+  const rotated=await login(f);assert.equal(rotated.callback.status,303);assert.ok(rotated.sessionCookie);
+  assert.equal(f.state.jwksRequests,2);
+ }finally{await f.stop();}
+});
+
+test('unknown signing keys fail closed and cannot trigger unbounded JWKS reloads',async()=>{
+ const f=await fixture();try{
+  assert.equal((await login(f)).callback.status,303);
+  f.state.signing=rotatedKey;
+  for(let i=0;i<3;i++){
+   const rejected=await login(f);assert.equal(rejected.callback.status,401);assert.equal(rejected.sessionCookie,undefined);
+  }
+  assert.equal(f.state.jwksRequests,2);
+ }finally{await f.stop();}
+});
+
+test('transient refresh failure preserves the session for recovery and forwards no stale token',async()=>{
+ const f=await fixture();try{
+  const {sessionCookie}=await login(f);
+  for(const status of [503,429]){
+   f.state.offset+=10_000;f.state.tokenStatus=status;
+   const before=f.access.length;
+   const unavailable=await fetch(f.origin+'/bff/api/v1/me',{headers:{cookie:sessionCookie}});
+   assert.equal(unavailable.status,503);
+   const body=await unavailable.json();assert.equal(body.error,'IDENTITY_PROVIDER_UNAVAILABLE');
+   assert.equal(JSON.stringify(body).includes('synthetic-provider-private-detail'),false);
+   assert.equal(f.access.length,before);
+   f.state.tokenStatus=0;
+   const recovered=await fetch(f.origin+'/bff/api/v1/me',{headers:{cookie:sessionCookie}});
+   assert.equal(recovered.status,200);assert.equal(f.access.length,before+1);
+  }
+ }finally{await f.stop();}
+});
+
+test('rejected refresh credentials invalidate the session permanently',async()=>{
+ const f=await fixture();try{
+  const {sessionCookie}=await login(f);f.state.offset=10_000;f.state.tokenStatus=400;
+  assert.equal((await fetch(f.origin+'/bff/session',{headers:{cookie:sessionCookie}})).status,401);
+  f.state.tokenStatus=0;
+  assert.equal((await fetch(f.origin+'/bff/session',{headers:{cookie:sessionCookie}})).status,401);
+ }finally{await f.stop();}
 });
