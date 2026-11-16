@@ -1,5 +1,6 @@
 /** White Hat web BFF. Transport only: Kotlin API remains sole business/data authority. */
 import http from 'node:http';
+import { createMemorySessionStore, createPostgresSessionStore } from './session-store.mjs';
 import { randomBytes, createHash, createPublicKey, verify, timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -21,13 +22,27 @@ const allowed = [
  ['GET',/^\/api\/v1\/workspaces\/[^/]+\/runs\/[^/]+$/],
  ['POST',/^\/api\/v1\/workspaces\/[^/]+\/runs\/[^/]+\/cancel$/],
  ['GET',/^\/api\/v1\/workspaces\/[^/]+\/admin\/usage$/],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/analysis-settings$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/analysis-settings$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/admin/costs/'+uuid+'/corrections/'+uuid+'$')],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/feedback-retention$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/feedback-retention$')],
+ ['POST',new RegExp('^/api/v1/workspaces/'+uuid+'/feedback-retention/purge$')],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/support-roles$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/(support-roles/'+uuid+'|support-role-assignment)$')],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/(operations-metrics|feedback-settings|quality-queue|admin/costs|admin/pilot-usage)$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/(feedback-settings|feedback/'+uuid+'|quality-queue/'+uuid+'/review|admin/costs/'+uuid+')$')],
+ ['POST',new RegExp('^/api/v1/workspaces/'+uuid+'/feedback/'+uuid+'/withdraw$')],
+ ['GET',new RegExp('^/api/v1/workspaces/'+uuid+'/(members|runs|incidents)$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/operator-permissions$')],
+ ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/incidents/'+uuid+'$')],
  ['POST',/^\/api\/v1\/workspaces\/[^/]+\/members$/]
 ];
 const allowedPath = (method,path) => allowed.some(([m,r])=>m===method&&r.test(path)) &&
   path.split('/').every(p=>!p.includes('%')&&!p.includes('..')) &&
-  path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||new RegExp('^'+uuid+'$').test(p));
+  path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||p==='pilot-usage'||p==='incidents'||p==='operator-permissions'||p==='costs'||p==='corrections'||p==='review'||p==='withdraw'||p==='purge'||new RegExp('^'+uuid+'$').test(p));
 
-export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now()}={}) {
+export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now(), rateClock=()=>Date.now(), sessionStore}={}) {
   const origin = new URL(env.WH_WEB_ORIGIN || 'https://localhost:3030');
   const upstream = new URL(env.WH_API_BASE || 'http://127.0.0.1:8081');
   const issuer = env.WH_OIDC_ISSUER;
@@ -43,7 +58,9 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   const cookieName = secure?'__Host-wh_session':'wh_session_dev';
   const flowName = secure?'__Host-wh_login':'wh_login_dev';
   const cookie = (name,value,age=0) => `${name}=${value}; Path=/; HttpOnly; SameSite=Lax${secure?'; Secure':''}${age?`; Max-Age=${age}`:'; Max-Age=0'}`;
-  const sessions = new Map(), pending = new Map();
+  const dsn=env.WH_WEB_SESSION_DATABASE_URL, keys=env.WH_WEB_SESSION_KEYS;
+  if (!sessionStore && (!dsn || !keys) && (!localHttp || dsn || keys)) throw new Error('DURABLE_SESSION_STORE_REQUIRED');
+  const store=sessionStore ?? (dsn ? createPostgresSessionStore(dsn,keys) : createMemorySessionStore());
   const request = async (url,opts={}) => httpClient(url,{...opts,redirect:'error',signal:AbortSignal.timeout(10000)});
   const readJson = async response => {if(!response.ok) throw fail(502,'IDENTITY_PROVIDER_UNAVAILABLE');const body=await response.json();if(!body||typeof body!=='object')throw fail(502,'IDENTITY_PROVIDER_INVALID');return body;};
   let discoveryCache, jwksCache;
@@ -87,35 +104,54 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     if(body.token_type?.toLowerCase()!=='bearer'||typeof body.access_token!=='string'||!Number.isInteger(body.expires_in)||body.expires_in<1)throw fail(502,'OIDC_TOKEN_RESPONSE_INVALID');
     return body;
   }
-  const getSession = req => {const raw=parseCookies(req.headers.cookie)[cookieName];const key=raw?hash(raw):null;const s=key?sessions.get(key):undefined;if(s&&s.created+28800000<=clock()){sessions.delete(key);return undefined;}return s;};
-  const removeSession = req=>{const raw=parseCookies(req.headers.cookie)[cookieName];if(raw)sessions.delete(hash(raw));};
-  async function withAccess(s){
-    if(s.expires-clock()>30000)return s.access;
-    if(!s.refresh)throw fail(401,'SESSION_EXPIRED');
-    if(!s.refreshing)s.refreshing=(async()=>{
-      const config=await discovery(),token=await exchange(config,{grant_type:'refresh_token',refresh_token:s.refresh,client_id:clientId});
-      if(token.id_token){const claims=await verifyIdToken(token.id_token,null,config);if(claims.sub!==s.subject)throw fail(401,'OIDC_SUBJECT_CHANGED');}
-      s.access=token.access_token;s.expires=clock()+token.expires_in*1000;
-      if(token.refresh_token)s.refresh=token.refresh_token;
-    })().finally(()=>{s.refreshing=null;});
-    try{await s.refreshing;}catch{sessions.delete(s.key);throw fail(401,'SESSION_EXPIRED');}
-    return s.access;
+  const sessionId = req => {
+    const raw=parseCookies(req.headers.cookie)[cookieName];
+    return raw ? hash(raw) : null;
+  };
+  async function accessSession(req, mutating=false, logout=false) {
+    const id=sessionId(req);
+    if(!id)throw fail(logout?403:401,logout?'CSRF_REJECTED':'AUTH_REQUIRED');
+    const result=await store.transact(id,clock(),async session=>{
+      if(!session) return {value:{error:logout?'CSRF_REJECTED':'AUTH_REQUIRED'}};
+      if(mutating&&!eq(req.headers['x-csrf-token'],session.csrf))throw fail(403,'CSRF_REJECTED');
+      if(logout)return {value:{session}};
+      if(session.expires-clock()>30000)return {session,value:{session}};
+      if(!session.refresh)return {value:{error:'SESSION_EXPIRED'}};
+      try {
+        const config=await discovery();
+        const token=await exchange(config,{grant_type:'refresh_token',refresh_token:session.refresh,client_id:clientId});
+        if(token.id_token){
+          const claims=await verifyIdToken(token.id_token,null,config);
+          if(claims.sub!==session.subject)throw fail(401,'OIDC_SUBJECT_CHANGED');
+        }
+        const updated={...session,access:token.access_token,expires:clock()+token.expires_in*1000,
+          refresh:token.refresh_token||session.refresh};
+        return {session:updated,value:{session:updated}};
+      } catch { return {value:{error:'SESSION_EXPIRED'}}; }
+    });
+    if(result.error)throw fail(logout?403:401,result.error);
+    return result.session;
   }
   const securityHeaders={
     'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',
     'X-Frame-Options':'DENY','Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
   };
+  async function throttle(res,key,limit) {
+    const now=rateClock();
+    if(!store.allowRequest || await store.allowRequest(hash(key),now,limit))return;
+    res.setHeader('Retry-After',String(Math.ceil((60000-now%60000)/1000)));
+    throw fail(429,'REQUEST_RATE_LIMITED');
+  }
   async function handle(req,res){
     Object.entries(securityHeaders).forEach(([k,v])=>res.setHeader(k,v));
     const url=new URL(req.url,origin), path=url.pathname, method=req.method;
     const originCheck=()=>{if(req.headers.origin!==origin.origin)throw fail(403,'ORIGIN_REJECTED');};
     if(path==='/health'&&method==='GET')return json(res,200,{status:'ok',service:'web-bff',idp_configured:true});
     if(path==='/auth/login'&&method==='GET'){
+      await throttle(res,'login:'+req.socket.remoteAddress,40);
       const config=await discovery(),state=rnd(),verifier=rnd(),nonce=rnd();
       const challenge=createHash('sha256').update(verifier).digest('base64url');
-      for(const [key,val] of pending)if(val.expires<=clock())pending.delete(key);
-      if(pending.size>500)throw fail(429,'LOGIN_CAPACITY_REACHED');
-      pending.set(hash(state),{verifier,nonce,expires:clock()+300000});
+      if(!await store.createFlow(hash(state),{verifier,nonce,expires:clock()+300000},clock()))throw fail(429,'LOGIN_CAPACITY_REACHED');
       const target=new URL(config.authorization_endpoint);
       new URLSearchParams({response_type:'code',client_id:clientId,redirect_uri:origin.origin+'/auth/callback',scope:'openid profile email',state,nonce,code_challenge:challenge,code_challenge_method:'S256'}).forEach((value,key)=>target.searchParams.set(key,value));
       res.writeHead(302,{'Location':target.toString(),'Set-Cookie':cookie(flowName,state,300)});return res.end();
@@ -123,32 +159,34 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     if(path==='/auth/callback'&&method==='GET'){
       const state=url.searchParams.get('state')||'',code=url.searchParams.get('code')||'',flow=parseCookies(req.headers.cookie)[flowName];
       res.setHeader('Set-Cookie',cookie(flowName,''));
-      const item=pending.get(hash(state));pending.delete(hash(state));
+      const item=await store.takeFlow(hash(state),clock());
       if(!flow||!eq(flow,state)||!item||item.expires<clock()||!code||url.searchParams.has('error'))throw fail(400,'LOGIN_STATE_INVALID');
       const config=await discovery();
       const token=await exchange(config,{grant_type:'authorization_code',code,redirect_uri:origin.origin+'/auth/callback',client_id:clientId,code_verifier:item.verifier});
       const claims=await verifyIdToken(token.id_token,item.nonce,config),sid=rnd(),key=hash(sid);
-      sessions.set(key,{key,subject:claims.sub,nonce:item.nonce,access:token.access_token,refresh:token.refresh_token||null,expires:clock()+token.expires_in*1000,csrf:rnd(),created:clock()});
+      await store.createSession(key,{subject:claims.sub,nonce:item.nonce,access:token.access_token,refresh:token.refresh_token||null,expires:clock()+token.expires_in*1000,csrf:rnd(),created:clock()},clock());
       res.writeHead(303,{'Location':'/','Set-Cookie':[cookie(flowName,''),cookie(cookieName,sid,28800)]});return res.end();
     }
     if(path==='/bff/session'&&method==='GET'){
-      const s=getSession(req);if(!s)return json(res,401,{error:'AUTH_REQUIRED'});
-      await withAccess(s);return json(res,200,{subject:s.subject,csrf:s.csrf});
+      const s=await accessSession(req);
+      return json(res,200,{subject:s.subject,csrf:s.csrf});
     }
     if(path==='/bff/logout'&&method==='POST'){
-      originCheck();const s=getSession(req);if(!s||!eq(req.headers['x-csrf-token'],s.csrf))throw fail(403,'CSRF_REJECTED');
-      removeSession(req);res.setHeader('Set-Cookie',cookie(cookieName,''));
+      originCheck();const s=await accessSession(req,true,true);
+      res.setHeader('Set-Cookie',cookie(cookieName,''));
       let revocation='unavailable';
       if(s.refresh){try{const config=await discovery();if(config.revocation_endpoint){const endpoint=new URL(config.revocation_endpoint);if(endpoint.protocol==='https:'||(localHttp&&endpoint.protocol==='http:'&&endpoint.hostname==='127.0.0.1')){const headers={'Content-Type':'application/x-www-form-urlencoded'};if(env.WH_OIDC_CLIENT_SECRET)headers.Authorization='Basic '+Buffer.from(clientId+':'+env.WH_OIDC_CLIENT_SECRET).toString('base64');const response=await request(endpoint,{method:'POST',headers,body:new URLSearchParams({token:s.refresh,token_type_hint:'refresh_token',client_id:clientId})});revocation=response.ok?'confirmed':'failed';}}}catch{revocation='failed';}}
       return json(res,200,{ok:true,revocation});
     }
     if(path.startsWith('/bff/api/v1/')){
-      const s=getSession(req);if(!s)throw fail(401,'AUTH_REQUIRED');
+      if(!sessionId(req))throw fail(401,'AUTH_REQUIRED');
       const apiPath=path.slice(4);
       if(!allowedPath(method,apiPath)||url.search)throw fail(404,'API_PATH_UNSUPPORTED');
       const mutating=!['GET','HEAD'].includes(method);
-      if(mutating){originCheck();if(!eq(req.headers['x-csrf-token'],s.csrf))throw fail(403,'CSRF_REJECTED');}
-      const access=await withAccess(s);let body;
+      if(mutating)originCheck();
+      const s=await accessSession(req,mutating);
+      await throttle(res,'api:'+s.subject,180);
+      const access=s.access;let body;
       if(mutating){
         if(!(req.headers['content-type']||'').startsWith('application/json'))throw fail(415,'JSON_REQUIRED');
         const parts=[];let total=0;
@@ -160,7 +198,10 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
       if(req.headers['idempotency-key'])headers['Idempotency-Key']=String(req.headers['idempotency-key']).slice(0,200);
       const target=new URL(apiPath,upstream);
       const response=await request(target,{method,headers,...(mutating?{body}:{})});
-      if(response.status===401){sessions.delete(s.key);throw fail(401,'SESSION_REAUTH_REQUIRED');}
+      if(response.status===401){
+        await store.transact(sessionId(req),clock(),session=>({session:session?.access===access?undefined:session}));
+        throw fail(401,'SESSION_REAUTH_REQUIRED');
+      }
       const contentType=response.headers.get('content-type')||'';
       if(!contentType.includes('application/json'))throw fail(502,'API_NON_JSON_RESPONSE');
       const text=await response.text();if(Buffer.byteLength(text)>2000000)throw fail(502,'API_RESPONSE_TOO_LARGE');
@@ -183,6 +224,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     if(res.headersSent){res.destroy();return;}
     json(res,e.status||500,{error:e.code||'BFF_INTERNAL_ERROR',request_id:rnd().slice(0,16)});
   }));
+  server.once('close',()=>{store.close?.().catch(()=>{});});
   return {server,handle};
 }
 

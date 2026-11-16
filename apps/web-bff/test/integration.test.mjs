@@ -42,6 +42,7 @@ async function fixture(){
   if(req.url==='/api/v1/workspaces')return toJson(res,201,{id:ws,name:'Demo',role:'OWNER'});
   if(req.url===`/api/v1/workspaces/${ws}/decisions`)return toJson(res,200,{items:[]});
   if(req.url===`/api/v1/workspaces/${ws}/runs/${decision}`)return toJson(res,200,{id:decision,status:'reconciliation_required',input_tokens:null,output_tokens:13});
+  if(req.method==='GET'&&req.url===`/api/v1/workspaces/${ws}/admin/pilot-usage`)return toJson(res,200,{reconciled:true,confirmed_usd_micros:null});
   if(req.url===`/api/v1/workspaces/${ws}/admin/usage`)return toJson(res,403,{error:'FORBIDDEN',request_id:'fixture-request'});
   return toJson(res,404,{error:'NOT_FOUND'});
  });const apiUrl=await listen(api);
@@ -78,6 +79,13 @@ test('OIDC PKCE / HttpOnly cookie / CSRF / allowlisted Kotlin proxy / revocation
   assert.equal(post.status,201);assert.equal((await post.json()).id,f.ws);
   const unknown=await fetch(f.origin+'/bff/api/v1/openapi.json',{headers:{cookie:sessionCookie}});assert.equal(unknown.status,404);
   const denied=await fetch(f.origin+`/bff/api/v1/workspaces/${f.ws}/admin/usage`,{headers:{cookie:sessionCookie}});assert.equal(denied.status,403);assert.equal((await denied.json()).request_id,'fixture-request');
+  const pilot=await fetch(f.origin+`/bff/api/v1/workspaces/${f.ws}/admin/pilot-usage`,{headers:{cookie:sessionCookie}});
+  assert.equal(pilot.status,200);assert.equal(pilot.headers.get('cache-control'),'no-store');
+  assert.deepEqual(await pilot.json(),{reconciled:true,confirmed_usd_micros:null});
+  const forwarded=f.access.length;
+  const pilotMutation=await fetch(f.origin+`/bff/api/v1/workspaces/${f.ws}/admin/pilot-usage`,
+   {method:'PUT',headers:{cookie:sessionCookie,origin:f.origin,'x-csrf-token':csrf}});
+  assert.equal(pilotMutation.status,404);assert.equal(f.access.length,forwarded);
   const uncertain=await fetch(f.origin+`/bff/api/v1/workspaces/${f.ws}/runs/${f.decision}`,{headers:{cookie:sessionCookie}});const details=await uncertain.json();assert.equal(details.input_tokens,null);assert.equal(details.status,'reconciliation_required');
   const logout=await fetch(f.origin+'/bff/logout',{method:'POST',headers:{cookie:sessionCookie,origin:f.origin,'x-csrf-token':csrf}});assert.equal(logout.status,200);assert.equal((await logout.json()).revocation,'confirmed');assert.equal(f.state.revoke,1);
   assert.equal((await fetch(f.origin+'/bff/session',{headers:{cookie:sessionCookie}})).status,401);

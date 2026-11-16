@@ -1,0 +1,62 @@
+"""Regression for integrity of receipts before blind human review."""
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+from uuid import uuid4
+
+from blind_s3 import prepare
+from prepare_s3 import digest
+
+
+class BlindReceiptsTest(unittest.TestCase):
+    def setUp(self):
+        temp = TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        self.manifest = self.root / "manifest.json"
+        self.manifest.write_text(json.dumps({"cases": [{"id": "G001", "turns": [{"prompt": "synthetic"}]}]}))
+        self.arms = [self.root / "candidate", self.root / "baseline"]
+        for arm in self.arms:
+            arm.mkdir()
+            workspace, decision, run = (str(uuid4()) for _ in range(3))
+            (arm / "run.json").write_text(json.dumps({"workspace": workspace, "declared_model": arm.name,
+                "execution_sha": "a" * 40, "cases": ["G001"], "manifest_sha256": digest(self.manifest)}))
+            (arm / "G001-1.json").write_text(json.dumps({"id": "G001", "state": "terminal", "turn": 1,
+                "decision_id": decision, "revision": 1, "run_id": run, "api_output": {"id": run,
+                "workspace_id": workspace, "decision_id": decision, "input_revision": 1,
+                "status": "succeeded", "result": {"answer": "synthetic"}}}))
+        self.shared = self.root / "packet.json"
+        self.private = self.root / "key.json"
+
+    def run_prepare(self):
+        prepare(self.manifest, *self.arms, self.shared, self.private)
+
+    def test_anonymous_packet_excludes_identity_and_pins_receipt_hash(self):
+        self.run_prepare()
+        self.assertNotIn("execution_sha", self.shared.read_text())
+        key = json.loads(self.private.read_text())
+        for option in ("A", "B"):
+            row = key["cases"][0][option]
+            expected = self.root / row["arm"] / "G001-1.json"
+            self.assertEqual(row["receipts"][0]["sha256"], digest(expected))
+        self.assertEqual(self.private.stat().st_mode & 0o777, 0o600)
+
+    def test_cross_workspace_and_wrong_revision_do_not_enter_review(self):
+        path = self.arms[0] / "G001-1.json"
+        original = json.loads(path.read_text())
+        for field, value in (("workspace_id", str(uuid4())), ("input_revision", 2)):
+            row = json.loads(json.dumps(original))
+            row["api_output"][field] = value
+            path.write_text(json.dumps(row))
+            with self.assertRaisesRegex(ValueError, "invalid or duplicate terminal receipt"):
+                self.run_prepare()
+            self.assertFalse(self.shared.exists())
+
+    def test_same_workspace_does_not_count_as_separate_arms(self):
+        path = self.arms[1] / "run.json"
+        row = json.loads(path.read_text())
+        row["workspace"] = json.loads((self.arms[0] / "run.json").read_text())["workspace"]
+        path.write_text(json.dumps(row))
+        with self.assertRaisesRegex(ValueError, "separate workspaces"):
+            self.run_prepare()

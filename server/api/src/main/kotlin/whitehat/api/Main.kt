@@ -50,7 +50,15 @@ fun main(args: Array<String>) {
                         catch (_: Exception) { log.warn("RUN_WORKER_TICK_FAILED"); delay(1000) }
                     }
                 }
-                monitor.subscribe(ApplicationStopping) { job.cancel() }
+                val retention = launch(Dispatchers.IO) {
+                    while (isActive) {
+                        try { store.sweepExpiredFeedback() }
+                        catch (cancelled: CancellationException) { throw cancelled }
+                        catch (_: Exception) { log.warn("FEEDBACK_RETENTION_SWEEP_FAILED") }
+                        delay(TimeUnit.HOURS.toMillis(1))
+                    }
+                }
+                monitor.subscribe(ApplicationStopping) { job.cancel(); retention.cancel() }
             }.start(wait = true)
         }
     }

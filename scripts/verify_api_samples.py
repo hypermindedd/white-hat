@@ -12,3 +12,8 @@ assert len(files) == 7, "Run the seven-mode Ktor/PostgreSQL integration test fir
 for path in files:
     validator.validate(json.loads(path.read_text()))
 print("7 actual Ktor run responses validate against OpenAPI; AI was fixture-only.")
+
+pilot = {"$ref": "#/components/schemas/PilotUsage", "components": api["components"]}
+pilot_sample = root / "server/api/build/contract-samples/pilot-usage.json"
+Draft202012Validator(pilot, format_checker=FormatChecker()).validate(json.loads(pilot_sample.read_text()))
+print("Actual Ktor pilot usage response validates against OpenAPI.")

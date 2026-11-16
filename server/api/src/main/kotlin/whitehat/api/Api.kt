@@ -108,6 +108,52 @@ fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, pr
                 val workspace = db { store.createWorkspace(actor, body.string("name")) }
                 call.json(workspace.json(), HttpStatusCode.Created)
             }
+            get("/api/v1/workspaces/{workspace}/members") {
+                val actor = call.subject(); val workspace = call.id("workspace")
+                val items = db { store.members(actor, workspace) }
+                call.json(buildJsonObject { putJsonArray("items") { items.forEach { member ->
+                    add(buildJsonObject {
+                        put("subject", member.subject); put("role", member.role.name)
+                        put("active", member.active); put("can_review_incidents", member.canReviewIncidents)
+                        putJsonArray("permissions") { member.permissions.forEach { add(it.name) } }
+                        put("support_role_id", member.supportRoleId?.toString())
+                    })
+                } } })
+            }
+            put("/api/v1/workspaces/{workspace}/operator-permissions") {
+                val body = call.objectBody(); body.checkKeys(setOf("subject", "enabled", "permission"))
+                val enabled = (body["enabled"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                    ?: throw Fault(400, "INVALID_INPUT")
+                val subject = body.string("subject")
+                if(subject.isBlank() || subject.length > 200) throw Fault(400, "INVALID_INPUT")
+                val actor = call.subject(); val workspace = call.id("workspace")
+                val permission = runCatching { OperatorPermission.valueOf(body.string("permission", "REVIEW_RUN_INCIDENTS")) }
+                    .getOrElse { throw Fault(400, "INVALID_PERMISSION") }
+                db { store.setOperatorPermission(actor, workspace, subject, permission, enabled) }
+                call.json(buildJsonObject { put("ok", true) })
+            }
+            get("/api/v1/workspaces/{workspace}/runs") {
+                val actor = call.subject(); val workspace = call.id("workspace")
+                val items = db { store.runHistory(actor, workspace) }
+                call.json(buildJsonObject { put("items", JsonArray(items.map { it.json() })) })
+            }
+            get("/api/v1/workspaces/{workspace}/incidents") {
+                val actor = call.subject(); val workspace = call.id("workspace")
+                val items = db { store.incidents(actor, workspace) }
+                call.json(buildJsonObject { putJsonArray("items") { items.forEach { incident ->
+                    add(buildJsonObject {
+                        put("run_id", incident.runId.toString()); put("disposition", incident.disposition?.name)
+                    })
+                } } })
+            }
+            put("/api/v1/workspaces/{workspace}/incidents/{run}") {
+                val body = call.objectBody(); body.checkKeys(setOf("disposition"))
+                val disposition = runCatching { IncidentDisposition.valueOf(body.string("disposition")) }
+                    .getOrElse { throw Fault(400, "INVALID_DISPOSITION") }
+                val actor = call.subject(); val workspace = call.id("workspace"); val runId = call.id("run")
+                db { store.reviewIncident(actor, workspace, runId, disposition) }
+                call.json(buildJsonObject { put("ok", true) })
+            }
             post("/api/v1/workspaces/{workspace}/members") {
                 val body = call.objectBody(); body.checkKeys(setOf("subject", "role", "active"))
                 val active = (body["active"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull ?: throw Fault(400, "INVALID_INPUT")
@@ -154,6 +200,160 @@ fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, pr
             post("/api/v1/workspaces/{workspace}/runs/{run}/cancel") {
                 val actor = call.subject(); val workspace = call.id("workspace"); val id = call.id("run")
                 call.json(db { store.cancel(actor, workspace, id) }.json())
+            }
+            route("/api/v1/workspaces/{workspace}") {
+                get("/support-roles") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val roles = db { store.supportRoles(actor, workspace) }
+                    call.json(buildJsonObject { putJsonArray("items") { roles.forEach { role ->
+                        add(buildJsonObject {
+                            put("id", role.id.toString()); put("name", role.name)
+                            putJsonArray("permissions") { role.permissions.forEach { add(it.name) } }
+                        })
+                    } } })
+                }
+                put("/support-roles/{supportRole}") {
+                    val body = call.objectBody(); body.checkKeys(setOf("name", "permissions"))
+                    val items = body["permissions"] as? JsonArray ?: throw Fault(400, "INVALID_PERMISSION")
+                    val permissions = items.map {
+                        val name = (it as? JsonPrimitive)?.takeIf { value -> value.isString }?.content
+                        OperatorPermission.entries.find { permission -> permission.name == name }
+                            ?: throw Fault(400, "INVALID_PERMISSION")
+                    }.toSet()
+                    if (items.size != permissions.size) throw Fault(400, "INVALID_PERMISSION")
+                    val role = SupportRole(call.id("supportRole"), body.string("name"), permissions)
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    db { store.saveSupportRole(actor, workspace, role) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                put("/support-role-assignment") {
+                    val body = call.objectBody(); body.checkKeys(setOf("subject", "role_id"))
+                    val subject = body.string("subject")
+                    if (subject.isBlank() || subject.length > 200) throw Fault(400, "INVALID_INPUT")
+                    val role = if (body["role_id"] == JsonNull) null
+                        else runCatching { UUID.fromString(body.string("role_id")) }
+                            .getOrElse { throw Fault(400, "INVALID_ID") }
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    db { store.assignSupportRole(actor, workspace, subject, role) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                get("/operations-metrics") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val values = db { store.operationsMetrics(actor, workspace) }
+                    call.json(buildJsonObject { values.forEach { (key, value) -> put(key, value) } })
+                }
+                get("/admin/pilot-usage") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val report = db { store.pilotUsage(actor, workspace) }
+                    call.json(buildJsonObject {
+                        put("period_start_utc", report.periodStart.toString())
+                        put("entitlement_revision", report.entitlementRevision)
+                        put("monthly_attempt_limit", report.attemptLimit)
+                        put("metered_attempts", report.meteredAttempts)
+                        put("pilot_runs", report.pilotRuns)
+                        put("reconciled", report.reconciled)
+                        put("confirmed_cost_runs", report.confirmedCostRuns)
+                        put("unconfirmed_cost_runs", report.pilotRuns - report.confirmedCostRuns)
+                        put("confirmed_usd_micros", report.confirmedUsdMicros)
+                    })
+                }
+                get("/admin/costs") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val values = db { store.confirmedCosts(actor, workspace) }
+                    call.json(buildJsonObject { values.forEach { (key, value) -> put(key, value) } })
+                }
+                put("/admin/costs/{run}") {
+                    val body = call.objectBody(); body.checkKeys(setOf("usd_micros", "receipt_reference"))
+                    val micros = (body["usd_micros"] as? JsonPrimitive)?.takeUnless { it.isString }?.longOrNull
+                        ?: throw Fault(400, "INVALID_COST")
+                    val reference = body.string("receipt_reference")
+                    val actor = call.subject(); val workspace = call.id("workspace"); val run = call.id("run")
+                    db { store.recordConfirmedCost(actor, workspace, run, micros, reference) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                put("/admin/costs/{run}/corrections/{correction}") {
+                    val body=call.objectBody()
+                    body.checkKeys(setOf("expected_usd_micros","usd_micros","receipt_reference"))
+                    fun amount(key:String)=(body[key] as? JsonPrimitive)?.takeUnless { it.isString }?.longOrNull
+                        ?: throw Fault(400,"INVALID_COST")
+                    val actor=call.subject(); val workspace=call.id("workspace")
+                    val run=call.id("run"); val correction=call.id("correction")
+                    val previous=amount("expected_usd_micros"); val updated=amount("usd_micros")
+                    val receipt=body.string("receipt_reference")
+                    db { store.correctConfirmedCost(actor,workspace,run,correction,previous,updated,receipt) }
+                    call.json(buildJsonObject { put("ok",true) })
+                }
+                get("/analysis-settings") {
+                    val actor=call.subject(); val workspace=call.id("workspace")
+                    val paused=db { store.analysisPaused(actor,workspace) }
+                    call.json(buildJsonObject { put("paused",paused) })
+                }
+                put("/analysis-settings") {
+                    val body=call.objectBody(); body.checkKeys(setOf("paused"))
+                    val paused=(body["paused"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                        ?: throw Fault(400,"INVALID_INPUT")
+                    val actor=call.subject(); val workspace=call.id("workspace")
+                    db { store.setAnalysisPaused(actor,workspace,paused) }
+                    call.json(buildJsonObject { put("ok",true) })
+                }
+                get("/feedback-settings") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val enabled = db { store.feedbackEnabled(actor, workspace) }
+                    call.json(buildJsonObject { put("enabled", enabled) })
+                }
+                put("/feedback-settings") {
+                    val body = call.objectBody(); body.checkKeys(setOf("enabled"))
+                    val enabled = (body["enabled"] as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
+                        ?: throw Fault(400, "INVALID_INPUT")
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    db { store.setFeedbackEnabled(actor, workspace, enabled) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                get("/feedback-retention") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val days = db { store.feedbackRetention(actor, workspace) }
+                    call.json(buildJsonObject { put("days", days) })
+                }
+                put("/feedback-retention") {
+                    val body = call.objectBody(); body.checkKeys(setOf("days"))
+                    val days = (body["days"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
+                        ?: throw Fault(400, "INVALID_RETENTION")
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    db { store.setFeedbackRetention(actor, workspace, days) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                post("/feedback-retention/purge") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val deleted = db { store.purgeExpiredFeedback(actor, workspace) }
+                    call.json(buildJsonObject { put("deleted", deleted) })
+                }
+                put("/feedback/{run}") {
+                    val body = call.objectBody(); body.checkKeys(setOf("rating"))
+                    val rating = (body["rating"] as? JsonPrimitive)?.takeUnless { it.isString }?.intOrNull
+                        ?: throw Fault(400, "INVALID_FEEDBACK")
+                    val actor = call.subject(); val workspace = call.id("workspace"); val run = call.id("run")
+                    db { store.submitFeedback(actor, workspace, run, rating) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                post("/feedback/{run}/withdraw") {
+                    val actor = call.subject(); val workspace = call.id("workspace"); val run = call.id("run")
+                    db { store.withdrawFeedback(actor, workspace, run) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
+                get("/quality-queue") {
+                    val actor = call.subject(); val workspace = call.id("workspace")
+                    val items = db { store.qualityQueue(actor, workspace) }
+                    call.json(buildJsonObject { putJsonArray("items") { items.forEach { item ->
+                        add(buildJsonObject {
+                            put("run_id", item.runId.toString()); put("rating", item.rating); put("reviewed", item.reviewed)
+                        })
+                    } } })
+                }
+                put("/quality-queue/{run}/review") {
+                    val actor = call.subject(); val workspace = call.id("workspace"); val run = call.id("run")
+                    db { store.markFeedbackReviewed(actor, workspace, run) }
+                    call.json(buildJsonObject { put("ok", true) })
+                }
             }
             get("/api/v1/workspaces/{workspace}/admin/usage") {
                 val actor = call.subject(); val workspace = call.id("workspace")

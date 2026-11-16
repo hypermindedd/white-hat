@@ -1,0 +1,18 @@
+{
+  "G051": [
+    {"mode":"challenge","decision":"Should we launch on 30 June? The fixed budget is USD 20,000 and two vendors own delivery."},
+    {"mode":"premortem","decision":"For the same release, apply Pre-Mortem. Keep USD 20,000, two vendors and 30 June unchanged."}
+  ],
+  "G052": [
+    {"mode":"challenge","decision":"The approved budget is USD 100,000 and the lowest vendor bid is USD 45,000. Should we hire this vendor?"},
+    {"mode":"challenge","decision":"Correction: the approved budget is USD 20,000, replacing USD 100,000. Reassess the same USD 45,000 bid."}
+  ],
+  "G053": [
+    {"mode":"challenge","decision":"Nobody has paid. Should we postpone expanding the pilot? Unit costs are unknown."},
+    {"mode":"challenge","decision":"Three independent customers have paid and two renewed. Unit costs remain unknown. Reassess expansion."}
+  ],
+  "G054": [
+    {"mode":"challenge","decision":"Should we run a USD 1,000 reversible pilot to test paid demand before a USD 100,000 commitment? Demand is unknown."},
+    {"mode":"challenge","decision":"The goal, costs and evidence are unchanged. The office plants were replaced. Reassess the same pilot."}
+  ]
+}

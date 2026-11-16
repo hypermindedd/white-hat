@@ -31,8 +31,12 @@ jobs:
       - name: Test the recovered alpha
         working-directory: apps/second-mind
         run: npm test
+      - name: Check blind evaluation receipt integrity
+        run: python3 -B -m unittest discover -s evaluation -p test_blind_s3.py
+      - name: Check payment extract reconciliation
+        run: python3 -B -m unittest discover -s scripts -p test_reconcile_c6_payments.py
       - name: Test Kotlin with actual embedded PostgreSQL
-        run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:api:test :server:adapters:test :server:api:installDist
+        run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :shared:client:jvmTest :shared:client:compileCommonMainKotlinMetadata :shared:client:compileKotlinIosArm64 :shared:client:compileKotlinIosSimulatorArm64 :server:api:test :server:adapters:test :server:api:installDist
       - name: Validate actual HTTP response contracts
         run: |
           python3 -m pip install 'jsonschema==4.23.0'
@@ -47,4 +51,6 @@ jobs:
             server/*/build/test-results/
             server/*/build/reports/tests/
             server/api/build/contract-samples/
+            server/api/build/c6-evidence/
             shared/contracts/build/test-results/
+            shared/client/build/test-results/

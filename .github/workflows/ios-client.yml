@@ -1,0 +1,40 @@
+name: White Hat iOS host and framework
+on:
+  pull_request:
+    paths:
+      - 'shared/client/**'
+      - 'apps/ios/**'
+      - '**/*.gradle.kts'
+      - 'gradle/**'
+      - '.github/workflows/ios-client.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ios-framework:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: ./gradlew --no-daemon :shared:client:assembleWhiteHatClientDebugXCFramework
+      - name: Build unsigned simulator app
+        run: |
+          brew install xcodegen
+          xcodegen generate --spec apps/ios/project.yml
+          xcodebuild -project apps/ios/WhiteHat.xcodeproj -scheme WhiteHat \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/whitehat-ios" ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+          ditto -c -k --keepParent "$RUNNER_TEMP/whitehat-ios/Build/Products/Debug-iphonesimulator/WhiteHat.app" "$RUNNER_TEMP/white-hat-ios-simulator.zip"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: white-hat-ios-debug-framework
+          path: |
+            shared/client/build/XCFrameworks/debug/WhiteHatClient.xcframework
+            ${{ runner.temp }}/white-hat-ios-simulator.zip
+          if-no-files-found: error

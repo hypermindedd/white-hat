@@ -1,0 +1,26 @@
+[project]
+name = "White Hat web"
+goal = "Verify the web C1/C2 candidate for PR #2."
+
+[[commands]]
+id = "web-bff"
+title = "BFF syntax and OIDC regression"
+argv = ["bash", "-ec", "npm run check && npm test"]
+cwd = "apps/web-bff"
+
+[[commands]]
+id = "kotlin-postgres"
+title = "Kotlin API with PostgreSQL and OpenAPI"
+argv = ["bash", "-ec", "python3 scripts/verify_docs.py && node scripts/generate_legacy_parity.mjs && node scripts/generate_server_policy.mjs && node scripts/generate_api_contract.mjs && ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:api:test :server:adapters:test :server:api:installDist && python3 scripts/verify_api_samples.py"]
+
+[[goals]]
+id = "WEB"
+title = "Web BFF checks"
+hard_gate = true
+criteria = [{kind="check",check="command.web-bff"}]
+
+[[goals]]
+id = "DB"
+title = "Kotlin and PostgreSQL checks"
+hard_gate = true
+criteria = [{kind="check",check="command.kotlin-postgres"}]

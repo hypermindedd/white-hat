@@ -1,0 +1,41 @@
+name: White Hat web quality
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pqe-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: saleheebrahimi2029-hub/Qullity-engine
+          ref: 67f3693c5ca3593a1a1eb52f3de54aac40be1cb2
+          path: _pqe
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Prepare tests
+        run: |
+          python3 -m pip install 'jsonschema==4.23.0'
+          npm ci --ignore-scripts --prefix apps/web-bff
+      - name: Run pinned quality engine
+        env:
+          PYTHONPATH: _pqe/src
+        run: python3 -m pqe.cli run . --only commands --out .qa/out/ci --fail-on conditional
+      - name: Preserve quality results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: quality-web-receipts
+          path: .qa/out/ci/
