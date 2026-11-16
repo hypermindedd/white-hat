@@ -27,12 +27,12 @@ jobs:
           node-version: '24'
       - name: Prepare tests
         run: |
-          python3 -m pip install 'jsonschema==4.23.0'
+          python3 -m pip install 'jsonschema==4.23.0' 'ruff==0.17.5' 'bandit==1.9.4'
           npm ci --ignore-scripts --prefix apps/web-bff
       - name: Run pinned quality engine
         env:
           PYTHONPATH: _pqe/src
-        run: python3 -m pqe.cli run . --only commands --out .qa/out/ci --fail-on conditional
+        run: python3 scripts/run_quality_review.py --out .qa/out/ci
       - name: Preserve quality results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
