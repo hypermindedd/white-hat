@@ -22,3 +22,10 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
 }
 tasks.test { testLogging { events("passed", "skipped", "failed"); showStandardStreams = false } }
+
+tasks.register("writeNativeClientFixtureClasspath") {
+    dependsOn(tasks.testClasses)
+    val destination = layout.buildDirectory.file("native-client-fixture-classpath.txt")
+    outputs.file(destination)
+    doLast { destination.get().asFile.writeText(sourceSets.test.get().runtimeClasspath.asPath) }
+}
