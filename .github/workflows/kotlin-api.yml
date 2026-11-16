@@ -44,6 +44,8 @@ jobs:
           bandit -r evaluation scripts -x '*test_*.py'
       - name: Prepare Chromium integration against real Ktor and PostgreSQL
         run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-16
           npm ci --ignore-scripts --prefix apps/web-bff
           npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/whitehat-browser" 'playwright@1.56.1'
           "$RUNNER_TEMP/whitehat-browser/node_modules/.bin/playwright" install --with-deps chromium
@@ -52,11 +54,16 @@ jobs:
           WH_BROWSER_E2E: 'true'
           WH_REVIEW_REPO: ${{ github.workspace }}
           WH_PLAYWRIGHT_MODULE: ${{ runner.temp }}/whitehat-browser/package.json
+          WH_TEST_PG_BIN_DIR: /usr/lib/postgresql/16/bin
         run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :shared:client:jvmTest :shared:client:compileCommonMainKotlinMetadata :shared:client:compileKotlinIosArm64 :shared:client:compileKotlinIosSimulatorArm64 :server:api:test :server:adapters:test :server:api:installDist
       - name: Validate actual HTTP response contracts
         run: |
           python3 -m pip install 'jsonschema==4.23.0'
           python3 scripts/verify_api_samples.py
+      - name: Rehearse legacy cutover and independent restore on synthetic data
+        env:
+          WH_C2_SERVER_BIN: /usr/lib/postgresql/16/bin
+        run: bash scripts/test_legacy_cutover.sh "$GITHUB_WORKSPACE"
       - name: Preserve test receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
