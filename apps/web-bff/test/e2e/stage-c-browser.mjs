@@ -184,6 +184,13 @@ try {
  const sessions=(await db.query('SELECT payload FROM wh_web_sessions')).rows;
  assert.ok(sessions.length>=5);
  assert.ok(sessions.every(x=>Object.values(tokens).every(token=>!x.payload.includes(token))));
+ await owner.route('**/bff/logout',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'IDENTITY_PROVIDER_UNAVAILABLE'})}));
+ await owner.locator('#logout').click();
+ await owner.locator('#toast').filter({hasText:'سرویس ورود موقتاً'}).waitFor();
+ assert.equal(await owner.locator('a[href="/auth/login"]').count(),0);
+ assert.equal((await get(owner,'/bff/session')).status(),200);
+ await owner.unroute('**/bff/logout');
+ report('logout_failure_is_not_reported_as_success',{sessionStillActive:true,retryAvailable:true});
  for(const page of [owner,support,admin,member,outside]){
   await page.locator('#logout').click();await page.locator('a[href="/auth/login"]').waitFor();
   assert.equal((await get(page,'/bff/session')).status(),401);

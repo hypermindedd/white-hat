@@ -31,7 +31,7 @@ function shell(){const role=state.me.workspaces.find(w=>w.id===state.workspace)?
  state.selected=null;state.run=null;state.decisions=[];state.screen='overview';
  try{await loadDecisions();}catch(error){if(state.workspace===workspace)showError(error);}
  if(state.session&&state.workspace===workspace){render();document.querySelector('#workspaces').focus();}};
- document.querySelector('#logout').onclick=async()=>{try{await api('/bff/logout',{method:'POST'});}catch(e){showError(e);}finally{state.session=null;renderLogin();}};
+ document.querySelector('#logout').onclick=async()=>{try{await api('/bff/logout',{method:'POST'});state.session=null;renderLogin();}catch(e){showError(e);}};
  document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=async()=>{state.screen=b.dataset.screen;state.selected=null;state.run=null;render();
   document.querySelector('nav [aria-current="page"]')?.focus();});
 }
