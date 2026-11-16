@@ -9,7 +9,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   contracts-and-api:
-    runs-on: ubuntu-latest
+    # The pinned browser toolchain supports Ubuntu 24.04, not the floating 26.04 image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
