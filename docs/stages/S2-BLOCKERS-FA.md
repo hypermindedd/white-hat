@@ -1,6 +1,8 @@
-# وایت هت — موانع پذیرش مرحلهٔ دوم
+# وایت هت — سابقهٔ موانع S2 و مرز ورود به تولید
 
-## وضعیت جاری — ۱۷ نوامبر ۲۰۲۶، checkpoint 06
+**وضعیت جاری checkpoint 07:** S2 مهندسی در reference staging طبق [closure](S2-CLOSURE-FA.md) و ADR-012 پذیرفته شد. source pin موجود قفل شد؛ Keycloak/TLS/failover و سیاست disposable reference با شاهد بسته شدند. هدف مشتری/تولید و human AT و سیاست دادهٔ واقعی همچنان پذیرش مستقل می‌خواهند؛ مطالب پایین سابقهٔ موانع قبلی‌اند.
+
+## سابقهٔ checkpoint 06 — پیش از تصمیم و پذیرش مرجع
 
 کد مرجع: `cc101d00dbd63df0a4e7586e01a6c9413d953e71`؛ [دستور ادامه و بازیابی](../handoffs/WH-S2-KOTLIN-COMMERCIAL-20261117-FA.md).
 

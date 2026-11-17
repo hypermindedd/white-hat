@@ -1,0 +1,247 @@
+{
+  "checkpoint": "WH-S2-CLOSURE-20261117-07",
+  "status": "ACCEPTED_REFERENCE_STAGING",
+  "production_status": "NOT_ACCEPTED",
+  "code_sha": "b6206383e6af9c39e4ae8c61ec7c6f9970acecc4",
+  "code_tree": "f30700605d0d8a0bbfeba2aa5810839124f920db",
+  "tested_merge_sha": "e46e2bdff14ff69acb63d5e93a3daae2df9ee191",
+  "decision_basis": "Owner-directed engineering closure; ADR-012 fixes the implemented panel and disposable reference-staging policy. No external target, human sign-off or customer deployment is claimed.",
+  "artifacts": [
+    {
+      "id": 14319186776,
+      "kind": "kotlin",
+      "sha256": "07f9c171384c1a7d6be6bb6faeacaf8431ec22b96e8c20534714f0546057c3f6",
+      "size_bytes": 70648,
+      "actual_bytes_verified": true
+    },
+    {
+      "id": 14318512609,
+      "kind": "quality",
+      "sha256": "fe5bbacb73d9fee79fac9c28a73c367bc1beca821c45040e61e55fc738939ac9",
+      "size_bytes": 24251,
+      "actual_bytes_verified": true
+    },
+    {
+      "id": 14318926912,
+      "kind": "reference",
+      "sha256": "d94ab91f378d57f6a9746a1b88078b602a0ad730a900df149c751a04fb2d2863",
+      "size_bytes": 834,
+      "actual_bytes_verified": true
+    }
+  ],
+  "junit_totals": {
+    "tests": 64,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junit_suites": [
+    {
+      "path": "server/adapters/build/test-results/test/TEST-whitehat.adapters.CommercialPlansTest.xml",
+      "sha256": "f68d30fdc0fab6e781dc8c3bd245de554a4ebd4e8ba341f4fbd68d580a6abd13",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/adapters/build/test-results/test/TEST-whitehat.adapters.ResponsesProviderTest.xml",
+      "sha256": "4c5bdcbdea211bb51a81efceb672126bc7597c805772d0c6462fef6cd3c9bc51",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/api/build/test-results/test/TEST-whitehat.api.AccessIdentityTest.xml",
+      "sha256": "bfc16f0bf1f27b9d31d9bbf1e361191c8b82f59d4e343d1a1cd9eccb768ed4b5",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/api/build/test-results/test/TEST-whitehat.api.ApiIntegrationTest.xml",
+      "sha256": "32479c6862838055ca05b58cffbdc8e0ff77dd60a09e541d26311b42902793b2",
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/api/build/test-results/test/TEST-whitehat.api.DatabaseRuntimeSettingsTest.xml",
+      "sha256": "1a0d42f26a85d617ac8f011590796fd11fc8f4068bc8e2fe8a65e1132f62cefe",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.LocalClientIntegrationTest.xml",
+      "sha256": "da6ccfc73174c1ab3fc735952b471a77899c4575dc4bceb0acaaea833e1d1d00",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.OidcNativeIdentityTest.xml",
+      "sha256": "72d70e316e6ebc3a9a95c192d4234ba7e9514f912264f944bf229804fec6ef00",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.WhiteHatClientTest.xml",
+      "sha256": "e13de0fe2318ec3771c087654896271a72828dfe7c7d9c646b365179b8080182",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/contracts/build/test-results/jvmTest/TEST-whitehat.contracts.LegacyOutputValidatorTest.xml",
+      "sha256": "b2e15a0dd9fc4f9097ea56a7f653d5f31b8824e944edd73fe3d1444801cc5791",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/contracts/build/test-results/jvmTest/TEST-whitehat.contracts.LegacyParityTest.xml",
+      "sha256": "96f96b70dbc34fa2f94950556b05ce3a9bafaf2edca182c1f2a1e532711c7842",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "quality": {
+    "decision": {
+      "decision": "GO",
+      "reasons": [
+        "no blocking findings; all hard-gate goals met"
+      ]
+    },
+    "counts": {
+      "PASS": 15,
+      "SKIPPED": 10
+    },
+    "skipped": [
+      {
+        "id": "architecture.mirrors",
+        "reason": "no mirrors declared in contract"
+      },
+      {
+        "id": "functional.pytest",
+        "reason": "no Python test layout detected"
+      },
+      {
+        "id": "security.dependencies.python",
+        "reason": "no requirements files to audit (security.pip_audit_requirements)"
+      },
+      {
+        "id": "security.sast.semgrep",
+        "reason": "no semgrep_configs declared in contract"
+      },
+      {
+        "id": "api",
+        "reason": "api verification not enabled in contract"
+      },
+      {
+        "id": "web",
+        "reason": "web audit not enabled in contract"
+      },
+      {
+        "id": "ui",
+        "reason": "ui verification not enabled in contract"
+      },
+      {
+        "id": "android",
+        "reason": "android checks not enabled in contract"
+      },
+      {
+        "id": "ios",
+        "reason": "ios checks not enabled in contract"
+      },
+      {
+        "id": "goals.traceability",
+        "reason": "no trace_sources declared in contract"
+      }
+    ]
+  },
+  "reference_staging": {
+    "scope": "ephemeral reference staging; no customer data or production acceptance",
+    "issuerSoftware": "Keycloak 26.4.7",
+    "results": [
+      {
+        "check": "trusted_tls_and_rejected_untrusted_ca",
+        "pass": true,
+        "tls": true,
+        "realIdp": "Keycloak",
+        "httpEnabled": false
+      },
+      {
+        "check": "real_keycloak_pkce_login_and_secure_cookie",
+        "pass": true,
+        "realApi": true,
+        "replicas": 2
+      },
+      {
+        "check": "non_owner_nobypassrls_and_csrf",
+        "pass": true,
+        "applicationRole": {
+          "rolsuper": false,
+          "rolbypassrls": false
+        },
+        "modes": 7
+      },
+      {
+        "check": "wcag_automated_aria_keyboard_and_mobile",
+        "pass": true,
+        "axeViolations": 0,
+        "manualAssistiveTechnologyReview": false
+      },
+      {
+        "check": "replica_failure_and_real_refresh_rotation",
+        "pass": true,
+        "survivingReplicas": 1,
+        "concurrentReads": 6,
+        "sameDecision": true,
+        "realJwksRollover": true
+      },
+      {
+        "check": "real_idp_revocation_and_session_erasure",
+        "pass": true,
+        "encryptedStore": true,
+        "remainingSessions": 0
+      }
+    ]
+  },
+  "keycloak_image": [
+    "quay.io/keycloak/keycloak@sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007"
+  ],
+  "recovery": {
+    "rehearsal_seconds": 3,
+    "rto_fixture_upper_bound_seconds": 120,
+    "rpo_checkpoint_writes": 0,
+    "scope": "small synthetic two-cluster fixture, not production sizing"
+  },
+  "regression": {
+    "first_reference_run": 44060647049,
+    "first_reference_status": "FAIL",
+    "defect": "serious logout color contrast",
+    "fix_commit": "30bda6b2abd528439c1865c13329ed67915c387d",
+    "final_axe_violations": 0
+  },
+  "recovery_ref": "recovery/wh-s2-accepted-reference-20261117",
+  "open_release_gates": [
+    "Customer deployment domain/IdP/secrets/vulnerability review",
+    "Human assistive-technology acceptance",
+    "Customer data retention/deletion/backup policy and recovery under real workload",
+    "Real-model evaluation with budget and human review",
+    "Voice donor source and device/provider acceptance",
+    "Native install/signing; sandbox billing and pilot"
+  ]
+}
