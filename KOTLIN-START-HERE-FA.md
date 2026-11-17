@@ -1,5 +1,7 @@
 # شروع ساخت Kotlin و اپ‌های White Hat
 
+**ادامهٔ جاری — ۱۷ نوامبر ۲۰۲۶:** [checkpoint 06 و دستور صالحه](docs/handoffs/WH-S2-KOTLIN-COMMERCIAL-20261117-FA.md). کد آزموده‌شده `cc101d00dbd63df0a4e7586e01a6c9413d953e71`؛ recovery ref: `recovery/wh-s2-kotlin-commercial-20261117`. S2 همچنان طبق [سه گیت باز](docs/stages/S2-BLOCKERS-FA.md) BLOCKED است؛ موفقیت ۶۳ تست/JUnit نهایی و quality ۱۴ PASS/۱۰ SKIP پذیرش تولید نیست.
+
 این شاخه، معماری، سورس بازیابی‌شده، ماژول قرارداد مشترک و برش اجرایی API کاتلین را دارد. محصول کامل و اپ منتشرشده نیست.
 
 - [انتخاب زبان، پلتفرم، مرزها و مهاجرت](docs/architecture/ADR-010-KOTLIN-PLATFORMS-FA.md)

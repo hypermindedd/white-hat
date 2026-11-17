@@ -62,3 +62,22 @@ python3 scripts/verify_api_samples.py
 بررسی آخر به Python package `jsonschema` نیاز دارد. تست API از Ktor test host، Netty روی HTTP loopback واقعی و PostgreSQL واقعی embedded استفاده می‌کند؛ provider و JWT issuer در تست fixture هستند. آزمون مرورگر روی BFF، Netty و PostgreSQL واقعی با هویت مصنوعی، تمرین مصنوعی انتقال SQLite، RLS، backup/restore و چرخهٔ کلاینت مشترک در workflow بازبینی تعریف شده‌اند. نتیجهٔ هر اجرا باید روی SHA همان نسخه از خروجی خام خوانده شود. AI و IdP واقعی، TLS استقرار هدف، پذیرش کامل رابط، صوت، امنیت/بار، سیاست داده و نصب و امضای دستگاه‌ها هنوز گیت باز دارند. تست ساخت/قرارداد معادل benchmark هوشمندی نیست.
 
 CI در `.github/workflows/kotlin-api.yml` تعریف شده و مستقل از نتیجه اجرای محلی گزارش می‌شود. هیچ workflow این مرحله deploy نمی‌کند. raw stage receipts در `evidence/kotlin-api` قرار می‌گیرند.
+
+## تکمیل Kotlin — checkpoint 06
+
+کد آزموده‌شده `cc101d00dbd63df0a4e7586e01a6c9413d953e71` است. [تحویل و شواهد مستقل](../docs/handoffs/WH-S2-KOTLIN-COMMERCIAL-20261117-FA.md) و [پلن تجاری پیشنهادی](../docs/commerce/COMMERCIAL-PLANS-FA.md) را پیش از ادامه بخوانید.
+
+| تنظیم محیط | پیش‌فرض | محدوده |
+|---|---:|---|
+| `WH_DATABASE_POOL_SIZE` | ۸ | ۲ تا ۶۴ |
+| `WH_DATABASE_CONNECTION_TIMEOUT_MS` | ۳۰۰۰ | ۲۵۰ تا ۳۰۰۰۰ |
+| `WH_DATABASE_STATEMENT_TIMEOUT_MS` | ۱۰۰۰۰ | ۱۰۰ تا ۱۲۰۰۰۰ |
+| `WH_DATABASE_LOCK_TIMEOUT_MS` | ۲۰۰۰ | ۵۰ تا statement timeout |
+
+override نامعتبر startup را رد می‌کند. زمان lock/statement transaction-local است. شکست write rollback می‌شود و خطای اصل در شکست rollback حفظ می‌شود؛ timeout/قفل با `DATABASE_BUSY` و ناپایداری اتصال با `DATABASE_UNAVAILABLE` و HTTP 503 نمایش داده می‌شوند. mutation و provider خودکار تکرار نمی‌شوند. consumer برای تکرار باید idempotency/revision و نتیجهٔ قبلی را بررسی کند.
+
+`GET /api/v1/health` همچنان liveness است؛ `GET /api/v1/ready` با query محدود دیتابیس، آمادگی را کنترل می‌کند و در عدم دسترسی 503 می‌دهد. این endpoint گواهی آمادگی provider یا پذیرش تولید نیست.
+
+`GET/POST /api/v1/workspaces/{workspace}/admin/plan-preview` فقط برای OWNER/ADMIN است؛ POST فرض هزینه/حاشیه را محاسبه می‌کند، نه صورتحساب. `billing_enabled=false` و `status=proposal` ثابت‌اند. قیمت نامعلوم null، Enterprise نامعین و entitlement جاری بدون تغییر می‌مانند. قرارداد OpenAPI و نمونه‌های واقعی API تست شده‌اند.
+
+مرزبندی Kotlin، گراف Gradle و DB صرفاً transport در BFF با `python3 scripts/verify_architecture.py` کنترل و در quality engine به‌عنوان hard gate اجرا می‌شود. این کنترل static است؛ آزمون امنیت/دادهٔ runtime همچنان لازم است. تعداد pool یا timeout مناسب تولید باید با workload و ظرفیت محیط اندازه‌گیری شود؛ این تغییر ادعای throughput تولید ندارد.

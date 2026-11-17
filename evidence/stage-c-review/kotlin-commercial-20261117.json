@@ -1,0 +1,232 @@
+{
+  "checkpoint": "WH-S2-KOTLIN-20261117-06",
+  "code_sha": "cc101d00dbd63df0a4e7586e01a6c9413d953e71",
+  "code_tree": "08d517b1fc813a3da40446ea2641426639bc9568",
+  "tested_merge_sha": "6f0258a99e622345d9120995abff850bc9278dea",
+  "junit_final_totals": {
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "junit_suites": [
+    {
+      "path": "server/adapters/build/test-results/test/TEST-whitehat.adapters.CommercialPlansTest.xml",
+      "sha256": "63958a9936c1e416ea3bb1bac2c0e26f71c5beba39cc01d9279883d98795c96a",
+      "name": "whitehat.adapters.CommercialPlansTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/adapters/build/test-results/test/TEST-whitehat.adapters.ResponsesProviderTest.xml",
+      "sha256": "5a3b113c275b31497c7820be40f3681d90cfab3536ca4e3f14fec5064e75c499",
+      "name": "whitehat.adapters.ResponsesProviderTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/api/build/test-results/test/TEST-whitehat.api.ApiIntegrationTest.xml",
+      "sha256": "1507aa5a6704ca66b32211a2700d0299481f7dc5a029767af3b280f114c373d3",
+      "name": "whitehat.api.ApiIntegrationTest",
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "server/api/build/test-results/test/TEST-whitehat.api.DatabaseRuntimeSettingsTest.xml",
+      "sha256": "c2cb99de940da27ecfc761bc1c85b7b39e6540063e161fd5d68508861d9a42af",
+      "name": "whitehat.api.DatabaseRuntimeSettingsTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.LocalClientIntegrationTest.xml",
+      "sha256": "e7f07f71115a5fdeae7c4b813ace307bdf93e72b990da36843afa4afa67e40ac",
+      "name": "whitehat.client.LocalClientIntegrationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.OidcNativeIdentityTest.xml",
+      "sha256": "395b7140090e79a34bebd81ad4a9dae7b398386618192aa6039c09faf5610507",
+      "name": "whitehat.client.OidcNativeIdentityTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/client/build/test-results/jvmTest/TEST-whitehat.client.WhiteHatClientTest.xml",
+      "sha256": "cddb04ae361ecf2543fa816117fc84ef54f52ef8ebdae4662cc498be3259ee3f",
+      "name": "whitehat.client.WhiteHatClientTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/contracts/build/test-results/jvmTest/TEST-whitehat.contracts.LegacyOutputValidatorTest.xml",
+      "sha256": "b834bc70ccfd042e4cc30ff02566a5aa66261fe88ad09fa010efb357874dbd6c",
+      "name": "whitehat.contracts.LegacyOutputValidatorTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "shared/contracts/build/test-results/jvmTest/TEST-whitehat.contracts.LegacyParityTest.xml",
+      "sha256": "399ff5b7a09c8ac369e613d1108c9dfbdd30743de0facbf272cdde951dcbf177",
+      "name": "whitehat.contracts.LegacyParityTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "actual_response_samples_validated": [
+    "pilot-usage.json",
+    "plan-catalog.json",
+    "plan-estimate.json",
+    "run-blind.json",
+    "run-challenge.json",
+    "run-compare.json",
+    "run-devil.json",
+    "run-kill.json",
+    "run-premortem.json",
+    "run-reality.json"
+  ],
+  "browser_assertions": [
+    {
+      "check": "sqlite_rehearsal",
+      "pass": true,
+      "source": 2,
+      "committed": 1,
+      "quarantined": 1,
+      "reason": "unmapped_subject",
+      "rollbackAfterWrite": true,
+      "sourceCopySha256": "cf50c22ec206ea3251e0ec1d6fa39cadc4ae203af744331d36c9132550413e1f"
+    },
+    {
+      "check": "commercial_proposals_are_scoped_and_inactive",
+      "pass": true,
+      "billingEnabled": false,
+      "privateCostsNotInvented": true
+    },
+    {
+      "check": "transient_boot_recovery",
+      "pass": true,
+      "sessionAndApiUnavailable": true,
+      "keyboardRetry": true,
+      "existingSessionRetained": true
+    },
+    {
+      "check": "logout_failure_is_not_reported_as_success",
+      "pass": true,
+      "sessionStillActive": true,
+      "retryAvailable": true
+    },
+    {
+      "check": "chromium_bff_and_postgres",
+      "pass": true,
+      "upstream": "real-ktor-with-synthetic-identity-and-provider",
+      "roles": [
+        "OWNER",
+        "SUPPORT",
+        "ADMIN",
+        "MEMBER",
+        "outside"
+      ],
+      "deprovisionedOpenSession": true,
+      "mobileRtl": true,
+      "keyboardNavigation": true,
+      "analysisAndFeedbackControls": true,
+      "privateDataIsolation": true,
+      "grantRevokeInSameSession": true,
+      "receiptRendered": true,
+      "encryptedSessions": true,
+      "logoutRevocation": true
+    }
+  ],
+  "quality": {
+    "decision": {
+      "decision": "GO",
+      "reasons": [
+        "no blocking findings; all hard-gate goals met"
+      ]
+    },
+    "counts": {
+      "PASS": 14,
+      "SKIPPED": 10
+    },
+    "skipped": [
+      {
+        "check_id": "architecture.mirrors",
+        "reason": "no mirrors declared in contract"
+      },
+      {
+        "check_id": "functional.pytest",
+        "reason": "no Python test layout detected"
+      },
+      {
+        "check_id": "security.dependencies.python",
+        "reason": "no requirements files to audit (security.pip_audit_requirements)"
+      },
+      {
+        "check_id": "security.sast.semgrep",
+        "reason": "no semgrep_configs declared in contract"
+      },
+      {
+        "check_id": "api",
+        "reason": "api verification not enabled in contract"
+      },
+      {
+        "check_id": "web",
+        "reason": "web audit not enabled in contract"
+      },
+      {
+        "check_id": "ui",
+        "reason": "ui verification not enabled in contract"
+      },
+      {
+        "check_id": "android",
+        "reason": "android checks not enabled in contract"
+      },
+      {
+        "check_id": "ios",
+        "reason": "ios checks not enabled in contract"
+      },
+      {
+        "check_id": "goals.traceability",
+        "reason": "no trace_sources declared in contract"
+      }
+    ],
+    "kotlin_architecture_check": "PASS",
+    "python_architecture_note": "Built-in Python check reports zero rules; Kotlin source/build/BFF contract is enforced by the separate required command.kotlin-architecture hard gate."
+  },
+  "artifacts": [
+    {
+      "id": 14268921831,
+      "sha256": "38bb1189e04763503462001436091ba753ec31eb3fb41556897437d82696d1e6",
+      "size_bytes": 64585,
+      "downloaded_bytes_verified": true
+    },
+    {
+      "id": 14266694325,
+      "sha256": "b5ee38d0cd0ca709e063d18a9d5f1709f6794ca4b328acd87485d2aa248d26f2",
+      "size_bytes": 23824,
+      "downloaded_bytes_verified": true
+    }
+  ],
+  "recovery_ref": "recovery/wh-s2-kotlin-commercial-20261117",
+  "s2_status": "BLOCKED",
+  "fixture_boundary": "Actual Chromium/Ktor/PostgreSQL; synthetic IdP/provider/data. No model calls or live billing. Native builds are not installation/signing acceptance."
+}

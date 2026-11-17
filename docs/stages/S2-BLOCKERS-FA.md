@@ -1,5 +1,21 @@
 # وایت هت — موانع پذیرش مرحلهٔ دوم
 
+## وضعیت جاری — ۱۷ نوامبر ۲۰۲۶، checkpoint 06
+
+کد مرجع: `cc101d00dbd63df0a4e7586e01a6c9413d953e71`؛ [دستور ادامه و بازیابی](../handoffs/WH-S2-KOTLIN-COMMERCIAL-20261117-FA.md).
+
+بررسی مستقل ZIP و JUnit این نسخه تکمیل شد: ۶۳ آزمون نهایی، صفر شکست/خطا/skip. کیفیت ۱۴ PASS/۱۰ SKIPPED و configured-scope GO؛ وب ۱۹ PASS/یک SKIP که تمرین مستقل cutover آن را پوشش می‌دهد. source import، auth recovery، آزمون native client و DB fixture دیگر مانع اجرایی این checkpoint نیستند. [رسید کامل](../../evidence/stage-c-review/kotlin-commercial-20261117.json).
+
+| مانع باقی‌مانده برای S2 | صاحب اقدام و محل | شاهد لازم برای بستن |
+|---|---|---|
+| منبع معتبر پنل جامع White Hat احراز نشده | هرمتیکو ورودی؛ صالحه ادغام — Issue #5 | repo/path/commit/hash، مجوز و mapping قابلیت/role/API؛ current adapter به‌تنهایی اثبات آخرین پنل نیست |
+| محیط واقعیِ TLS/IdP و پذیرش کامل امنیت/نشست/a11y/failover احراز نشده | Chief محیط و دسترسی امن؛ صالحه اجرا — Issue #6 | اجرای target-specific روی SHA دقیق، نقش/tenant/private isolation، replay/refresh/revoke، چند replica، خطا/reconnect و دسترس‌پذیری |
+| سیاست داده و پذیرش عملیاتی recovery تصویب/آزمون نشده | Chief/مالک سیاست؛ صالحه تمرین — Issue #6 و #7 | consent/retention/deletion، نگاشت/quarantine، RPO/RTO، backup/restore با حفظ write جدید و sign-off مستقل |
+
+**S2 BLOCKED باقی می‌ماند.** موفقیت CI آزمایشی جای این سه شاهد را نمی‌گیرد. مدل واقعی، صوت، native install/signing و پرداخت/پایلوت گیت‌های مستقل مراحل بعد هستند و مانع ساختگی برای این فاز حساب نمی‌شوند.
+
+## سابقهٔ بازبینی ۱۶ نوامبر — وضعیت‌های زیر تاریخی‌اند
+
 تاریخ: ۱۶ نوامبر ۲۰۲۶. بازبین: forerunner. درخواست بازبینی مستقل: https://github.com/hypermindedd/white-hat/pull/3
 
 بستهٔ صالحه با نسخهٔ اصلی `4af84076a2f6269a2200c525d646a25652a9e71b` بررسی شد؛ تمام ۵۳ هش، اتصال تاریخچه و برابری درخت بسته و فایل تغییرات تأیید شد. کامیت واردشدهٔ `e69cd6c4817f708bdaf3dc1c2f2a8dbe7e108c90` همان درخت را دارد و هویت کامیت جدید است. تاریخچهٔ اصلی در بستهٔ درایو حفظ شده است.
