@@ -1,18 +1,11 @@
 package whitehat.api
 
-import com.auth0.jwk.JwkProviderBuilder
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.interfaces.RSAKeyProvider
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.*
-import java.net.URI
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
 import java.util.concurrent.TimeUnit
 import whitehat.adapters.*
 import whitehat.application.RunWorker
@@ -31,15 +24,7 @@ fun main(args: Array<String>) {
     HikariDataSource(config).use { dataSource ->
         if (args.contentEquals(arrayOf("--migrate"))) { PostgresStore.migrate(dataSource); return }
         PostgresStore.validate(dataSource)
-        val issuer = required("WH_AUTH_ISSUER"); val jwks = URI(required("WH_AUTH_JWKS_URL")); val audience = required("WH_AUTH_AUDIENCE")
-        require(URI(issuer).scheme == "https" && jwks.scheme == "https" && jwks.userInfo == null) { "HTTPS identity configuration required" }
-        val keys = JwkProviderBuilder(jwks.toURL()).cached(10, 6, TimeUnit.HOURS).rateLimited(10, 1, TimeUnit.MINUTES).build()
-        val algorithm = Algorithm.RSA256(object : RSAKeyProvider {
-            override fun getPublicKeyById(keyId: String?): RSAPublicKey = keys.get(requireNotNull(keyId)).publicKey as RSAPublicKey
-            override fun getPrivateKey(): RSAPrivateKey? = null
-            override fun getPrivateKeyId(): String? = null
-        })
-        val verifier = JWT.require(algorithm).withIssuer(issuer).withAudience(audience).withClaim("token_use", "access").build()
+        val verifier = accessIdentityVerifier(required("WH_AUTH_ISSUER"), required("WH_AUTH_JWKS_URL"), required("WH_AUTH_AUDIENCE"))
         val policy = EnginePolicy()
         val limit = System.getenv("WH_DAILY_RUN_LIMIT")?.toIntOrNull() ?: 20
         val store = PostgresStore(dataSource, policy.hash, limit, databaseSettings.statementTimeoutMillis, databaseSettings.lockTimeoutMillis)
