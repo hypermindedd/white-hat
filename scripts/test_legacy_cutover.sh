@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 repo="${1:?Usage: legacy-cutover-drill.sh /absolute/white-hat}"
+rehearsal_started="$(date +%s)"
 bin="${WH_C2_SERVER_BIN:?Provide the PostgreSQL 16 server bin directory}"
 export WH_C2_PG_BIN="${WH_C2_PG_BIN:-$bin}"
 first="${WH_C2_FIRST_PORT:-35445}"
@@ -20,3 +21,6 @@ while IFS= read -r f; do
  "$WH_C2_PG_BIN/psql" -Xq -v ON_ERROR_STOP=1 "$WH_C2_ORIGIN_DB" -f "$f"
 done < <(find "$repo/server/adapters/src/main/resources/db/migration" -maxdepth 1 -name 'V*.sql' | sort -V)
 node --test "$repo/apps/web-bff/test/legacy-cutover.test.mjs"
+rehearsal_duration="$(( $(date +%s) - rehearsal_started ))"
+test "$rehearsal_duration" -le 120
+python3 -c 'import json,sys;print(json.dumps({"check":"reference_recovery_budget","pass":True,"rehearsal_seconds":int(sys.argv[1]),"rto_upper_bound_seconds":120,"rpo_checkpoint_writes":0,"scope":"small synthetic two-cluster fixture, not production sizing"}))' "$rehearsal_duration"

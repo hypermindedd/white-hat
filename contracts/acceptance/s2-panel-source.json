@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "project": "White Hat / Second Mind",
+  "source_repository": "hypermindedd/white-hat",
+  "source_commit": "30bda6b2abd528439c1865c13329ed67915c387d",
+  "adoption": "Owner-directed S2 closure adopts the existing implemented White Hat panel; no claim of discovering an unavailable external design.",
+  "business_authority": "Kotlin/Ktor/PostgreSQL; DOM and BFF are adapters only",
+  "files": [
+    {
+      "path": "apps/web-bff/public/index.html",
+      "sha256": "6502f130b4a09769121e078db19e02897b9ae00a2ea489b04cb271fadad58baf"
+    },
+    {
+      "path": "apps/web-bff/public/panel.js",
+      "sha256": "44087c13226395dbfabbb376d21bbce97b2c6946b11f06d9bb7239ff35ce07ee"
+    },
+    {
+      "path": "apps/web-bff/public/panel.css",
+      "sha256": "152f2ea22d1d9aa462b21607de0dc85afe9a55ec821c93ee644270d66a3bf891"
+    },
+    {
+      "path": "apps/second-mind/public/style.css",
+      "sha256": "1d6c6332bf1db2d088248bb12c95746226bd5c386c8008d507574fedb0b530da"
+    },
+    {
+      "path": "apps/second-mind/public/icon.svg",
+      "sha256": "3aae740f66cc6fe114a13ccd44595a0fbcda9219fff76e197225b3d5427d3c99"
+    },
+    {
+      "path": "apps/web-bff/server.mjs",
+      "sha256": "6906e3ab0a5022c0a671dae469a0c4c67ba043e9a7d54ffa05fe53584152eedb"
+    }
+  ]
+}
