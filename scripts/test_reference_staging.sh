@@ -36,6 +36,7 @@ docker pull quay.io/keycloak/keycloak:26.4.7 >/dev/null
 mkdir -p server/api/build/reference-staging
 docker image inspect quay.io/keycloak/keycloak:26.4.7 --format '{{json .RepoDigests}}' > server/api/build/reference-staging/keycloak-image.json
 docker run -d --name "$container" -p 127.0.0.1:38443:8443 \
+ --env-file "$temporary/keycloak.env" \
  -v "$temporary/server.crt:/opt/keycloak/conf/server.crt:ro" \
  -v "$temporary/server.key:/opt/keycloak/conf/server.key:ro" \
  -v "$temporary/realm:/opt/keycloak/data/import:ro" \

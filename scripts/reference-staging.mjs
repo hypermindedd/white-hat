@@ -12,9 +12,10 @@ const directory=process.argv[3];
 const issuer='https://localhost:38443/realms/whitehat-s2',origin='https://localhost:39443';
 const subject='11111111-2222-4333-8444-555555555555';
 if(process.argv[2]==='--prepare'){
- const password=randomBytes(24).toString('base64url');
+ const password=randomBytes(24).toString('base64url'),adminPassword=randomBytes(24).toString('base64url');
  mkdirSync(resolve(directory,'realm'),{recursive:true});
- writeFileSync(resolve(directory,'credentials.json'),JSON.stringify({password}),{mode:0o600});
+ writeFileSync(resolve(directory,'credentials.json'),JSON.stringify({password,adminPassword}),{mode:0o600});
+ writeFileSync(resolve(directory,'keycloak.env'),'KC_BOOTSTRAP_ADMIN_USERNAME=wh-reference-admin\nKC_BOOTSTRAP_ADMIN_PASSWORD='+adminPassword+'\n',{mode:0o600});
  const realm={realm:'whitehat-s2',enabled:true,sslRequired:'all',registrationAllowed:false,
   accessTokenLifespan:45,ssoSessionIdleTimeout:300,ssoSessionMaxLifespan:600,
   revokeRefreshToken:true,refreshTokenMaxReuse:0,
@@ -43,6 +44,7 @@ const close=server=>new Promise(ok=>server.close(ok));
 const sessionAdmin=new Client({connectionString:ready.sessionAdminDb});
 const appClient=new Client({connectionString:ready.appDb});
 const servers=[];let edge,browser;
+const signingKids=new Set();
 try {
  await sessionAdmin.connect();await appClient.connect();
  await sessionAdmin.query(readFileSync(resolve('apps/web-bff/db/session-store.sql'),'utf8'));
@@ -54,7 +56,15 @@ try {
  const sessionKeys=randomBytes(32).toString('base64');
  const active=[];
  for(let i=0;i<2;i++){
-  const {server}=createBff({env:{WH_WEB_ORIGIN:origin,WH_API_BASE:ready.api,WH_OIDC_ISSUER:issuer,
+  const observeIdentity=async(url,options)=>{
+   const response=await fetch(url,options);
+   if(String(url).endsWith('/token')&&response.ok){
+    const token=(await response.clone().json()).access_token;
+    signingKids.add(JSON.parse(Buffer.from(token.split('.')[0],'base64url')).kid);
+   }
+   return response;
+  };
+  const {server}=createBff({httpClient:observeIdentity,env:{WH_WEB_ORIGIN:origin,WH_API_BASE:ready.api,WH_OIDC_ISSUER:issuer,
    WH_OIDC_CLIENT_ID:'whitehat-reference-web',WH_WEB_SESSION_DATABASE_URL:sessionUrl.toString(),WH_WEB_SESSION_KEYS:sessionKeys}});
   servers.push(server);active.push({server,port:await listen(server)});
  }
@@ -103,12 +113,24 @@ try {
  report('wcag_automated_aria_keyboard_and_mobile',{axeViolations:0,manualAssistiveTechnologyReview:false});
  active.shift();await close(servers[0]);
  assert.equal((await page.request.get(origin+'/bff/session')).status(),200);
+ const adminResponse=await fetch('https://localhost:38443/realms/master/protocol/openid-connect/token',{
+  method:'POST',headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams({
+   client_id:'admin-cli',grant_type:'password',username:'wh-reference-admin',password:JSON.parse(readFileSync(resolve(directory,'credentials.json'))).adminPassword})});
+ assert.equal(adminResponse.status,200);
+ const adminHeaders={Authorization:'Bearer '+(await adminResponse.json()).access_token,'content-type':'application/json'};
+ const realmResponse=await fetch('https://localhost:38443/admin/realms/whitehat-s2',{headers:adminHeaders});assert.equal(realmResponse.status,200);
+ const realmId=(await realmResponse.json()).id;
+ const rotated=await fetch('https://localhost:38443/admin/realms/whitehat-s2/components',{
+  method:'POST',headers:adminHeaders,body:JSON.stringify({name:'reference-rotated-rsa',parentId:realmId,
+   providerType:'org.keycloak.keys.KeyProvider',providerId:'rsa-generated',config:{priority:['200'],algorithm:['RS256'],active:['true'],enabled:['true'],keySize:['2048']}})});
+ assert.equal(rotated.status,201);
  // Real time, rather than a fake IdP clock: enter the refresh window of the 45-second token.
  await new Promise(ok=>setTimeout(ok,17000));
  const concurrent=await Promise.all(Array.from({length:6},()=>page.request.get(origin+'/bff/api/v1/me')));
  assert.ok(concurrent.every(r=>r.status()===200));
+ assert.ok(signingKids.size>=2,'Refreshed tokens must use the newly activated real Keycloak signing key');
  assert.equal((await (await page.request.get(privatePath)).json()).items[0].id,decision.id);
- report('replica_failure_and_real_refresh_rotation',{survivingReplicas:1,concurrentReads:6,sameDecision:true});
+ report('replica_failure_and_real_refresh_rotation',{survivingReplicas:1,concurrentReads:6,sameDecision:true,realJwksRollover:true});
  const payloads=(await sessionAdmin.query('SELECT payload FROM wh_web_sessions')).rows;
  assert.equal(payloads.length,1);assert.ok(payloads.every(x=>!x.payload.includes('access_token')&&!x.payload.includes('refresh_token')));
  const logout=await page.request.post(origin+'/bff/logout',{headers:{Origin:origin,'x-csrf-token':state.csrf}});
