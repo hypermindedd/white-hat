@@ -64,4 +64,51 @@ class ResponsesProviderTest {
             assertEquals("PROVIDER_OUTCOME_UNKNOWN", failure.code); assertTrue(failure.uncertain)
         }
     }
+    @Test fun g001RejectsWrongInputAndCannotGenerateOverTheInputLimit() = runBlocking {
+        var reserved = false
+        var calls = 0
+        val expected = decision().copy(input = G001Dispatch.input)
+        val guard = G001Dispatch(expected.workspace, expected.owner) { _, _, _ ->
+            (!reserved).also { reserved = true }
+        }
+        val client = HttpClient(MockEngine { request ->
+            calls++
+            assertEquals("/v1/responses/input_tokens", request.url.encodedPath)
+            val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject
+            assertEquals(setOf("model", "instructions", "input", "text"), body.keys)
+            respond("""{"object":"response.input_tokens","input_tokens":10001}""", HttpStatusCode.OK)
+        })
+        ResponsesProvider("fixture-key", G001Dispatch.BASELINE, EnginePolicy(), client, guard).use { provider ->
+            assertEquals("G001_SCOPE_REJECTED", assertFailsWith<ProviderFailure> { provider.analyze(decision()) }.code)
+            assertEquals(0, calls)
+            assertEquals("G001_INPUT_TOKEN_LIMIT", assertFailsWith<ProviderFailure> { provider.analyze(expected) }.code)
+            assertEquals("G001_ATTEMPT_USED", assertFailsWith<ProviderFailure> { provider.analyze(expected) }.code)
+            assertEquals(1, calls)
+        }
+    }
+
+    @Test fun g001CountsSameInputsAndMakesExactlyOneBoundedGeneration() = runBlocking {
+        val expected = decision().copy(input = G001Dispatch.input)
+        val paths = mutableListOf<String>()
+        var counted: JsonObject? = null
+        val client = HttpClient(MockEngine { request ->
+            paths += request.url.encodedPath
+            val body = Json.parseToJsonElement((request.body as TextContent).text).jsonObject
+            if (request.url.encodedPath.endsWith("/input_tokens")) {
+                counted = body
+                respond("""{"object":"response.input_tokens","input_tokens":10000}""", HttpStatusCode.OK)
+            } else {
+                assertEquals(counted, JsonObject(body.filterKeys { it in requireNotNull(counted).keys }))
+                assertEquals(5000, body.getValue("max_output_tokens").jsonPrimitive.int)
+                respond("""{"status":"completed","id":"fixture-only","model":"gpt-5.4-2026-03-05","usage":{"input_tokens":10000,"output_tokens":24},"output":[{"type":"message","content":[{"type":"output_text","text":"{}"}]}]}""",
+                    HttpStatusCode.OK)
+            }
+        })
+        val guard = G001Dispatch(expected.workspace, expected.owner) { _, _, _ -> true }
+        ResponsesProvider("fixture-key", G001Dispatch.CANDIDATE, EnginePolicy(), client, guard).use { provider ->
+            assertEquals("fixture-only", provider.analyze(expected).receipt.providerId)
+        }
+        assertEquals(listOf("/v1/responses/input_tokens", "/v1/responses"), paths)
+    }
+
 }

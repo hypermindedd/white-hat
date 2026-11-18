@@ -70,7 +70,7 @@ class ApiIntegrationTest {
 
     @Before fun prepare() {
         source = createDatabase()
-        assertEquals(9, PostgresStore.migrate(source))
+        assertEquals(10, PostgresStore.migrate(source))
         store = PostgresStore(source, policy.hash)
         workspace = store.createWorkspace("alice", "تیم ما")
     }
@@ -504,6 +504,17 @@ class ApiIntegrationTest {
         }
     }
 
+    @Test fun g001DispatchKeepsOneReservationPerModelAndWorkspace() {
+        val second = store.createWorkspace("alice", "G001 candidate")
+        val baseline = "gpt-5.4-mini-2026-03-17"
+        val candidate = "gpt-5.4-2026-03-05"
+        assertTrue(store.reserveG001Dispatch("alice", workspace.id, baseline))
+        assertFalse(store.reserveG001Dispatch("alice", workspace.id, baseline))
+        assertFalse(store.reserveG001Dispatch("alice", second.id, baseline))
+        assertFalse(store.reserveG001Dispatch("alice", workspace.id, candidate))
+        assertTrue(store.reserveG001Dispatch("alice", second.id, candidate))
+    }
+
     @Test fun upgradesV7WorkspaceWithoutEnrollingItInPilot() {
         val previous = createDatabase()
         assertEquals(7, Flyway.configure().dataSource(previous)
@@ -526,7 +537,7 @@ class ApiIntegrationTest {
                 assertEquals(1, statement.executeUpdate())
             }
         }
-        assertEquals(2, PostgresStore.migrate(previous))
+        assertEquals(3, PostgresStore.migrate(previous))
         assertEquals(0, PostgresStore.migrate(previous))
         PostgresStore.validate(previous)
         assertEquals("cancelled", previousStore.run("alice", existing.id, run).status)

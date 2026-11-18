@@ -19,7 +19,7 @@ class EnginePolicy {
 }
 
 class ResponsesProvider(private val apiKey: String, private val model: String, private val policy: EnginePolicy,
-    private val client: HttpClient = defaultClient()) : DecisionProvider, AutoCloseable {
+    private val client: HttpClient = defaultClient(), private val g001: G001Dispatch? = null) : DecisionProvider, AutoCloseable {
     override val configured: Boolean get() = apiKey.isNotBlank() && model.isNotBlank()
     companion object {
         fun defaultClient() = HttpClient(CIO) {
@@ -36,13 +36,17 @@ class ResponsesProvider(private val apiKey: String, private val model: String, p
             put("active_mode", decision.input.mode.wireId)
         }
         val request = buildJsonObject {
-            put("model", model); put("store", false); put("max_output_tokens", 5000)
+            put("model", model); put("store", false); put("max_output_tokens", G001Dispatch.MAX_OUTPUT_TOKENS)
             put("instructions", mode.getValue("instructions")); put("input", input.toString())
             putJsonObject("text") { putJsonObject("format") {
                 put("type", "json_schema"); put("name", "second_mind_decision"); put("strict", true); put("schema", mode.getValue("schema"))
             } }
         }
         try {
+            if (g001 != null) {
+                g001.admit(decision, model)
+                preflightInputTokens(request)
+            }
             val response = client.post("https://api.openai.com/v1/responses") {
                 bearerAuth(apiKey); contentType(ContentType.Application.Json); setBody(request.toString())
             }
@@ -65,5 +69,26 @@ class ResponsesProvider(private val apiKey: String, private val model: String, p
         catch (failure: ProviderFailure) { throw failure }
         catch (_: Exception) { throw ProviderFailure("PROVIDER_OUTCOME_UNKNOWN", true) }
     }
+    private suspend fun preflightInputTokens(request: JsonObject) {
+        val countRequest = JsonObject(request.filterKeys { it in setOf("model", "instructions", "input", "text") })
+        val count = try {
+            val response = client.post("https://api.openai.com/v1/responses/input_tokens") {
+                bearerAuth(apiKey)
+                contentType(ContentType.Application.Json)
+                setBody(countRequest.toString())
+            }
+            if (!response.status.isSuccess()) throw ProviderFailure("G001_TOKEN_PRECHECK_FAILED")
+            val raw = response.bodyAsText()
+            if (raw.length > 4096) throw ProviderFailure("G001_TOKEN_PRECHECK_FAILED")
+            Json.parseToJsonElement(raw).jsonObject["input_tokens"]?.jsonPrimitive?.longOrNull
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            throw ProviderFailure("G001_TOKEN_PRECHECK_FAILED")
+        }
+        if (count == null || count < 1) throw ProviderFailure("G001_TOKEN_PRECHECK_FAILED")
+        if (count > G001Dispatch.MAX_INPUT_TOKENS) throw ProviderFailure("G001_INPUT_TOKEN_LIMIT")
+    }
+
     override fun close() { client.close() }
 }

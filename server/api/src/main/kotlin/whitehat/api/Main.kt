@@ -34,7 +34,14 @@ fun main(args: Array<String>) {
             val provider = OpenAiLiveTranscription(required("WH_VOICE_PILOT_API_KEY"))
             VoicePilot(store, workspace, provider::open)
         } else null
-        ResponsesProvider(System.getenv("WH_AI_API_KEY").orEmpty(), System.getenv("WH_AI_MODEL").orEmpty(), policy).use { provider ->
+        val g001 = if (System.getenv("WH_G001_PILOT") == "1") {
+            val workspace = UUID.fromString(required("WH_G001_WORKSPACE"))
+            val operator = required("WH_G001_OPERATOR_SUBJECT")
+            require(required("WH_AI_MODEL") in setOf(G001Dispatch.BASELINE, G001Dispatch.CANDIDATE))
+            required("WH_AI_API_KEY")
+            G001Dispatch(workspace, operator, store::reserveG001Dispatch)
+        } else null
+        ResponsesProvider(System.getenv("WH_AI_API_KEY").orEmpty(), System.getenv("WH_AI_MODEL").orEmpty(), policy, g001 = g001).use { provider ->
             embeddedServer(Netty, host = System.getenv("WH_HOST") ?: "127.0.0.1", port = System.getenv("WH_PORT")?.toInt() ?: 8081) {
                 whiteHatApi(store, verifier, voicePilot) { provider.configured }
                 val worker = RunWorker(store, provider)
