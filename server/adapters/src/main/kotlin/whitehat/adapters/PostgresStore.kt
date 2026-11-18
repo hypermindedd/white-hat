@@ -7,6 +7,7 @@ import java.sql.SQLTransientConnectionException
 import java.sql.SQLTimeoutException
 import java.security.MessageDigest
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
 import javax.sql.DataSource
 import org.flywaydb.core.Flyway
@@ -90,6 +91,74 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
             if (reserved.isEmpty()) throw Fault(429, "VOICE_PILOT_EXHAUSTED")
         }
     }
+
+    fun openVoiceIngress(actor: String, workspace: UUID, session: UUID): UUID = tx(workspace) { c ->
+        requireRole(c, workspace, actor, setOf(Role.OWNER))
+        val lease = UUID.randomUUID()
+        c.exec("""
+            INSERT INTO voice_ingress_sessions(workspace_id, session_id, actor_subject, lease_id)
+            VALUES (?, ?, ?, ?)
+        """.trimIndent(), workspace, session, actor, lease)
+        lease
+    }
+
+    fun rotateVoiceIngress(actor: String, workspace: UUID, session: UUID, expectedLease: UUID): UUID =
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            val lease = UUID.randomUUID()
+            val changed = c.exec("""
+                UPDATE voice_ingress_sessions SET lease_id=?, cursor=0, expires_at=clock_timestamp() + interval '40 seconds'
+                WHERE workspace_id=? AND session_id=? AND actor_subject=? AND lease_id=? AND NOT closed
+            """.trimIndent(), lease, workspace, session, actor, expectedLease)
+            if (changed != 1) throw Fault(409, "VOICE_LEASE_NOT_CURRENT")
+            lease
+        }
+
+    fun closeVoiceIngress(actor: String, workspace: UUID, session: UUID, lease: UUID) {
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            c.exec("""
+                UPDATE voice_ingress_sessions SET closed=true
+                WHERE workspace_id=? AND session_id=? AND actor_subject=? AND lease_id=? AND NOT closed
+            """.trimIndent(), workspace, session, actor, lease)
+        }
+    }
+
+    /** ACK is returned only after the final turn and cursor commit together. */
+    fun acceptVoiceFrame(
+        actor: String,
+        workspace: UUID,
+        session: UUID,
+        validate: (VoiceCursor) -> VoiceIngressResult,
+    ): VoiceIngressResult =
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            val current = c.query("""
+                SELECT lease_id, cursor, closed, expires_at FROM voice_ingress_sessions
+                WHERE workspace_id=? AND session_id=? AND actor_subject=? FOR UPDATE
+            """.trimIndent(), workspace, session, actor) {
+                val state = if (it.getBoolean("closed")) VoiceLeaseState.CLOSED else VoiceLeaseState.ACTIVE
+                VoiceCursor(session, it.getObject("lease_id", UUID::class.java), it.getLong("cursor"), state) to
+                    it.getObject("expires_at", OffsetDateTime::class.java)
+            }.singleOrNull() ?: throw Fault(404, "VOICE_SESSION_UNAVAILABLE")
+            val (cursor, expiry) = current
+            val expired = c.query("SELECT clock_timestamp() >= ?", expiry) { it.getBoolean(1) }.single()
+            if (cursor.state != VoiceLeaseState.ACTIVE || expired) return@tx VoiceIngressResult.Rejected.INACTIVE
+
+            val result = validate(cursor)
+            if (result !is VoiceIngressResult.Ready) return@tx result
+            check(result.sequence > 0 && result.sequence - 1 == cursor.consumedThrough)
+
+            val effect = result.effect
+            val replay = effect is VoiceEffect.FinalTranscript && c.exec("""
+                INSERT INTO voice_ingress_turns(workspace_id, session_id, turn_id, transcript)
+                VALUES (?, ?, ?, ?) ON CONFLICT (workspace_id, session_id, turn_id) DO NOTHING
+            """.trimIndent(), workspace, session, effect.turnId, effect.text) == 0
+            check(c.exec("""
+                UPDATE voice_ingress_sessions SET cursor=? WHERE workspace_id=? AND session_id=?
+            """.trimIndent(), result.sequence, workspace, session) == 1)
+            if (replay) VoiceIngressResult.Replay else result
+        }
 
     fun reserveG001Dispatch(actor: String, workspace: UUID, model: String): Boolean =
         tx(workspace) { c ->

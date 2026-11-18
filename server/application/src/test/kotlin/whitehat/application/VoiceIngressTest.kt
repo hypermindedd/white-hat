@@ -1,6 +1,10 @@
 package whitehat.application
 
 import java.util.UUID
+import whitehat.domain.VoiceLeaseState
+import whitehat.domain.VoiceIngressResult
+import whitehat.domain.VoiceEffect
+import whitehat.domain.VoiceCursor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
