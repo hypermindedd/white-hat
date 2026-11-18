@@ -25,6 +25,17 @@ hard_gate = true
 criteria = [{kind="check",check="command.kotlin-architecture"}]
 
 [[commands]]
+id = "c3-evaluation"
+title = "C3 evaluation receipt integrity"
+argv = ["python3", "-B", "-m", "unittest", "discover", "-s", "evaluation", "-p", "test_*.py"]
+
+[[goals]]
+id = "C3_EVALUATION"
+title = "Evaluation runner and blind comparison integrity"
+hard_gate = true
+criteria = [{kind="check",check="command.c3-evaluation"}]
+
+[[commands]]
 id = "web-bff"
 title = "BFF syntax and OIDC regression"
 argv = ["bash", "-ec", "npm run check && npm test"]

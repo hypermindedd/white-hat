@@ -18,6 +18,7 @@ class MultiTurnCollectionTest(unittest.TestCase):
         workspace, decision = str(uuid4()), str(uuid4())
         requests = []
         runs = {}
+        expected_identity = workspace
 
         class Handler(BaseHTTPRequestHandler):
             def log_message(self, *args):
@@ -41,7 +42,7 @@ class MultiTurnCollectionTest(unittest.TestCase):
                     response = {'id': run_id}
                 elif '/runs/' in self.path:
                     run_id = self.path.rsplit('/', 1)[1]
-                    response = {'id': run_id, 'status': 'succeeded', 'workspace_id': workspace,
+                    response = {'id': run_id, 'status': 'succeeded', 'workspace_id': expected_identity,
                                 'decision_id': decision, 'input_revision': runs[run_id], 'result': {}}
                 else:
                     response = {'id': decision, 'revision': 1 if self.command == 'POST' else body['expected_revision'] + 1}
@@ -73,6 +74,16 @@ class MultiTurnCollectionTest(unittest.TestCase):
                 receipt = json.loads((args.out / 'G001-2.json').read_text())
                 self.assertEqual(receipt['revision'], 2)
                 self.assertEqual(receipt['decision_id'], decision)
+
+                requests.clear()
+                expected_identity = str(uuid4())
+                args.out = root / 'mismatch'
+                with self.assertRaisesRegex(RuntimeError, 'terminal receipt identity mismatch'):
+                    run([{'id': 'G001', 'turns': [{'decision': 'first'}, {'decision': 'second'}]}], args)
+                self.assertFalse(any(row[0] == 'PUT' for row in requests))
+                pending = json.loads((args.out / 'G001-1.json').read_text())
+                self.assertEqual(pending['state'], 'submitted')
+                self.assertIn('run_id', pending)
         finally:
             server.shutdown()
             server.server_close()

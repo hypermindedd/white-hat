@@ -56,8 +56,20 @@ are declarations to cross-check against deployed and provider evidence.
 ```sh
 python3 evaluation/blind_s3.py /tmp/white-hat-golden/execution.json \
   /tmp/white-hat-run-candidate /tmp/white-hat-run-baseline \
-  /tmp/white-hat-reviewer-packet.json /tmp/white-hat-private-key.json
+  /tmp/white-hat-reviewer-packet.json /tmp/white-hat-private-key.json \
+  --provider-evidence /tmp/private-c3-receipts.json
 ```
+
+For a fixture rehearsal, substitute `--fixture` for `--provider-evidence`. The private key
+labels fixture output accordingly. For provider runs, the private export must contain
+`budget_usd_micros`, `engine_policy_sha256`, and a `receipts` array with one row per
+selected run across both arms. Each row contains `run_id`, `workspace_id`, `model`,
+`execution_sha`, `engine_policy_sha256`, `provider_request_id`, `input_tokens`,
+`output_tokens`, and `confirmed_cost_usd_micros`. Collect these fields from the
+approved deployment and provider evidence, and keep the export and A/B key private.
+The tool rejects missing, extra or duplicate receipts, mismatched identities or usage,
+and confirmed cost above the supplied limit. This is reconciliation after execution.
+A submission limit is separate from the spend limit applied before provider calls.
 
 Give reviewers the anonymous packet, criteria.json and the generated review-sheet.csv. Keep the mapping
 private until individual ratings are locked. For each case, record for A and B the

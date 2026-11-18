@@ -41,6 +41,7 @@ class BlindReceiptsTest(unittest.TestCase):
             expected = self.root / row["arm"] / "G001-1.json"
             self.assertEqual(row["receipts"][0]["sha256"], digest(expected))
         self.assertEqual(self.private.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(key["evidence_kind"], "fixture")
 
     def test_cross_workspace_and_wrong_revision_do_not_enter_review(self):
         path = self.arms[0] / "G001-1.json"
@@ -60,3 +61,48 @@ class BlindReceiptsTest(unittest.TestCase):
         path.write_text(json.dumps(row))
         with self.assertRaisesRegex(ValueError, "separate workspaces"):
             self.run_prepare()
+
+    def test_paid_evidence_must_match_both_arms_and_the_confirmed_budget(self):
+        evidence_path = self.root / "provider.json"
+        policy = "b" * 64
+        receipts = []
+        for arm in self.arms:
+            run = json.loads((arm / "run.json").read_text())
+            path = arm / "G001-1.json"
+            recorded = json.loads(path.read_text())
+            recorded["api_output"].update(input_tokens=120, output_tokens=80)
+            path.write_text(json.dumps(recorded))
+            receipts.append({
+                "run_id": recorded["run_id"], "workspace_id": run["workspace"],
+                "model": run["declared_model"], "provider_request_id": f"receipt-{arm.name}",
+                "execution_sha": run["execution_sha"], "engine_policy_sha256": policy,
+                "input_tokens": 120, "output_tokens": 80, "confirmed_cost_usd_micros": 125000,
+            })
+
+        evidence = {"budget_usd_micros": 250000, "engine_policy_sha256": policy, "receipts": receipts}
+
+        def prepare_packet():
+            evidence_path.write_text(json.dumps(evidence))
+            prepare(self.manifest, *self.arms, self.shared, self.private, evidence_path=evidence_path)
+
+        for field, wrong, error in (
+            ("model", "wrong-model", "does not match"),
+            ("execution_sha", "c" * 40, "does not match"),
+            ("engine_policy_sha256", "c" * 64, "does not match"),
+            ("input_tokens", 121, "does not match"),
+            ("confirmed_cost_usd_micros", 125001, "exceeded"),
+            ("provider_request_id", receipts[1]["provider_request_id"], "unique"),
+        ):
+            with self.subTest(field=field):
+                original = receipts[0][field]
+                receipts[0][field] = wrong
+                with self.assertRaisesRegex(ValueError, error):
+                    prepare_packet()
+                self.assertFalse(self.shared.exists())
+                receipts[0][field] = original
+
+        prepare_packet()
+        key = json.loads(self.private.read_text())
+        self.assertEqual(key["evidence_kind"], "provider_reconciled")
+        self.assertEqual(key["evidence_sha256"], digest(evidence_path))
+        self.assertNotIn("receipt-candidate", self.shared.read_text())
