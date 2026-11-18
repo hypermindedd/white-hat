@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>آزمون میکروفن وایت‌هت</title>
+  <link rel="stylesheet" href="/panel.css">
+  <script type="module" src="/voice-pilot.mjs"></script>
+</head>
+<body>
+<main class="wh-main">
+  <section class="wh-panel">
+    <a href="/">برگشت به وایت‌هت</a>
+    <h1>آزمون میکروفن وایت‌هت</h1>
+    <p>با شروع ضبط، صدای آزمایشی برای تبدیل به متن ارسال می‌شه. از اطلاعات محرمانه استفاده نکن. هر تلاش تا ۱۵ ثانیه ضبط می‌کنه.</p>
+    <p id="voice-status" role="status">در حال بررسی دسترسی…</p>
+    <div class="wh-actions">
+      <button id="voice-start" disabled>شروع ضبط</button>
+      <button id="voice-stop" disabled>توقف و دریافت متن</button>
+      <button id="voice-cancel" disabled>لغو</button>
+    </div>
+    <label for="voice-text">متن نهایی برای بازبینی</label>
+    <textarea id="voice-text" class="wh-input" rows="6" readonly></textarea>
+  </section>
+</main>
+</body>
+</html>

@@ -65,7 +65,7 @@ try {
    return response;
   };
   const {server}=createBff({httpClient:observeIdentity,env:{WH_WEB_ORIGIN:origin,WH_API_BASE:ready.api,WH_OIDC_ISSUER:issuer,
-   WH_OIDC_CLIENT_ID:'whitehat-reference-web',WH_WEB_SESSION_DATABASE_URL:sessionUrl.toString(),WH_WEB_SESSION_KEYS:sessionKeys}});
+   WH_VOICE_PILOT:'1',WH_OIDC_CLIENT_ID:'whitehat-reference-web',WH_WEB_SESSION_DATABASE_URL:sessionUrl.toString(),WH_WEB_SESSION_KEYS:sessionKeys}});
   servers.push(server);active.push({server,port:await listen(server)});
  }
  let next=0;
@@ -81,7 +81,7 @@ try {
  assert.equal(await strictGet(issuer+'/.well-known/openid-configuration',ca),200);
  await assert.rejects(strictGet(issuer+'/.well-known/openid-configuration',readFileSync(resolve(directory,'untrusted.crt'))));
  report('trusted_tls_and_rejected_untrusted_ca',{tls:true,realIdp:'Keycloak',httpEnabled:false});
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
  const context=await browser.newContext();const page=await context.newPage();page.setDefaultTimeout(15000);
  await page.goto(origin);await page.locator('a[href="/auth/login"]').click();
  await page.locator('#username').fill('s2-owner');
@@ -131,6 +131,37 @@ try {
  assert.ok(signingKids.size>=2,'Refreshed tokens must use the newly activated real Keycloak signing key');
  assert.equal((await (await page.request.get(privatePath)).json()).items[0].id,decision.id);
  report('replica_failure_and_real_refresh_rotation',{survivingReplicas:1,concurrentReads:6,sameDecision:true,realJwksRollover:true});
+ // Exercise the same microphone and worklet that the pilot UI uses, with a synthetic provider.
+ await context.grantPermissions(['microphone'],{origin});
+ const voicePage=await context.newPage();
+ await voicePage.goto(origin+'/voice-pilot');
+ await voicePage.waitForFunction(()=>document.querySelector('#voice-status').textContent==='برای ضبط آماده است.');
+ const firstChunk=voicePage.waitForResponse(r=>r.url().endsWith('/chunk')&&r.ok());
+ await voicePage.locator('#voice-start').click();
+ await firstChunk;
+ await voicePage.locator('#voice-stop').click();
+ await voicePage.waitForFunction(()=>document.querySelector('#voice-status').textContent==='متن آمادهٔ بازبینی است.');
+ assert.equal(await voicePage.locator('#voice-text').inputValue(),'متن ساختگی وایت‌هت برای آزمون میکروفن');
+ await voicePage.close();
+
+ const voicePath=origin+'/bff/api/v1/workspaces/'+ready.workspace+'/voice-pilot';
+ assert.equal((await page.request.get(origin+'/bff/api/v1/workspaces/00000000-0000-4000-8000-000000000000/voice-pilot')).status(),404);
+ const voicePost=(suffix,data={},headers={Origin:origin,'x-csrf-token':state.csrf})=>
+  page.request.post(voicePath+suffix,{headers,data});
+ assert.equal((await voicePost('',{}, {Origin:origin})).status(),403);
+ const second=await voicePost('');assert.equal(second.status(),201);
+ const lease='/'+(await second.json()).lease_id;
+ const pcm=Buffer.alloc(24000).toString('base64');
+ for(let i=0;i<30;i++) assert.equal((await voicePost(lease+'/chunk',{pcm})).status(),200);
+ assert.equal((await voicePost(lease+'/chunk',{pcm})).status(),413);
+ assert.equal((await voicePost(lease+'/finish')).status(),404);
+ const third=await voicePost('');assert.equal(third.status(),201);
+ const thirdLease='/'+(await third.json()).lease_id;
+ assert.equal((await voicePost(thirdLease+'/cancel')).status(),200);
+ assert.equal((await voicePost(thirdLease+'/finish')).status(),404);
+ assert.equal((await voicePost('')).status(),429);
+ assert.equal((await appClient.query('SELECT count(*)::int AS count FROM voice_pilot_attempts')).rows[0].count,0);
+ report('voice_pilot_browser_audio_and_durable_budget',{fakeMicrophone:true,syntheticTranscriber:true,csrf:true,secondsPerAttempt:15,totalAttempts:3,rls:true});
  const payloads=(await sessionAdmin.query('SELECT payload FROM wh_web_sessions')).rows;
  assert.equal(payloads.length,1);assert.ok(payloads.every(x=>!x.payload.includes('access_token')&&!x.payload.includes('refresh_token')));
  const logout=await page.request.post(origin+'/bff/logout',{headers:{Origin:origin,'x-csrf-token':state.csrf}});

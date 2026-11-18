@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import whitehat.adapters.*
 import whitehat.application.RunWorker
@@ -28,9 +29,14 @@ fun main(args: Array<String>) {
         val policy = EnginePolicy()
         val limit = System.getenv("WH_DAILY_RUN_LIMIT")?.toIntOrNull() ?: 20
         val store = PostgresStore(dataSource, policy.hash, limit, databaseSettings.statementTimeoutMillis, databaseSettings.lockTimeoutMillis)
+        val voicePilot = if (System.getenv("WH_VOICE_PILOT") == "1") {
+            val workspace = UUID.fromString(required("WH_VOICE_PILOT_WORKSPACE"))
+            val provider = OpenAiLiveTranscription(required("WH_VOICE_PILOT_API_KEY"))
+            VoicePilot(store, workspace, provider::open)
+        } else null
         ResponsesProvider(System.getenv("WH_AI_API_KEY").orEmpty(), System.getenv("WH_AI_MODEL").orEmpty(), policy).use { provider ->
             embeddedServer(Netty, host = System.getenv("WH_HOST") ?: "127.0.0.1", port = System.getenv("WH_PORT")?.toInt() ?: 8081) {
-                whiteHatApi(store, verifier) { provider.configured }
+                whiteHatApi(store, verifier, voicePilot) { provider.configured }
                 val worker = RunWorker(store, provider)
                 val job = launch(Dispatchers.IO) {
                     while (isActive) {
@@ -47,7 +53,7 @@ fun main(args: Array<String>) {
                         delay(TimeUnit.HOURS.toMillis(1))
                     }
                 }
-                monitor.subscribe(ApplicationStopping) { job.cancel(); retention.cancel() }
+                monitor.subscribe(ApplicationStopping) { job.cancel(); retention.cancel(); voicePilot?.close() }
             }.start(wait = true)
         }
     }

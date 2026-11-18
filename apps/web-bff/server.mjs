@@ -40,6 +40,7 @@ const allowed = [
  ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/incidents/'+uuid+'$')],
  ['POST',/^\/api\/v1\/workspaces\/[^/]+\/members$/]
 ];
+const voicePath = new RegExp('^/api/v1/workspaces/'+uuid+'/voice-pilot(?:/'+uuid+'/(?:chunk|finish|cancel))?$');
 const allowedPath = (method,path) => allowed.some(([m,r])=>m===method&&r.test(path)) &&
   path.split('/').every(p=>!p.includes('%')&&!p.includes('..')) &&
   path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||p==='plan-preview'||p==='pilot-usage'||p==='incidents'||p==='operator-permissions'||p==='costs'||p==='corrections'||p==='review'||p==='withdraw'||p==='purge'||new RegExp('^'+uuid+'$').test(p));
@@ -49,6 +50,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   const upstream = new URL(env.WH_API_BASE || 'http://127.0.0.1:8081');
   const issuer = env.WH_OIDC_ISSUER;
   const clientId = env.WH_OIDC_CLIENT_ID;
+  const voiceEnabled = env.WH_VOICE_PILOT==='1';
   const localHttp = env.WH_DEV_INSECURE_HTTP==='1';
   if (!issuer||!clientId) throw new Error('OIDC_CONFIG_REQUIRED');
   if (origin.pathname!=='/'||origin.search||origin.hash) throw new Error('INVALID_WEB_ORIGIN');
@@ -63,7 +65,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   const dsn=env.WH_WEB_SESSION_DATABASE_URL, keys=env.WH_WEB_SESSION_KEYS;
   if (!sessionStore && (!dsn || !keys) && (!localHttp || dsn || keys)) throw new Error('DURABLE_SESSION_STORE_REQUIRED');
   const store=sessionStore ?? (dsn ? createPostgresSessionStore(dsn,keys) : createMemorySessionStore());
-  const request = async (url,opts={}) => httpClient(url,{...opts,redirect:'error',signal:AbortSignal.timeout(10000)});
+  const request = async (url,opts={},timeout=10000) => httpClient(url,{...opts,redirect:'error',signal:AbortSignal.timeout(timeout)});
   const readJson = async response => {if(!response.ok) throw fail(502,'IDENTITY_PROVIDER_UNAVAILABLE');const body=await response.json();if(!body||typeof body!=='object')throw fail(502,'IDENTITY_PROVIDER_INVALID');return body;};
   let discoveryCache, jwksCache, jwksPending;
   let lastJwksRefresh=-Infinity;
@@ -163,6 +165,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
   async function handle(req,res){
     Object.entries(securityHeaders).forEach(([k,v])=>res.setHeader(k,v));
     const url=new URL(req.url,origin), path=url.pathname, method=req.method;
+    res.setHeader('Permissions-Policy','camera=(), microphone='+(voiceEnabled&&path==='/voice-pilot'?'(self)':'()'));
     const originCheck=()=>{if(req.headers.origin!==origin.origin)throw fail(403,'ORIGIN_REJECTED');};
     if(path==='/health'&&method==='GET')return json(res,200,{status:'ok',service:'web-bff',idp_configured:true});
     if(path==='/auth/login'&&method==='GET'){
@@ -199,7 +202,9 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
     if(path.startsWith('/bff/api/v1/')){
       if(!sessionId(req))throw fail(401,'AUTH_REQUIRED');
       const apiPath=path.slice(4);
-      if(!allowedPath(method,apiPath)||url.search)throw fail(404,'API_PATH_UNSUPPORTED');
+      const voiceAllowed=voiceEnabled&&voicePath.test(apiPath)&&
+        (method==='POST'||(method==='GET'&&apiPath.endsWith('/voice-pilot')));
+      if((!allowedPath(method,apiPath)&&!voiceAllowed)||url.search)throw fail(404,'API_PATH_UNSUPPORTED');
       const mutating=!['GET','HEAD'].includes(method);
       if(mutating)originCheck();
       const s=await accessSession(req,mutating);
@@ -215,7 +220,7 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
       if(mutating)headers['Content-Type']='application/json';
       if(req.headers['idempotency-key'])headers['Idempotency-Key']=String(req.headers['idempotency-key']).slice(0,200);
       const target=new URL(apiPath,upstream);
-      const response=await request(target,{method,headers,...(mutating?{body}:{})});
+      const response=await request(target,{method,headers,...(mutating?{body}:{})},voiceAllowed?15000:10000);
       if(response.status===401){
         await store.transact(sessionId(req),clock(),session=>({session:session?.access===access?undefined:session}));
         throw fail(401,'SESSION_REAUTH_REQUIRED');
@@ -234,6 +239,11 @@ export function createBff({env=process.env, httpClient=fetch, clock=()=>Date.now
       '/style.css':['../second-mind/public/style.css','text/css; charset=utf-8'],
       '/icon.svg':['../second-mind/public/icon.svg','image/svg+xml']
     };
+    if(voiceEnabled){
+      assets['/voice-pilot']=['public/voice-pilot.html','text/html; charset=utf-8'];
+      assets['/voice-pilot.mjs']=['public/voice-pilot.mjs','text/javascript; charset=utf-8'];
+      assets['/voice-pcm.mjs']=['public/voice-pcm.mjs','text/javascript; charset=utf-8'];
+    }
     if(!assets[path])throw fail(404,'NOT_FOUND');
     const [file,type]=assets[path];const contents=await readFile(fileURLToPath(new URL(file,import.meta.url)));
     return reply(res,200,method==='HEAD'?'':contents,{'Content-Type':type});
