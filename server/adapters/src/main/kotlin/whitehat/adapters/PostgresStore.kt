@@ -91,6 +91,15 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
         }
     }
 
+    fun reserveG001Dispatch(actor: String, workspace: UUID, model: String): Boolean =
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            c.exec("""
+                INSERT INTO g001_dispatch(workspace_id, model_id) VALUES (?, ?)
+                ON CONFLICT DO NOTHING
+            """.trimIndent(), workspace, model) == 1
+        }
+
     private fun readDecision(c: Connection, workspace: UUID, subject: String, id: UUID, lock: Boolean = false): Decision =
         c.query("SELECT * FROM decisions WHERE workspace_id=? AND owner_subject=? AND id=?" + if (lock) " FOR UPDATE" else "", workspace, subject, id, map = ::decisionRow).singleOrNull() ?: throw Fault(404, "NOT_FOUND")
 
