@@ -1,0 +1,266 @@
+{
+  "checkpoint": "WH-S3-20261118-11",
+  "status": "OFFLINE_PREFLIGHT_VERIFIED",
+  "live_evaluation": "BLOCKED_NOT_RUN",
+  "browser": {
+    "pr": 3,
+    "imported_from": {
+      "pr": 10,
+      "sha": "acb757c541c28a59d0087a4665aa62606a9bb1fa"
+    },
+    "sha": "0944a2b4a6a6adad24dacfc3b5e96f3a749f82a5",
+    "tested_merge": "cc5883905321d048659ea057728d58371f747ce6",
+    "tree": "7638f759cb31bf2f2bd3d8f8ece409ec515b7a4f",
+    "run_id": 44323614168,
+    "artifact_id": 14437250417,
+    "verified": {
+      "archive_sha256": "b97b32772ca308cef3ddadb59779596bdd35426af975c0c4403396785b6e976a",
+      "log": "server/api/build/browser-evidence/joint-browser.log",
+      "log_sha256": "004b388c1d17ad1c8d26f5d98a4bd483b14a638422e6d6d3644cbbd88ba8c8af",
+      "checks": [
+        {
+          "check": "sqlite_rehearsal",
+          "pass": true,
+          "source": 2,
+          "committed": 1,
+          "quarantined": 1,
+          "reason": "unmapped_subject",
+          "rollbackAfterWrite": true,
+          "sourceCopySha256": "4397ea0ef3c3719affb6b72d35347dc6d566eaecc023a73df7833c6cb5d59dea"
+        },
+        {
+          "check": "commercial_proposals_are_scoped_and_inactive",
+          "pass": true,
+          "billingEnabled": false,
+          "privateCostsNotInvented": true
+        },
+        {
+          "check": "transient_boot_recovery",
+          "pass": true,
+          "sessionAndApiUnavailable": true,
+          "keyboardRetry": true,
+          "existingSessionRetained": true
+        },
+        {
+          "check": "browser_revision_conflict",
+          "pass": true,
+          "status": 409,
+          "staleFormRetained": true,
+          "concurrentEditPreserved": true
+        },
+        {
+          "check": "browser_pilot_limit",
+          "pass": true,
+          "status": 429,
+          "pilotAttempts": 1,
+          "noRunOrUsageInserted": true
+        },
+        {
+          "check": "logout_failure_is_not_reported_as_success",
+          "pass": true,
+          "sessionStillActive": true,
+          "retryAvailable": true
+        },
+        {
+          "check": "chromium_bff_and_postgres",
+          "pass": true,
+          "upstream": "real-ktor-with-synthetic-identity-and-provider",
+          "roles": [
+            "OWNER",
+            "SUPPORT",
+            "ADMIN",
+            "MEMBER",
+            "outside"
+          ],
+          "deprovisionedOpenSession": true,
+          "mobileRtl": true,
+          "keyboardNavigation": true,
+          "analysisAndFeedbackControls": true,
+          "privateDataIsolation": true,
+          "grantRevokeInSameSession": true,
+          "receiptRendered": true,
+          "encryptedSessions": true,
+          "logoutRevocation": true
+        }
+      ],
+      "junit": {
+        "tests": 64,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "workflows": [
+      {
+        "name": "White Hat web quality",
+        "id": 44323613443,
+        "conclusion": "success"
+      },
+      {
+        "name": "White Hat Android validation",
+        "id": 44323613358,
+        "conclusion": "success"
+      },
+      {
+        "name": "White Hat desktop packaging",
+        "id": 44323613445,
+        "conclusion": "success"
+      },
+      {
+        "name": "Web BFF / browser adapter validation",
+        "id": 44323613538,
+        "conclusion": "success"
+      },
+      {
+        "name": "White Hat iOS host and framework",
+        "id": 44323613366,
+        "conclusion": "success"
+      },
+      {
+        "name": "S2 reference staging / Keycloak TLS and failover",
+        "id": 44323613341,
+        "conclusion": "success"
+      },
+      {
+        "name": "Kotlin API validation",
+        "id": 44323614168,
+        "conclusion": "success"
+      }
+    ]
+  },
+  "evaluation": {
+    "pr": 11,
+    "sha": "4c2bbb966411693b6adc81d391ab32a97644682a",
+    "tested_merge": "64c5b62cce496fad7ebc972d218023cd1601fa2c",
+    "tree": "0c96c4299ae85f3c1010c3527357bd1ee1d9a145",
+    "recovery_ref": "recovery/wh-s3-tooling-20261118",
+    "local_unittest": {
+      "tests": 5,
+      "status": "PASS"
+    },
+    "kotlin_ci": {
+      "run_id": 44324523782,
+      "artifact_id": 14435943387,
+      "archive_sha256": "c167a597c2bf668a6a35fab61a92b585226c68b0b2e840479b150f63e9e4b46a",
+      "log_sha256": "5321d1160ab291d2ebcbc731dd02f0f7dbd4c4229669069bc44f26b8adb8d880",
+      "junit": {
+        "tests": 64,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "browser_assertions": 7
+    },
+    "quality": {
+      "run_id": 44324523975,
+      "artifact_id": 14434889342,
+      "archive_sha256": "e1b0626f0c8eee0b5d8465c3686f52ea5f5fdae045dcbcb120e8ef8193d2afc6",
+      "engine_sha": "67f3693c5ca3593a1a1eb52f3de54aac40be1cb2",
+      "decision": "GO",
+      "pass": 15,
+      "skipped": [
+        "architecture.mirrors",
+        "functional.pytest",
+        "security.dependencies.python",
+        "security.sast.semgrep",
+        "api",
+        "web",
+        "ui",
+        "android",
+        "ios",
+        "goals.traceability"
+      ],
+      "required_check": "command.evaluation-tools",
+      "required_check_status": "PASS"
+    },
+    "plan": {
+      "catalog_cases": 60,
+      "web_cases": 59,
+      "web_submissions_per_arm": 63,
+      "smoke_case": "G001",
+      "smoke_submissions_per_arm": 1,
+      "native_evidence_pending": [
+        "G056",
+        "G026",
+        "G032",
+        "G033",
+        "G057"
+      ],
+      "execution_sha256": "becb024dfc9c5ac00172d2a81fbdf83c8b36615380555dcb0cf6c3100c4b9610",
+      "criteria_sha256": "81122b789eeb5e58bc80983c2676d279dedb3a3b2c479a7c567f2b703c7558b2",
+      "engine_policy_sha256": "9f015a25e591f52a9062cf7f4044495bb1a88eb3e29caccf9cdbe690e537a8b8"
+    },
+    "workflows": [
+      {
+        "name": "Web BFF / browser adapter validation",
+        "id": 44324523798,
+        "conclusion": "success"
+      },
+      {
+        "name": "White Hat web quality",
+        "id": 44324523975,
+        "conclusion": "success"
+      },
+      {
+        "name": "White Hat desktop packaging",
+        "id": 44324523900,
+        "conclusion": "success"
+      },
+      {
+        "name": "Kotlin API validation",
+        "id": 44324523782,
+        "conclusion": "success"
+      },
+      {
+        "name": "S2 reference staging / Keycloak TLS and failover",
+        "id": 44324523790,
+        "conclusion": "failure"
+      }
+    ],
+    "reference_retry": {
+      "run_id": 44324523790,
+      "first_attempt": {
+        "job_id": 134872301615,
+        "status": "FAILED_BEFORE_TEST",
+        "reason": "Maven Central HTTP 429 fetching pinned Gradle dependencies"
+      },
+      "latest_observed": {
+        "job_id": 134877398710,
+        "status": "IN_PROGRESS"
+      }
+    }
+  },
+  "voice": {
+    "status": "DESIGN_NOT_RUN",
+    "donor_commit": "9f1edb8d994b03ff4df492550bf36a9edf7230ee",
+    "source_review": [
+      {
+        "path": "site-v58/lib/live-transport.ts",
+        "blob_sha": "5cf559f6c64a7cd7f1c95ae052c28a42cc2272d3"
+      },
+      {
+        "path": "site-v58/server/live-session.ts",
+        "blob_sha": "7983cebf11b19849d519cafb22d4df707a2dc584"
+      },
+      {
+        "path": "site-v58/app/api/live/session/route.ts",
+        "blob_sha": "da7c47c1874d35d7fe13989f156120226f2a4cf2"
+      },
+      {
+        "path": "site-v58/components/live-studio.tsx",
+        "blob_sha": "82ad34a7151b59d072bf9313751c099f8c9c66bf"
+      },
+      {
+        "path": "site-v58/lib/live-studio-event.ts",
+        "blob_sha": "891ef6426cd5cc6f1550b15facde15cd76e5f051"
+      }
+    ]
+  },
+  "remaining": [
+    "real G001 baseline and candidate on approved workspaces with pre-execution spend controls",
+    "independent blind human adjudication and full suite/native evidence",
+    "human screen reader and audit panel design review",
+    "Elyora reusable transport package and voice tests",
+    "target data policy, native release, billing and production acceptance"
+  ]
+}

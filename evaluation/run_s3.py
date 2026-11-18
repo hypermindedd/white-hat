@@ -84,6 +84,10 @@ def run(manifest, args):
                 time.sleep(1)
             else:
                 raise RuntimeError(f"{cid}/{n}: poll deadline elapsed for {run_id}")
+            expected = {"id": run_id, "workspace_id": workspace, "decision_id": decision_id,
+                        "input_revision": receipt["revision"]}
+            if any(result.get(field) != value for field, value in expected.items()):
+                raise RuntimeError(f"{cid}/{n}: terminal receipt identity mismatch for {run_id}")
             receipt.update(state="terminal", api_output=result,
                            decision_latency_ms=round((time.monotonic() - start) * 1000),
                            cost_usd_micros=None)
