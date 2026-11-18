@@ -44,7 +44,7 @@ cwd = "apps/web-bff"
 [[commands]]
 id = "kotlin-postgres"
 title = "Kotlin API with PostgreSQL and OpenAPI"
-argv = ["bash", "-ec", "python3 scripts/verify_docs.py && node scripts/generate_legacy_parity.mjs && node scripts/generate_server_policy.mjs && node scripts/generate_api_contract.mjs && ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:api:test :server:adapters:test :server:api:installDist && python3 scripts/verify_api_samples.py"]
+argv = ["bash", "-ec", "python3 scripts/verify_docs.py && node scripts/generate_legacy_parity.mjs && node scripts/generate_server_policy.mjs && node scripts/generate_api_contract.mjs && ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:application:test :server:api:test :server:adapters:test :server:api:installDist && python3 scripts/verify_api_samples.py"]
 
 [[goals]]
 id = "WEB"

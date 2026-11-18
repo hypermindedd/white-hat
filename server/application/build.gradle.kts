@@ -5,4 +5,5 @@ dependencies {
     implementation(project(":shared:contracts"))
     implementation(libs.json)
     implementation(libs.coroutines)
+    testImplementation(kotlin("test-junit"))
 }
