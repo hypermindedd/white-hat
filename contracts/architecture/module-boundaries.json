@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "modules": {
+    "shared/contracts": {"namespace": "whitehat.contracts", "dependencies": [], "forbidden": ["io.ktor", "java.sql", "javax.sql", "com.zaxxer", "org.postgresql"]},
+    "shared/client": {"namespace": "whitehat.client", "dependencies": ["shared/contracts"], "forbidden": ["java.sql", "javax.sql", "com.zaxxer", "org.postgresql"]},
+    "server/domain": {"namespace": "whitehat.domain", "dependencies": ["shared/contracts"], "forbidden": ["io.ktor", "java.sql", "javax.sql", "com.zaxxer", "org.postgresql"]},
+    "server/application": {"namespace": "whitehat.application", "dependencies": ["server/domain", "shared/contracts"], "forbidden": ["io.ktor", "java.sql", "javax.sql", "com.zaxxer", "org.postgresql"]},
+    "server/adapters": {"namespace": "whitehat.adapters", "dependencies": ["server/domain", "shared/contracts"], "forbidden": []},
+    "server/api": {"namespace": "whitehat.api", "dependencies": ["server/domain", "server/application", "server/adapters", "shared/contracts"], "forbidden": []}
+  },
+  "client_roots": ["apps/desktop", "apps/android"],
+  "bff_runtime": ["apps/web-bff/server.mjs", "apps/web-bff/session-store.mjs"],
+  "bff_session_schema": "apps/web-bff/db/session-store.sql",
+  "bff_session_tables": ["wh_web_login_flows", "wh_web_sessions", "wh_web_rate_windows"]
+}

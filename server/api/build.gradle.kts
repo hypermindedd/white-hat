@@ -16,8 +16,16 @@ dependencies {
     runtimeOnly("org.slf4j:slf4j-simple:2.0.17")
     testImplementation(kotlin("test-junit"))
     testImplementation(libs.embedded.postgres)
+    testImplementation(libs.flyway.core)
     testImplementation(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.15.0"))
     testImplementation(libs.postgres)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
 }
 tasks.test { testLogging { events("passed", "skipped", "failed"); showStandardStreams = false } }
+
+tasks.register("writeNativeClientFixtureClasspath") {
+    dependsOn(tasks.testClasses)
+    val destination = layout.buildDirectory.file("native-client-fixture-classpath.txt")
+    outputs.file(destination)
+    doLast { destination.get().asFile.writeText(sourceSets.test.get().runtimeClasspath.asPath) }
+}

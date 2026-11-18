@@ -1,0 +1,37 @@
+name: White Hat desktop packaging
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop-package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            task: packageDmg
+            extension: dmg
+          - os: windows-latest
+            task: packageMsi
+            extension: msi
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - if: runner.os == 'macOS'
+        run: ./gradlew --no-daemon :apps:desktop:test :apps:desktop:${{ matrix.task }}
+      - if: runner.os == 'Windows'
+        run: .\gradlew.bat --no-daemon :apps:desktop:test :apps:desktop:${{ matrix.task }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: white-hat-${{ matrix.extension }}-development
+          path: apps/desktop/build/compose/binaries/main/**/*.${{ matrix.extension }}
+          if-no-files-found: error

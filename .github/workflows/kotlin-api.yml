@@ -9,7 +9,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   contracts-and-api:
-    runs-on: ubuntu-latest
+    # The pinned browser toolchain supports Ubuntu 24.04, not the floating 26.04 image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -25,18 +26,47 @@ jobs:
       - name: Verify canonical source and generated contracts
         run: |
           python3 scripts/verify_docs.py
+          python3 scripts/verify_architecture.py
           node scripts/generate_legacy_parity.mjs
           node scripts/generate_server_policy.mjs
           node scripts/generate_api_contract.mjs
       - name: Test the recovered alpha
         working-directory: apps/second-mind
         run: npm test
+      - name: Check blind evaluation receipt integrity
+        run: |
+          python3 -m pip install 'jsonschema==4.23.0' 'ruff==0.17.5' 'bandit==1.9.4'
+          python3 -B -m unittest discover -s evaluation -p 'test_*.py'
+      - name: Check payment reconciliation and contract verifier regressions
+        run: python3 -B -m unittest discover -s scripts -p 'test_*.py'
+      - name: Check Python defects and production source security
+        run: |
+          ruff check --select E9,F63,F7,F82 evaluation scripts
+          bandit -r evaluation scripts -x '*test_*.py'
+      - name: Prepare Chromium integration against real Ktor and PostgreSQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-16
+          npm ci --ignore-scripts --prefix apps/web-bff
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/whitehat-browser" 'playwright@1.56.1'
+          "$RUNNER_TEMP/whitehat-browser/node_modules/.bin/playwright" install --with-deps chromium
       - name: Test Kotlin with actual embedded PostgreSQL
-        run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :server:api:test :server:adapters:test :server:api:installDist
+        env:
+          WH_BROWSER_E2E: 'true'
+          WH_REVIEW_REPO: ${{ github.workspace }}
+          WH_PLAYWRIGHT_MODULE: ${{ runner.temp }}/whitehat-browser/package.json
+          WH_TEST_PG_BIN_DIR: /usr/lib/postgresql/16/bin
+        run: ./gradlew --no-daemon :shared:contracts:jvmTest :shared:contracts:compileKotlinJs :shared:client:jvmTest :shared:client:compileCommonMainKotlinMetadata :shared:client:compileKotlinIosArm64 :shared:client:compileKotlinIosSimulatorArm64 :server:api:test :server:adapters:test :server:api:installDist
       - name: Validate actual HTTP response contracts
         run: |
           python3 -m pip install 'jsonschema==4.23.0'
           python3 scripts/verify_api_samples.py
+      - name: Exercise native client against an isolated real Ktor fixture
+        run: bash scripts/test_native_client.sh "$GITHUB_WORKSPACE"
+      - name: Rehearse legacy cutover and independent restore on synthetic data
+        env:
+          WH_C2_SERVER_BIN: /usr/lib/postgresql/16/bin
+        run: bash scripts/test_legacy_cutover.sh "$GITHUB_WORKSPACE"
       - name: Preserve test receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -47,4 +77,7 @@ jobs:
             server/*/build/test-results/
             server/*/build/reports/tests/
             server/api/build/contract-samples/
+            server/api/build/c6-evidence/
+            server/api/build/browser-evidence/
             shared/contracts/build/test-results/
+            shared/client/build/test-results/

@@ -1,0 +1,26 @@
+name: WhiteHat
+options:
+  deploymentTarget:
+    iOS: "17.4"
+targets:
+  WhiteHat:
+    type: application
+    platform: iOS
+    sources:
+      - path: WhiteHat
+        excludes:
+          - Info.plist
+          - WhiteHat.entitlements
+    dependencies:
+      - framework: ../../shared/client/build/XCFrameworks/debug/WhiteHatClient.xcframework
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.whitehat.ios
+        SWIFT_VERSION: "5.0"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_FILE: WhiteHat/Info.plist
+        CODE_SIGN_ENTITLEMENTS: WhiteHat/WhiteHat.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        WHITE_HAT_REDIRECT_HOST: whitehat.example.invalid

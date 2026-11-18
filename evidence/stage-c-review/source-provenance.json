@@ -1,0 +1,21 @@
+{
+  "schema": "whitehat.stage-c-review/v1",
+  "date": "2026-11-16",
+  "reviewer": "forerunner",
+  "repository": "hypermindedd/white-hat",
+  "baseline": "9c291e0d65d5dbbf29d8bdffaf8c74f345e279d7",
+  "original_candidate": "4af84076a2f6269a2200c525d646a25652a9e71b",
+  "original_tree": "0dbd5e87dab2821f4fb6be6693b76b4377bcb30f",
+  "equivalent_import": "e69cd6c4817f708bdaf3dc1c2f2a8dbe7e108c90",
+  "archive_sha256": "89f09512524a3b0dd0347dd5929f802f193516d7e6e40e7b7b3636cfd9eac336",
+  "checksum_entries_verified": 53,
+  "bundle_verified": true,
+  "required_ancestor": "9c291e0d65d5dbbf29d8bdffaf8c74f345e279d7",
+  "patch_base": "b2a9a9cbaaed5b6883562281fc069eeb1a4a48a4",
+  "patch_result_matches_bundle_tree": true,
+  "legacy_alpha_changed": false,
+  "signature_verified": false,
+  "archive_drive_url": "https://drive.google.com/file/d/1GZN1M1vxxfl4QOC_XalcbKBGxUUp3AL6/view",
+  "review_pr": "https://github.com/hypermindedd/white-hat/pull/3"
+}
+

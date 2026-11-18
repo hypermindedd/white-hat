@@ -1,0 +1,92 @@
+{
+  "checkpoint": "WH-S2-AUTH-20261116-05",
+  "date_utc": "2026-11-16",
+  "repository": "hypermindedd/white-hat",
+  "branch": "review/salehe-stage-c-verified-20261116",
+  "code_sha": "8cf12de7b9146189c58ada3dc42d7d0323283df4",
+  "code_tree": "7553c7819b161813b4a3ce46915348fc1740065d",
+  "tested_pr_merge_sha": "9ecf2f9172cbd6a705a1125b82143ad3481e9206",
+  "tested_pr_merge_tree": "7553c7819b161813b4a3ce46915348fc1740065d",
+  "recovery_ref": "recovery/wh-s2-auth-fixes-20261116",
+  "scope": "BFF authentication recovery and existing DOM panel; no Kotlin business contract, mode, decision DB or migration changes",
+  "regressions": {
+    "before_fix": {
+      "command": "node --test --test-name-pattern='newly published|unknown signing|transient refresh|rejected refresh' test/integration.test.mjs",
+      "pass": 1,
+      "fail": 3
+    },
+    "after_fix_local": {
+      "pass": 12,
+      "fail": 0,
+      "skip": 2,
+      "skip_reason": "No local PostgreSQL/session and legacy cutover fixtures"
+    },
+    "web_ci": {
+      "pass": 19,
+      "fail": 0,
+      "skip": 1,
+      "skip_reason": "Legacy cutover DB case is exercised independently by Kotlin workflow"
+    }
+  },
+  "runs": [
+    {
+      "name": "Web BFF",
+      "id": 43948199800,
+      "status": "SUCCESS",
+      "job": 133583353233,
+      "raw_observed_lines": [
+        "2026-11-16T20:17:37.3178232Z ✔ accepts a newly published signing key before the JWKS cache expires (17.15735ms)",
+        "2026-11-16T20:17:37.3397258Z ✔ unknown signing keys fail closed and cannot trigger unbounded JWKS reloads (21.974778ms)",
+        "2026-11-16T20:17:37.3580206Z ✔ transient refresh failure preserves the session for recovery and forwards no stale token (18.25347ms)",
+        "2026-11-16T20:17:37.3680163Z ✔ rejected refresh credentials invalidate the session permanently (9.978872ms)",
+        "2026-11-16T20:17:37.3816411Z ℹ tests 20",
+        "2026-11-16T20:17:37.3817896Z ℹ pass 19",
+        "2026-11-16T20:17:37.3818330Z ℹ fail 0",
+        "2026-11-16T20:17:37.3819229Z ℹ skipped 1"
+      ]
+    },
+    {
+      "name": "Kotlin/browser/client/restore",
+      "id": 43948200345,
+      "status": "SUCCESS",
+      "job": 133583515776,
+      "artifact_id": 14266600975,
+      "artifact_sha256": "1c6acc20049c506f589d6e499a9d5713e3e64bbdb528dafc9783ee246aac76cf",
+      "raw_observed_lines": [
+        "2026-11-16T20:18:02.6129572Z ℹ skipped 0",
+        "2026-11-16T20:21:08.8828566Z LocalClientIntegrationTest[jvm] > executesDecisionLifecycleAgainstIsolatedKtor[jvm] SKIPPED",
+        "2026-11-16T20:21:48.6827589Z ApiIntegrationTest > stageCBrowserWithRealKtorAndPostgres PASSED",
+        "2026-11-16T20:22:20.2983022Z LocalClientIntegrationTest[jvm] > executesDecisionLifecycleAgainstIsolatedKtor[jvm] PASSED",
+        "2026-11-16T20:22:24.6315370Z ℹ {\"source\":{\"accounts\":3,\"decisions\":3,\"runs\":3},\"accepted\":{\"accounts\":2,\"decisions\":2,\"archivedRuns\":2},\"quarantined\":3,\"rollback_after_insert\":true,\"restore_after_committed_write\":true,\"independent_clusters\":true,\"rls\":true}",
+        "2026-11-16T20:22:24.6379813Z ℹ tests 3",
+        "2026-11-16T20:22:24.6380406Z ℹ pass 3",
+        "2026-11-16T20:22:24.6381376Z ℹ skipped 0"
+      ]
+    },
+    {
+      "name": "Pinned quality",
+      "id": 43948199765,
+      "status": "SUCCESS",
+      "job": 133583352493,
+      "artifact_id": 14266295698,
+      "artifact_sha256": "7fdf496c1aa312c69a696450b878a7d4629a103ac249d683d353db7f87cc9749",
+      "raw_observed_lines": [
+        "2026-11-16T20:19:24.2044759Z {'decision': 'GO', 'reasons': ['no blocking findings; all hard-gate goals met']}"
+      ]
+    }
+  ],
+  "acceptance_ids": [
+    "C2-03",
+    "C1-08"
+  ],
+  "fixture_boundary": "Actual Chromium, Ktor and PostgreSQL test processes; synthetic identity/provider; browser network failure injection. No real IdP/model/customer data.",
+  "independent_observation": "GitHub run/job metadata and decoded logs inspected; artifact metadata/digests observed. ZIP contents and JUnit totals not independently downloaded in this turn.",
+  "s2_status": "BLOCKED",
+  "remaining": [
+    "Authoritative comprehensive panel source pin",
+    "Approved TLS/IdP staging, full refresh/failover/a11y/security acceptance",
+    "Data retention/deletion/consent, recovery RPO/RTO and independent sign-off",
+    "Native device/install/signing, real-model/voice/billing separate gates"
+  ],
+  "rollback": "Revert auth/web runtime commits 4c68b6fa5eea9807c4ad9e609a9d40805ad1861f and 8cf12de7b9146189c58ada3dc42d7d0323283df4 through review before real writes; ADR-010 data-aware rollback after real writes"
+}

@@ -1,6 +1,6 @@
 # سرور Kotlin — برش API نسخه 0.4.0-alpha.1
 
-این پوشه سرور مستقل جدید را در چهار ماژول نگه می‌دارد. `domain` مدل و portها؛ `application` اجرای job و اعتبارسنجی؛ `adapters` اتصال PostgreSQL و provider؛ `api` احراز هویت و HTTP و bootstrap. کد پنل alpha در `apps/second-mind` محفوظ است و هنوز به این API متصل نشده است.
+این پوشه سرور مستقل جدید را در چهار ماژول نگه می‌دارد. `domain` مدل و portها؛ `application` اجرای job و اعتبارسنجی؛ `adapters` اتصال PostgreSQL و provider؛ `api` احراز هویت و HTTP و bootstrap. کد پنل alpha در `apps/second-mind` محفوظ است؛ پنل متصل به این API در `apps/web-bff` و کلاینت بومی مشترک در `shared/client` قرار دارد.
 
 ## اجرا و تنظیم
 
@@ -12,11 +12,11 @@ server/api/build/install/api/bin/api --migrate
 server/api/build/install/api/bin/api
 ```
 
-دستور مهاجرت باید با credential مناسب migration اجرا شود. سرویس عادی با role محدود و مجوز لازم برای داده‌ها و خواندن history مهاجرت اجرا شود. مسیر عادی schema را خودکار تغییر نمی‌دهد؛ validate و pending migration بررسی می‌شوند. این schema شروع PostgreSQL است؛ انتقال حساب/داده SQLite هنوز نوشته نشده و دو runtime نباید به یک دیتابیس زنده مشترک بنویسند.
+دستور مهاجرت باید با credential مناسب migration اجرا شود. سرویس عادی با role محدود و مجوز لازم برای داده‌ها و خواندن history مهاجرت اجرا شود. مسیر عادی schema را خودکار تغییر نمی‌دهد؛ validate و pending migration بررسی می‌شوند. این schema شروع PostgreSQL است؛ ابزار تمرین انتقال SQLite در `apps/web-bff/tools/legacy-cutover.mjs` وجود دارد و فقط روی دادهٔ مصنوعی آزموده می‌شود؛ مهاجرت واقعی و سیاست نگاشت هنوز پذیرفته نشده‌اند. دو runtime نباید به یک دیتابیس زنده مشترک بنویسند.
 
 `WH_DATABASE_URL` آدرس JDBC؛ `WH_DATABASE_USER/PASSWORD` حساب DB؛ `WH_AUTH_ISSUER/JWKS_URL/AUDIENCE` تنظیم IdP؛ `WH_AI_API_KEY/MODEL` اتصال AI؛ `WH_DAILY_RUN_LIMIT` سقف تلاش هر عضو در هر workspace در روز UTC. کلید یا نام مدل پیش‌فرض ساختگی نداریم. بدون provider، CRUD کار می‌کند و درخواست اجرای تحلیل رد می‌شود.
 
-هویت این برش یک **resource server** است: access token با RS256، issuer و audience تنظیم‌شده، sub معتبر، exp و `token_use=access`. JWKS از URL HTTPS تنظیم‌شده با cache/rate limit دریافت می‌شود. IdP باید claim مخصوص access token را تولید کند. ثبت‌نام، login redirect، PKCE، refresh و BFF کوکی‌محور وب هنوز پیاده نشده‌اند. Token احراز هویت را در localStorage پنل ذخیره نکن؛ مرحله بعد BFF و نشست امن وب را می‌سازد. نقش workspace همیشه از DB خوانده می‌شود و از body یا claim نقش پذیرفته نمی‌شود.
+هویت این برش یک **resource server** است: access token با RS256، issuer و audience تنظیم‌شده، sub معتبر، exp و `token_use=access`. JWKS از URL HTTPS تنظیم‌شده با cache/rate limit دریافت می‌شود. IdP باید claim مخصوص access token را تولید کند. ورود OIDC، PKCE، refresh و BFF کوکی‌محور در `apps/web-bff` پیاده شده‌اند و resource server همچنان در کاتلین باقی می‌ماند. توکن احراز هویت در localStorage پنل ذخیره نمی‌شود؛ هویت واقعی و استقرار هدف گیت مستقل دارند. نقش workspace همیشه از DB خوانده می‌شود و از body یا claim نقش پذیرفته نمی‌شود.
 
 سرور پیش‌فرض روی `127.0.0.1:8081` است. برای استقرار، reverse proxy با TLS و محدودیت درخواست/زمان، شبکه DB خصوصی و دسترسی محدود لازم‌اند؛ استقرار عمومی در این تحویل انجام نشده است.
 
@@ -47,7 +47,7 @@ server/api/build/install/api/bin/api
 
 لغو queued فوری است؛ لغو running به `cancellation_requested` می‌رود. نتیجهٔ بعدی نمایش داده نمی‌شود و usage/receipt واقعی حفظ می‌شود؛ لغو وعده حذف هزینه نیست. زمان provider محدود به ۶۰ ثانیه و lease به ۱۲۰ ثانیه است. پاسخ دیرهنگام authority ثبت حکم ندارد. lease منقضی حتی بدون پیکربندی provider بازیابی می‌شود.
 
-timeout، خطای مبهم یا قطع worker به `reconciliation_required` می‌رود و خودکار دوباره اجرا نمی‌شود. تا بررسی receipt و حل مجاز این وضعیت، run جدید برای همان تصمیم مسدود است. رابط عملیاتی reconciliation هنوز ساخته نشده؛ قبل از سرویس تجاری لازم است. هزینه پولی از توکن حدس زده نمی‌شود؛ مقدار نامعلوم null می‌ماند. receipt واقعی دیرهنگام نیز نگه داشته می‌شود.
+timeout، خطای مبهم یا قطع worker به `reconciliation_required` می‌رود و خودکار دوباره اجرا نمی‌شود. تا بررسی receipt و حل مجاز این وضعیت، run جدید برای همان تصمیم مسدود است. مسیرهای incidents، operator permissions و اصلاح هزینه در API وجود دارند؛ پذیرش کامل رابط عملیاتی و تطبیق مالی پیش از سرویس تجاری لازم است. هزینه پولی از توکن حدس زده نمی‌شود؛ مقدار نامعلوم null می‌ماند. receipt واقعی دیرهنگام نیز نگه داشته می‌شود.
 
 ## تست و حدود تحویل
 
@@ -59,6 +59,25 @@ node scripts/generate_api_contract.mjs
 python3 scripts/verify_api_samples.py
 ```
 
-بررسی آخر به Python package `jsonschema` نیاز دارد. تست API از Ktor test host، Netty روی HTTP loopback واقعی و PostgreSQL واقعی embedded استفاده می‌کند؛ provider و JWT issuer در تست fixture هستند. تست‌های واقعی AI، اتصال IdP، full login، Netty/TLS در استقرار هدف، UI، مهاجرت SQLite، صوت، RLS، امنیت/بار، backup و اپ‌های native هنوز انجام نشده‌اند. تست ساخت/قرارداد معادل benchmark هوشمندی نیست.
+بررسی آخر به Python package `jsonschema` نیاز دارد. تست API از Ktor test host، Netty روی HTTP loopback واقعی و PostgreSQL واقعی embedded استفاده می‌کند؛ provider و JWT issuer در تست fixture هستند. آزمون مرورگر روی BFF، Netty و PostgreSQL واقعی با هویت مصنوعی، تمرین مصنوعی انتقال SQLite، RLS، backup/restore و چرخهٔ کلاینت مشترک در workflow بازبینی تعریف شده‌اند. نتیجهٔ هر اجرا باید روی SHA همان نسخه از خروجی خام خوانده شود. AI و IdP واقعی، TLS استقرار هدف، پذیرش کامل رابط، صوت، امنیت/بار، سیاست داده و نصب و امضای دستگاه‌ها هنوز گیت باز دارند. تست ساخت/قرارداد معادل benchmark هوشمندی نیست.
 
 CI در `.github/workflows/kotlin-api.yml` تعریف شده و مستقل از نتیجه اجرای محلی گزارش می‌شود. هیچ workflow این مرحله deploy نمی‌کند. raw stage receipts در `evidence/kotlin-api` قرار می‌گیرند.
+
+## تکمیل Kotlin — checkpoint 06
+
+کد آزموده‌شده `cc101d00dbd63df0a4e7586e01a6c9413d953e71` است. [تحویل و شواهد مستقل](../docs/handoffs/WH-S2-KOTLIN-COMMERCIAL-20261117-FA.md) و [پلن تجاری پیشنهادی](../docs/commerce/COMMERCIAL-PLANS-FA.md) را پیش از ادامه بخوانید.
+
+| تنظیم محیط | پیش‌فرض | محدوده |
+|---|---:|---|
+| `WH_DATABASE_POOL_SIZE` | ۸ | ۲ تا ۶۴ |
+| `WH_DATABASE_CONNECTION_TIMEOUT_MS` | ۳۰۰۰ | ۲۵۰ تا ۳۰۰۰۰ |
+| `WH_DATABASE_STATEMENT_TIMEOUT_MS` | ۱۰۰۰۰ | ۱۰۰ تا ۱۲۰۰۰۰ |
+| `WH_DATABASE_LOCK_TIMEOUT_MS` | ۲۰۰۰ | ۵۰ تا statement timeout |
+
+override نامعتبر startup را رد می‌کند. زمان lock/statement transaction-local است. شکست write rollback می‌شود و خطای اصل در شکست rollback حفظ می‌شود؛ timeout/قفل با `DATABASE_BUSY` و ناپایداری اتصال با `DATABASE_UNAVAILABLE` و HTTP 503 نمایش داده می‌شوند. mutation و provider خودکار تکرار نمی‌شوند. consumer برای تکرار باید idempotency/revision و نتیجهٔ قبلی را بررسی کند.
+
+`GET /api/v1/health` همچنان liveness است؛ `GET /api/v1/ready` با query محدود دیتابیس، آمادگی را کنترل می‌کند و در عدم دسترسی 503 می‌دهد. این endpoint گواهی آمادگی provider یا پذیرش تولید نیست.
+
+`GET/POST /api/v1/workspaces/{workspace}/admin/plan-preview` فقط برای OWNER/ADMIN است؛ POST فرض هزینه/حاشیه را محاسبه می‌کند، نه صورتحساب. `billing_enabled=false` و `status=proposal` ثابت‌اند. قیمت نامعلوم null، Enterprise نامعین و entitlement جاری بدون تغییر می‌مانند. قرارداد OpenAPI و نمونه‌های واقعی API تست شده‌اند.
+
+مرزبندی Kotlin، گراف Gradle و DB صرفاً transport در BFF با `python3 scripts/verify_architecture.py` کنترل و در quality engine به‌عنوان hard gate اجرا می‌شود. این کنترل static است؛ آزمون امنیت/دادهٔ runtime همچنان لازم است. تعداد pool یا timeout مناسب تولید باید با workload و ظرفیت محیط اندازه‌گیری شود؛ این تغییر ادعای throughput تولید ندارد.

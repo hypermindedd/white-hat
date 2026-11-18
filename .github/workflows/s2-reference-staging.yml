@@ -1,0 +1,42 @@
+name: S2 reference staging / Keycloak TLS and failover
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: s2-reference-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  reference-staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Prepare isolated browser and trust tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3-tools
+          npm ci --ignore-scripts --prefix apps/web-bff
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/whitehat-reference" 'playwright@1.56.1' '@axe-core/playwright@4.10.2'
+          "$RUNNER_TEMP/whitehat-reference/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise real Keycloak TLS, Ktor, least-privilege PostgreSQL and BFF failover
+        env:
+          WH_PLAYWRIGHT_MODULE: ${{ runner.temp }}/whitehat-reference/package.json
+        run: bash scripts/test_reference_staging.sh "$GITHUB_WORKSPACE"
+      - name: Preserve sanitized acceptance receipts only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: s2-reference-staging-receipts
+          retention-days: 7
+          path: server/api/build/reference-staging/
