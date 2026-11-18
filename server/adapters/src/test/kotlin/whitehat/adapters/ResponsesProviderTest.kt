@@ -100,6 +100,7 @@ class ResponsesProviderTest {
             } else {
                 assertEquals(counted, JsonObject(body.filterKeys { it in requireNotNull(counted).keys }))
                 assertEquals(5000, body.getValue("max_output_tokens").jsonPrimitive.int)
+                assertEquals("default", body.getValue("service_tier").jsonPrimitive.content)
                 respond("""{"status":"completed","id":"fixture-only","model":"gpt-5.4-2026-03-05","usage":{"input_tokens":10000,"output_tokens":24},"output":[{"type":"message","content":[{"type":"output_text","text":"{}"}]}]}""",
                     HttpStatusCode.OK)
             }

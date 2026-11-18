@@ -38,6 +38,7 @@ class ResponsesProvider(private val apiKey: String, private val model: String, p
         val request = buildJsonObject {
             put("model", model); put("store", false); put("max_output_tokens", G001Dispatch.MAX_OUTPUT_TOKENS)
             put("instructions", mode.getValue("instructions")); put("input", input.toString())
+            if (g001 != null) put("service_tier", "default")
             putJsonObject("text") { putJsonObject("format") {
                 put("type", "json_schema"); put("name", "second_mind_decision"); put("strict", true); put("schema", mode.getValue("schema"))
             } }
