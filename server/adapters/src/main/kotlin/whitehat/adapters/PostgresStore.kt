@@ -73,6 +73,24 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
     override fun requireAdministrator(actor: String, workspace: UUID) {
         tx(workspace) { c -> requireRole(c, workspace, actor, setOf(Role.OWNER, Role.ADMIN)) }
     }
+    fun requireVoicePilotOwner(actor: String, workspace: UUID) {
+        tx(workspace) { c -> requireRole(c, workspace, actor, setOf(Role.OWNER)) }
+    }
+
+    // One persistent lifetime allotment for a dedicated pilot workspace.
+    fun reserveVoicePilot(actor: String, workspace: UUID) {
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            val reserved = c.query("""
+                INSERT INTO voice_pilot_attempts(workspace_id, attempts) VALUES (?, 1)
+                ON CONFLICT (workspace_id) DO UPDATE SET attempts = voice_pilot_attempts.attempts + 1
+                  WHERE voice_pilot_attempts.attempts < 3
+                RETURNING attempts
+            """.trimIndent(), workspace) { it.getInt(1) }
+            if (reserved.isEmpty()) throw Fault(429, "VOICE_PILOT_EXHAUSTED")
+        }
+    }
+
     private fun readDecision(c: Connection, workspace: UUID, subject: String, id: UUID, lock: Boolean = false): Decision =
         c.query("SELECT * FROM decisions WHERE workspace_id=? AND owner_subject=? AND id=?" + if (lock) " FOR UPDATE" else "", workspace, subject, id, map = ::decisionRow).singleOrNull() ?: throw Fault(404, "NOT_FOUND")
 

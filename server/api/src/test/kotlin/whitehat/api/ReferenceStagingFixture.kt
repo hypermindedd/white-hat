@@ -49,10 +49,23 @@ fun main(args: Array<String>) {
     val worker = RunWorker(store, provider)
     scope.launch { while (isActive) { if (!worker.tick()) delay(100) } }
     val verifier = accessIdentityVerifier(issuer, "$issuer/protocol/openid-connect/certs", "whitehat-api")
-    val server = embeddedServer(Netty, host = "127.0.0.1", port = 0) { whiteHatApi(store, verifier) { true } }.start(wait = false)
+    val voicePilot = VoicePilot(store, workspace.id) {
+        object : TranscriptionTurn {
+            private var received = 0
+            override fun append(pcm: ByteArray) { received += pcm.size }
+            override fun finish(): String {
+                check(received >= 4_800)
+                return "متن ساختگی وایت‌هت برای آزمون میکروفن"
+            }
+            override fun close() = Unit
+        }
+    }
+    val server = embeddedServer(Netty, host = "127.0.0.1", port = 0) {
+        whiteHatApi(store, verifier, voicePilot) { true }
+    }.start(wait = false)
     val stopped = CountDownLatch(1)
     Runtime.getRuntime().addShutdownHook(Thread {
-        scope.cancel(); server.stop(0, 3000); pg.close(); Files.deleteIfExists(ready); stopped.countDown()
+        scope.cancel(); server.stop(0, 3000); voicePilot.close(); pg.close(); Files.deleteIfExists(ready); stopped.countDown()
     })
     val port = runBlocking { server.engine.resolvedConnectors().single().port }
     val pending = ready.resolveSibling(ready.fileName.toString() + ".pending")

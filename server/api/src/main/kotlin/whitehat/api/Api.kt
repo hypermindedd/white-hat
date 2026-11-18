@@ -78,7 +78,7 @@ private fun planPreview(estimates: List<PlanEstimate>) = buildJsonObject {
 private fun JsonObject.costAssumption(name: String): Long = (get(name) as? JsonPrimitive)
     ?.takeUnless { it.isString }?.longOrNull?.takeIf { it >= 0 } ?: throw Fault(400, "INVALID_PLAN_ASSUMPTION")
 
-fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, providerConfigured: () -> Boolean) {
+internal fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, voicePilot: VoicePilot? = null, providerConfigured: () -> Boolean) {
     install(CallId) { generate { UUID.randomUUID().toString() }; replyToHeader("X-Request-ID") }
     install(DefaultHeaders) {
         header("Cache-Control", "no-store"); header("X-Content-Type-Options", "nosniff"); header("Referrer-Policy", "no-referrer")
@@ -111,6 +111,34 @@ fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVerifier, pr
             call.respondText(requireNotNull(javaClass.getResourceAsStream("/openapi.json")).use { it.readBytes().toString(Charsets.UTF_8) }, ContentType.Application.Json)
         }
         authenticate("access") {
+            if (voicePilot != null) route("/api/v1/workspaces/{workspace}/voice-pilot") {
+                get {
+                    db { voicePilot.check(call.subject(), call.id("workspace")) }
+                    call.json(buildJsonObject { put("max_seconds", 15) })
+                }
+                post {
+                    val body = call.objectBody()
+                    body.checkKeys(emptySet())
+                    val lease = db { voicePilot.start(call.subject(), call.id("workspace")) }
+                    call.json(buildJsonObject { put("lease_id", lease.toString()) }, HttpStatusCode.Created)
+                }
+                post("/{lease}/chunk") {
+                    val body = call.objectBody()
+                    body.checkKeys(setOf("pcm"))
+                    db { voicePilot.append(call.subject(), call.id("workspace"), call.id("lease"), body.string("pcm")) }
+                    call.json(buildJsonObject { put("accepted", true) })
+                }
+                post("/{lease}/finish") {
+                    call.objectBody().checkKeys(emptySet())
+                    val transcript = db { voicePilot.finish(call.subject(), call.id("workspace"), call.id("lease")) }
+                    call.json(buildJsonObject { put("transcript", transcript) })
+                }
+                post("/{lease}/cancel") {
+                    call.objectBody().checkKeys(emptySet())
+                    db { voicePilot.cancel(call.subject(), call.id("workspace"), call.id("lease")) }
+                    call.json(buildJsonObject { put("cancelled", true) })
+                }
+            }
             get("/api/v1/workspaces/{workspace}/admin/plan-preview") {
                 val actor = call.subject(); val workspace = call.id("workspace")
                 db { store.requireAdministrator(actor, workspace) }

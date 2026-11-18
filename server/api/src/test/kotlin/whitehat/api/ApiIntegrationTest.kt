@@ -70,7 +70,7 @@ class ApiIntegrationTest {
 
     @Before fun prepare() {
         source = createDatabase()
-        assertEquals(8, PostgresStore.migrate(source))
+        assertEquals(9, PostgresStore.migrate(source))
         store = PostgresStore(source, policy.hash)
         workspace = store.createWorkspace("alice", "تیم ما")
     }
@@ -526,7 +526,7 @@ class ApiIntegrationTest {
                 assertEquals(1, statement.executeUpdate())
             }
         }
-        assertEquals(1, PostgresStore.migrate(previous))
+        assertEquals(2, PostgresStore.migrate(previous))
         assertEquals(0, PostgresStore.migrate(previous))
         PostgresStore.validate(previous)
         assertEquals("cancelled", previousStore.run("alice", existing.id, run).status)
