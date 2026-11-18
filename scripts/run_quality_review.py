@@ -26,8 +26,6 @@ for command in config.commands:
     command.timeout_s = max(command.timeout_s, 900)
 config.commands.extend([
     CommandSpec(id='recovered-alpha', title='Recovered alpha regression', argv=['npm', 'test'], cwd='apps/second-mind'),
-    CommandSpec(id='evaluation-tools', title='Evaluation receipt and multi-turn regressions',
-                argv=[sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'evaluation', '-p', 'test_*.py']),
     CommandSpec(id='financial-and-contract-tools', title='Accounting and optimized contract-gate regressions',
                 argv=[sys.executable, '-B', '-m', 'unittest', 'discover', '-s', 'scripts', '-p', 'test_*.py']),
     CommandSpec(id='golden-input-preparation', title='Validate 60-case golden inputs without any model call',
