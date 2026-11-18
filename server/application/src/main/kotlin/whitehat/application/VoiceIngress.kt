@@ -82,6 +82,7 @@ object VoiceIngress {
             else -> {
                 val transcript = json.string("text")
                     ?.takeIf { it.length <= MAX_TRANSCRIPT_LENGTH && it.isNotBlank() } ?: return null
+                if ('\u0000' in transcript || !Charsets.UTF_8.newEncoder().canEncode(transcript)) return null
                 if (kind == "transcript_final") VoiceEffect.FinalTranscript(turn, transcript) else VoiceEffect.None
             }
         }

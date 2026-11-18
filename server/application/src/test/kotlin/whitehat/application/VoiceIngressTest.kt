@@ -68,6 +68,8 @@ class VoiceIngressTest {
             valid.dropLast(1).plus(",\"mode\":\"override\"}").encodeToByteArray(),
             frame(1, "transcript_final", " ".repeat(5)),
             frame(1, "transcript_final", "x".repeat(4001)),
+            valid.replace("\"text\":\"text\"", "\"text\":\"\\u0000\"").encodeToByteArray(),
+            valid.replace("\"text\":\"text\"", "\"text\":\"\\uD800\"").encodeToByteArray(),
             frame(1, "playback_interrupted", "not allowed"),
             frame(1, "provider_error"),
         )
