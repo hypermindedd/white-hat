@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import whitehat.adapters.PostgresStore
-import whitehat.application.VoiceCursor
-import whitehat.application.VoiceEffect
+import whitehat.domain.VoiceCursor
+import whitehat.domain.VoiceEffect
 import whitehat.application.VoiceIngress
-import whitehat.application.VoiceIngressResult
-import whitehat.application.VoiceLeaseState
+import whitehat.domain.VoiceIngressResult
+import whitehat.domain.VoiceLeaseState
 import whitehat.domain.Fault
 
 internal interface TranscriptionTurn : AutoCloseable {

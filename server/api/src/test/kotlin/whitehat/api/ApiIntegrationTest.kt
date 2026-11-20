@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.*
 import whitehat.adapters.*
 import whitehat.application.RunWorker
+import whitehat.application.VoiceIngress
 import whitehat.contracts.Mode
 import whitehat.domain.*
 
@@ -70,7 +71,7 @@ class ApiIntegrationTest {
 
     @Before fun prepare() {
         source = createDatabase()
-        assertEquals(10, PostgresStore.migrate(source))
+        assertEquals(11, PostgresStore.migrate(source))
         store = PostgresStore(source, policy.hash)
         workspace = store.createWorkspace("alice", "تیم ما")
     }
@@ -515,6 +516,146 @@ class ApiIntegrationTest {
         assertTrue(store.reserveG001Dispatch("alice", second.id, candidate))
     }
 
+    private fun voiceFrame(session: UUID, lease: UUID, turn: UUID, sequence: Long, kind: String = "transcript_final") =
+        buildJsonObject {
+            put("version", "whitehat.voice.ingress.v1")
+            put("session_id", session.toString())
+            put("lease_id", lease.toString())
+            put("turn_id", turn.toString())
+            put("sequence", sequence)
+            put("kind", kind)
+            if (kind != "playback_interrupted") put("text", "متن ساختگی")
+        }.toString().encodeToByteArray()
+
+    private fun PostgresStore.acceptVoiceFrame(actor: String, workspace: UUID, session: UUID, payload: ByteArray) =
+        acceptVoiceFrame(actor, workspace, session) { cursor -> VoiceIngress.accept(cursor, payload) }
+
+    @Test fun voiceReplicasCommitOneFinalAndOneCursor() {
+        val session = UUID.randomUUID()
+        val turn = UUID.randomUUID()
+        val lease = store.openVoiceIngress("alice", workspace.id, session)
+        val frame = voiceFrame(session, lease, turn, 1)
+        val replica = PostgresStore(source, policy.hash)
+        val start = java.util.concurrent.CountDownLatch(1)
+        val pool = Executors.newFixedThreadPool(2)
+        try {
+            val pending = listOf(store, replica).map { instance ->
+                pool.submit(Callable {
+                    assertTrue(start.await(5, TimeUnit.SECONDS))
+                    instance.acceptVoiceFrame("alice", workspace.id, session, frame)
+                })
+            }
+            start.countDown()
+            val results = pending.map { it.get(10, TimeUnit.SECONDS) }
+            assertEquals(setOf(
+                VoiceIngressResult.Ready(1, VoiceEffect.FinalTranscript(turn, "متن ساختگی")),
+                VoiceIngressResult.Replay,
+            ), results.toSet())
+        } finally {
+            pool.shutdownNow()
+        }
+        assertEquals(VoiceIngressResult.Ready(2, VoiceEffect.None), replica.acceptVoiceFrame(
+            "alice", workspace.id, session, voiceFrame(session, lease, turn, 2, "transcript_interim"),
+        ))
+        source.connection.use { connection ->
+            connection.createStatement().use { statement ->
+                statement.executeQuery("SELECT cursor FROM voice_ingress_sessions").use {
+                    assertTrue(it.next())
+                    assertEquals(2L, it.getLong(1))
+                    assertFalse(it.next())
+                }
+                statement.executeQuery("SELECT turn_id FROM voice_ingress_turns").use {
+                    assertTrue(it.next())
+                    assertEquals(turn, it.getObject(1, UUID::class.java))
+                    assertFalse(it.next())
+                }
+            }
+        }
+    }
+
+    @Test fun voiceLeaseRotationRejectsOldFramesAndDeduplicatesStableTurn() {
+        val session = UUID.randomUUID()
+        val turn = UUID.randomUUID()
+        val lease = store.openVoiceIngress("alice", workspace.id, session)
+        val replica = PostgresStore(source, policy.hash)
+        fun accept(id: UUID, sequence: Long, turnId: UUID = turn) = replica.acceptVoiceFrame(
+            "alice", workspace.id, session, voiceFrame(session, id, turnId, sequence),
+        )
+        assertIs<VoiceIngressResult.Ready>(accept(lease, 1))
+        val current = replica.rotateVoiceIngress("alice", workspace.id, session, lease)
+        assertEquals(409, assertFailsWith<Fault> { store.rotateVoiceIngress("alice", workspace.id, session, lease) }.status)
+        store.closeVoiceIngress("alice", workspace.id, session, lease)
+        assertEquals(VoiceIngressResult.Rejected.WRONG_LEASE, accept(lease, 2))
+        assertEquals(VoiceIngressResult.Rejected.SEQUENCE_GAP, accept(current, 2))
+        assertEquals(VoiceIngressResult.Replay, accept(current, 1))
+        assertIs<VoiceIngressResult.Ready>(accept(current, 2, UUID.randomUUID()))
+        source.connection.use { connection ->
+            connection.createStatement().use {
+                it.executeUpdate("UPDATE voice_ingress_sessions SET expires_at=clock_timestamp()")
+            }
+        }
+        assertEquals(VoiceIngressResult.Rejected.INACTIVE, accept(current, 3))
+        val reconnected = store.rotateVoiceIngress("alice", workspace.id, session, current)
+        store.closeVoiceIngress("alice", workspace.id, session, reconnected)
+        assertEquals(VoiceIngressResult.Rejected.INACTIVE, accept(reconnected, 1))
+    }
+
+    @Test fun voiceIngressIsolatesWorkspaceMembershipAndRawRows() {
+        val session = UUID.randomUUID()
+        val turn = UUID.randomUUID()
+        val other = store.createWorkspace("bob", "Other")
+        val firstLease = store.openVoiceIngress("alice", workspace.id, session)
+        val secondLease = store.openVoiceIngress("bob", other.id, session)
+        val first = voiceFrame(session, firstLease, turn, 1)
+        assertEquals(404, assertFailsWith<Fault> { store.acceptVoiceFrame("bob", workspace.id, session, first) }.status)
+        assertEquals(VoiceIngressResult.Rejected.WRONG_LEASE, store.acceptVoiceFrame("bob", other.id, session, first))
+        assertIs<VoiceIngressResult.Ready>(store.acceptVoiceFrame("alice", workspace.id, session, first))
+        assertIs<VoiceIngressResult.Ready>(
+            store.acceptVoiceFrame("bob", other.id, session, voiceFrame(session, secondLease, turn, 1)),
+        )
+        source.connection.use { connection ->
+            connection.createStatement().use { statement ->
+                val role = "voice_rls_" + UUID.randomUUID().toString().replace("-", "")
+                statement.execute("CREATE ROLE $role NOLOGIN NOBYPASSRLS")
+                statement.execute("GRANT SELECT, UPDATE ON voice_ingress_sessions, voice_ingress_turns TO $role")
+                statement.execute("SET ROLE $role")
+                connection.autoCommit = false
+                statement.execute("SELECT set_config('whitehat.workspace', '${workspace.id}', true)")
+                for (relation in listOf("voice_ingress_sessions", "voice_ingress_turns")) {
+                    statement.executeQuery("SELECT workspace_id FROM $relation").use {
+                        assertTrue(it.next())
+                        assertEquals(workspace.id, it.getObject(1, UUID::class.java))
+                        assertFalse(it.next())
+                    }
+                }
+                assertEquals(0, statement.executeUpdate("UPDATE voice_ingress_sessions SET cursor=9 WHERE workspace_id='${other.id}'"))
+                assertEquals(0, statement.executeUpdate("UPDATE voice_ingress_turns SET transcript='blocked' WHERE workspace_id='${other.id}'"))
+                connection.rollback()
+            }
+        }
+    }
+
+    @Test fun voiceCursorFailureRollsBackFinalTurn() {
+        val session = UUID.randomUUID()
+        val turn = UUID.randomUUID()
+        val lease = store.openVoiceIngress("alice", workspace.id, session)
+        val frame = voiceFrame(session, lease, turn, 1)
+        source.connection.use { connection ->
+            connection.createStatement().use {
+                it.execute("ALTER TABLE voice_ingress_sessions ADD CONSTRAINT test_reject_advance CHECK (cursor=0)")
+            }
+            assertFailsWith<SQLException> { store.acceptVoiceFrame("alice", workspace.id, session, frame) }
+            connection.createStatement().use { statement ->
+                statement.executeQuery("SELECT count(*) FROM voice_ingress_turns").use {
+                    assertTrue(it.next())
+                    assertEquals(0, it.getInt(1))
+                }
+                statement.execute("ALTER TABLE voice_ingress_sessions DROP CONSTRAINT test_reject_advance")
+            }
+        }
+        assertIs<VoiceIngressResult.Ready>(store.acceptVoiceFrame("alice", workspace.id, session, frame))
+    }
+
     @Test fun upgradesV7WorkspaceWithoutEnrollingItInPilot() {
         val previous = createDatabase()
         assertEquals(7, Flyway.configure().dataSource(previous)
@@ -537,7 +678,7 @@ class ApiIntegrationTest {
                 assertEquals(1, statement.executeUpdate())
             }
         }
-        assertEquals(3, PostgresStore.migrate(previous))
+        assertEquals(4, PostgresStore.migrate(previous))
         assertEquals(0, PostgresStore.migrate(previous))
         PostgresStore.validate(previous)
         assertEquals("cancelled", previousStore.run("alice", existing.id, run).status)
