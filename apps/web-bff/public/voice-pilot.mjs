@@ -3,11 +3,14 @@ const stop = document.querySelector('#voice-stop');
 const cancel = document.querySelector('#voice-cancel');
 const status = document.querySelector('#voice-status');
 const transcript = document.querySelector('#voice-text');
+const confirm = document.querySelector('#voice-confirm');
+let previewPath;
 
 const errors = {
   AUTH_REQUIRED: 'اول وارد حساب آزمایشی شو و دوباره این صفحه رو باز کن.',
   VOICE_PILOT_UNAVAILABLE: 'پایلوت برای هیچ فضای کاریِ متعلق به این حساب فعال نیست.',
   VOICE_PILOT_EXHAUSTED: 'سهمیهٔ سه تلاش این فضای آزمایشی تمام شده.',
+  VOICE_PREVIEW_UNAVAILABLE: 'مهلت تأیید متن تمام شد یا این ضبط قابل تأیید نیست.',
   VOICE_AUDIO_TOO_SHORT: 'زمان ضبط خیلی کوتاه بود.',
   VOICE_BACKPRESSURE: 'سرعت اتصال برای ارسال صوت کافی نبود.',
   NotAllowedError: 'مرورگر اجازهٔ استفاده از میکروفن رو نداده.',
@@ -69,6 +72,8 @@ async function end(abort, failure) {
     } else {
       await session.queue;
       transcript.value = (await api(session.path + '/finish', {})).transcript;
+      previewPath = session.path + '/decision';
+      confirm.disabled = false;
       status.textContent = 'متن آمادهٔ بازبینی است.';
     }
   } catch (error) {
@@ -84,6 +89,8 @@ async function end(abort, failure) {
 start.onclick = async () => {
   changes(true);
   transcript.value = '';
+  previewPath = undefined;
+  confirm.disabled = true;
   status.textContent = 'در حال فعال‌کردن میکروفن…';
   const session = {queue: Promise.resolve(), queued: 0};
   try {
@@ -120,6 +127,21 @@ start.onclick = async () => {
     if (session.path) void api(session.path + '/cancel', {}).catch(() => {});
     active = undefined;
     status.textContent = message(error);
+    changes(false);
+  }
+};
+confirm.onclick = async () => {
+  if (!previewPath) return;
+  confirm.disabled = true;
+  changes(true);
+  try {
+    await api(previewPath, {});
+    previewPath = undefined;
+    status.textContent = 'تصمیم در آرشیو ثبت شد.';
+  } catch (error) {
+    status.textContent = message(error);
+    confirm.disabled = error.message === 'VOICE_PREVIEW_UNAVAILABLE';
+  } finally {
     changes(false);
   }
 };

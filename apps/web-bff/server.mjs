@@ -40,7 +40,7 @@ const allowed = [
  ['PUT',new RegExp('^/api/v1/workspaces/'+uuid+'/incidents/'+uuid+'$')],
  ['POST',/^\/api\/v1\/workspaces\/[^/]+\/members$/]
 ];
-const voicePath = new RegExp('^/api/v1/workspaces/'+uuid+'/voice-pilot(?:/'+uuid+'/(?:chunk|finish|cancel))?$');
+const voicePath = new RegExp('^/api/v1/workspaces/'+uuid+'/voice-pilot(?:/'+uuid+'/(?:chunk|finish|cancel|decision))?$');
 const allowedPath = (method,path) => allowed.some(([m,r])=>m===method&&r.test(path)) &&
   path.split('/').every(p=>!p.includes('%')&&!p.includes('..')) &&
   path.split('/').filter((p,i)=>i===4||i===6||i===8).every(p=>!p||p==='decisions'||p==='runs'||p==='members'||p==='admin'||p==='usage'||p==='plan-preview'||p==='pilot-usage'||p==='incidents'||p==='operator-permissions'||p==='costs'||p==='corrections'||p==='review'||p==='withdraw'||p==='purge'||new RegExp('^'+uuid+'$').test(p));
