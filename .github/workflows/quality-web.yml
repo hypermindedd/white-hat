@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: quality-web-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 jobs:
   pqe-web:
     runs-on: ubuntu-latest
@@ -33,8 +36,9 @@ jobs:
         env:
           PYTHONPATH: _pqe/src
         run: python3 scripts/run_quality_review.py --out .qa/out/ci
-      - name: Build Railway staging image
-        run: docker build --tag whitehat-staging:ci .
+      - name: Assemble the Railway runtime
+        if: hashFiles('railpack.json') != ''
+        run: bash deploy/railway/build.sh
       - name: Preserve quality results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

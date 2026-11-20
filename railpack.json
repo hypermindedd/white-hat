@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "java",
+  "packages": {
+    "node": "24.22.3"
+  },
+  "steps": {
+    "build": {
+      "commands": ["bash deploy/railway/build.sh"]
+    }
+  },
+  "deploy": {
+    "aptPackages": ["curl"],
+    "inputs": ["...", {"step": "build", "include": ["build/railway"]}],
+    "startCommand": "exec bash build/railway/start.sh"
+  }
+}
