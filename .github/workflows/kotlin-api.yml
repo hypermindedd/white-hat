@@ -66,6 +66,7 @@ jobs:
       - name: Rehearse legacy cutover and independent restore on synthetic data
         env:
           WH_C2_SERVER_BIN: /usr/lib/postgresql/16/bin
+          WH_C2_LOG_DIR: ${{ runner.temp }}/whitehat-legacy-cutover
         run: bash scripts/test_legacy_cutover.sh "$GITHUB_WORKSPACE"
       - name: Preserve test receipts
         if: always()
@@ -74,6 +75,7 @@ jobs:
           name: kotlin-api-test-receipts
           retention-days: 7
           path: |
+            ${{ runner.temp }}/whitehat-legacy-cutover/*.log
             server/*/build/test-results/
             server/*/build/reports/tests/
             server/api/build/contract-samples/
