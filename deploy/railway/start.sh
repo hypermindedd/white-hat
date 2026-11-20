@@ -40,7 +40,7 @@ if [[ -z "$ready" ]]; then
   exit 1
 fi
 
-node ./web/server.mjs &
+./bin/node ./web/server.mjs &
 web_pid=$!
 wait -n "$api_pid" "$web_pid" || true
 echo 'A White Hat process exited; restarting the service' >&2
