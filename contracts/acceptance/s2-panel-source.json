@@ -28,8 +28,8 @@
     },
     {
       "path": "apps/web-bff/server.mjs",
-      "sha256": "2ac4071c5f435f574bd861ec459c6fe31402a98dd96c116c3b08b47daf51a399"
+      "sha256": "90ce5b5b20a37172037dcdc2403d73594f4bfaac3caf456ff2bfe505ed94cf85"
     }
   ],
-  "bff_voice_pilot_update": "Opt-in voice pilot routes and assets. The six checked paths remain required; adopted panel UI assets are unchanged."
+  "bff_voice_pilot_update": "Opt-in voice pilot routes, assets and explicit confirmation. The six checked paths remain required."
 }

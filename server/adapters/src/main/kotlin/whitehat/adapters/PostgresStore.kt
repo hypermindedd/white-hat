@@ -160,6 +160,34 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
             if (replay) VoiceIngressResult.Replay else result
         }
 
+    fun confirmVoiceDecision(actor: String, workspace: UUID, session: UUID, finalText: String?): Decision =
+        tx(workspace) { c ->
+            requireRole(c, workspace, actor, setOf(Role.OWNER))
+            val input = finalText?.let { DecisionInput("تصمیم از ورودی صوت", it).also(DecisionInput::validate) }
+            val inserted = input != null && c.exec("""
+                INSERT INTO voice_ingress_sessions(workspace_id, session_id, actor_subject, lease_id)
+                VALUES (?, ?, ?, ?) ON CONFLICT (workspace_id, session_id) DO NOTHING
+            """.trimIndent(), workspace, session, actor, session) == 1
+            val confirmed = c.query("""
+                SELECT confirmed_decision_id FROM voice_ingress_sessions
+                WHERE workspace_id=? AND session_id=? AND actor_subject=? FOR UPDATE
+            """.trimIndent(), workspace, session, actor) {
+                it.getObject("confirmed_decision_id", UUID::class.java)
+            }.singleOrNull()
+            if (confirmed != null) return@tx readDecision(c, workspace, actor, confirmed)
+            if (!inserted || input == null) throw Fault(404, "VOICE_PREVIEW_UNAVAILABLE")
+
+            val decision = insertDecision(c, actor, workspace, input)
+            c.exec("""
+                INSERT INTO voice_ingress_turns(workspace_id, session_id, turn_id, transcript) VALUES (?, ?, ?, ?)
+            """.trimIndent(), workspace, session, session, input.decision)
+            check(c.exec("""
+                UPDATE voice_ingress_sessions SET cursor=1, closed=true, confirmed_decision_id=?
+                WHERE workspace_id=? AND session_id=? AND actor_subject=?
+            """.trimIndent(), decision.id, workspace, session, actor) == 1)
+            decision
+        }
+
     fun reserveG001Dispatch(actor: String, workspace: UUID, model: String): Boolean =
         tx(workspace) { c ->
             requireRole(c, workspace, actor, setOf(Role.OWNER))
@@ -543,9 +571,13 @@ class PostgresStore(private val dataSource: DataSource, private val engineHash: 
 
     override fun createDecision(subject: String, workspace: UUID, input: DecisionInput): Decision = tx(workspace) { c ->
         input.validate(); requireRole(c, workspace, subject, readers)
+        insertDecision(c, subject, workspace, input)
+    }
+
+    private fun insertDecision(c: Connection, subject: String, workspace: UUID, input: DecisionInput): Decision {
         val d = Decision(UUID.randomUUID(), workspace, subject, 1, input)
         c.exec("INSERT INTO decisions(workspace_id,id,owner_subject,title,decision,objective,context,source_notes,mode) VALUES(?,?,?,?,?,?,?,?,?)", workspace, d.id, subject, input.title, input.decision, input.objective, input.context, input.sourceNotes, input.mode.wireId)
-        audit(c, workspace, subject, "decision.created", d.id); d
+        audit(c, workspace, subject, "decision.created", d.id); return d
     }
     override fun decisions(subject: String, workspace: UUID): List<Decision> = tx(workspace) { c ->
         requireRole(c, workspace, subject, readers)

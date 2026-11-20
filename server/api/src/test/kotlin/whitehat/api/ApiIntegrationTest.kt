@@ -71,7 +71,7 @@ class ApiIntegrationTest {
 
     @Before fun prepare() {
         source = createDatabase()
-        assertEquals(11, PostgresStore.migrate(source))
+        assertEquals(12, PostgresStore.migrate(source))
         store = PostgresStore(source, policy.hash)
         workspace = store.createWorkspace("alice", "تیم ما")
     }
@@ -656,6 +656,19 @@ class ApiIntegrationTest {
         assertIs<VoiceIngressResult.Ready>(store.acceptVoiceFrame("alice", workspace.id, session, frame))
     }
 
+    @Test fun confirmingVoicePreviewCreatesOnlyOneCanonicalDecision() {
+        val session = UUID.randomUUID()
+        val wrong = assertFailsWith<Fault> { store.confirmVoiceDecision("alice", workspace.id, session, null) }
+        assertEquals("VOICE_PREVIEW_UNAVAILABLE", wrong.code)
+        val confirmed = store.confirmVoiceDecision("alice", workspace.id, session, "برای آزمایش")
+        assertEquals("برای آزمایش", confirmed.input.decision)
+        assertEquals(confirmed.id, store.confirmVoiceDecision("alice", workspace.id, session, null).id)
+        assertEquals(confirmed.id, store.confirmVoiceDecision("alice", workspace.id, session, "برای آزمایش").id)
+        val second = store.createWorkspace("alice", "Other voice workspace")
+        assertEquals(404, assertFailsWith<Fault> { store.confirmVoiceDecision("alice", second.id, session, null) }.status)
+        assertEquals(listOf(confirmed.id), store.decisions("alice", workspace.id).map { it.id })
+    }
+
     @Test fun upgradesV7WorkspaceWithoutEnrollingItInPilot() {
         val previous = createDatabase()
         assertEquals(7, Flyway.configure().dataSource(previous)
@@ -678,7 +691,7 @@ class ApiIntegrationTest {
                 assertEquals(1, statement.executeUpdate())
             }
         }
-        assertEquals(4, PostgresStore.migrate(previous))
+        assertEquals(5, PostgresStore.migrate(previous))
         assertEquals(0, PostgresStore.migrate(previous))
         PostgresStore.validate(previous)
         assertEquals("cancelled", previousStore.run("alice", existing.id, run).status)

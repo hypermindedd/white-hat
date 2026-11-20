@@ -136,12 +136,25 @@ try {
  const voicePage=await context.newPage();
  await voicePage.goto(origin+'/voice-pilot');
  await voicePage.waitForFunction(()=>document.querySelector('#voice-status').textContent==='برای ضبط آماده است.');
+ const beforeVoice=(await (await page.request.get(privatePath)).json()).items.length;
  const firstChunk=voicePage.waitForResponse(r=>r.url().endsWith('/chunk')&&r.ok());
  await voicePage.locator('#voice-start').click();
  await firstChunk;
  await voicePage.locator('#voice-stop').click();
  await voicePage.waitForFunction(()=>document.querySelector('#voice-status').textContent==='متن آمادهٔ بازبینی است.');
  assert.equal(await voicePage.locator('#voice-text').inputValue(),'متن ساختگی وایت‌هت برای آزمون میکروفن');
+ assert.equal((await (await page.request.get(privatePath)).json()).items.length,beforeVoice);
+ const savedResponse=voicePage.waitForResponse(r=>r.url().endsWith('/decision')&&r.ok());
+ await voicePage.locator('#voice-confirm').click();
+ const saved=await savedResponse;
+ const voiceDecision=await saved.json();
+ await voicePage.waitForFunction(()=>document.querySelector('#voice-status').textContent==='تصمیم در آرشیو ثبت شد.');
+ const replay=await page.request.post(saved.url(),{headers:{Origin:origin,'x-csrf-token':state.csrf},data:{}});
+ assert.equal(replay.status(),200);
+ assert.equal((await replay.json()).id,voiceDecision.id);
+ const list=(await (await page.request.get(privatePath)).json()).items;
+ assert.equal(list.length,beforeVoice+1);
+ assert.equal(list.find(item=>item.id===voiceDecision.id).decision,'متن ساختگی وایت‌هت برای آزمون میکروفن');
  await voicePage.close();
 
  const voicePath=origin+'/bff/api/v1/workspaces/'+ready.workspace+'/voice-pilot';
@@ -161,7 +174,7 @@ try {
  assert.equal((await voicePost(thirdLease+'/finish')).status(),404);
  assert.equal((await voicePost('')).status(),429);
  assert.equal((await appClient.query('SELECT count(*)::int AS count FROM voice_pilot_attempts')).rows[0].count,0);
- report('voice_pilot_browser_audio_and_durable_budget',{fakeMicrophone:true,syntheticTranscriber:true,csrf:true,secondsPerAttempt:15,totalAttempts:3,rls:true});
+ report('voice_pilot_browser_audio_and_durable_budget',{fakeMicrophone:true,syntheticTranscriber:true,csrf:true,secondsPerAttempt:15,totalAttempts:3,rls:true,confirmedCanonicalDecision:true,idempotentConfirmation:true});
  const payloads=(await sessionAdmin.query('SELECT payload FROM wh_web_sessions')).rows;
  assert.equal(payloads.length,1);assert.ok(payloads.every(x=>!x.payload.includes('access_token')&&!x.payload.includes('refresh_token')));
  const logout=await page.request.post(origin+'/bff/logout',{headers:{Origin:origin,'x-csrf-token':state.csrf}});

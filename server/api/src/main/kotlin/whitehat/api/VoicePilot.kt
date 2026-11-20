@@ -13,6 +13,7 @@ import whitehat.domain.VoiceEffect
 import whitehat.application.VoiceIngress
 import whitehat.domain.VoiceIngressResult
 import whitehat.domain.VoiceLeaseState
+import whitehat.domain.Decision
 import whitehat.domain.Fault
 
 internal interface TranscriptionTurn : AutoCloseable {
@@ -29,9 +30,12 @@ internal class VoicePilot(
         const val MAX_AUDIO_BYTES = 24_000 * 2 * 15
         const val MAX_CHUNK_BYTES = 24_000
         private const val LEASE_SECONDS = 40L
+        private const val PREVIEW_SECONDS = 120L
     }
 
     private class Lease(val actor: String, val turn: TranscriptionTurn, var bytes: Int = 0)
+    private data class Preview(val actor: String, val text: String)
+    private val previews = ConcurrentHashMap<UUID, Preview>()
     private val leases = ConcurrentHashMap<UUID, Lease>()
     private val timer = Executors.newSingleThreadScheduledExecutor {
         Thread(it, "whitehat-voice-pilot-expiry").apply { isDaemon = true }
@@ -94,10 +98,22 @@ internal class VoicePilot(
                     put("text", turn.finish())
                 }.toString().encodeToByteArray()
                 val accepted = VoiceIngress.accept(VoiceCursor(id, id, 0, VoiceLeaseState.ACTIVE), frame)
-                ((accepted as? VoiceIngressResult.Ready)?.effect as? VoiceEffect.FinalTranscript)?.text
+                val text = ((accepted as? VoiceIngressResult.Ready)?.effect as? VoiceEffect.FinalTranscript)?.text
                     ?: throw Fault(502, "VOICE_TRANSCRIPT_INVALID")
+                val preview = Preview(actor, text)
+                previews[id] = preview
+                timer.schedule({ previews.remove(id, preview) }, PREVIEW_SECONDS, TimeUnit.SECONDS)
+                text
             }
         }
+    }
+
+    fun confirm(actor: String, requestedWorkspace: UUID, id: UUID): Decision {
+        check(actor, requestedWorkspace)
+        val preview = previews[id]?.takeIf { it.actor == actor }
+        val decision = store.confirmVoiceDecision(actor, workspace, id, preview?.text)
+        if (preview != null) previews.remove(id, preview)
+        return decision
     }
 
     fun cancel(actor: String, requestedWorkspace: UUID, id: UUID) {
@@ -114,5 +130,6 @@ internal class VoicePilot(
         timer.shutdownNow()
         leases.values.forEach { it.turn.close() }
         leases.clear()
+        previews.clear()
     }
 }

@@ -133,6 +133,11 @@ internal fun Application.whiteHatApi(store: DecisionStore, tokenVerifier: JWTVer
                     val transcript = db { voicePilot.finish(call.subject(), call.id("workspace"), call.id("lease")) }
                     call.json(buildJsonObject { put("transcript", transcript) })
                 }
+                post("/{lease}/decision") {
+                    call.objectBody().checkKeys(emptySet())
+                    val decision = db { voicePilot.confirm(call.subject(), call.id("workspace"), call.id("lease")) }
+                    call.json(decision.json())
+                }
                 post("/{lease}/cancel") {
                     call.objectBody().checkKeys(emptySet())
                     db { voicePilot.cancel(call.subject(), call.id("workspace"), call.id("lease")) }
