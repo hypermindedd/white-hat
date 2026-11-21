@@ -2,6 +2,7 @@ plugins { kotlin("jvm"); application }
 kotlin { jvmToolchain(21) }
 application { mainClass.set("whitehat.api.MainKt") }
 sourceSets.main { resources.srcDir(rootProject.file("contracts/openapi")) }
+val postgresTestVersion = providers.gradleProperty("whiteHatTestPostgresVersion").orElse("16.15.0")
 dependencies {
     implementation(project(":server:domain"))
     implementation(project(":server:application"))
@@ -17,7 +18,7 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation(libs.embedded.postgres)
     testImplementation(libs.flyway.core)
-    testImplementation(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.15.0"))
+    testImplementation(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:${postgresTestVersion.get()}"))
     testImplementation(libs.postgres)
     testImplementation("io.ktor:ktor-server-test-host-jvm:${libs.versions.ktor.get()}")
 }
