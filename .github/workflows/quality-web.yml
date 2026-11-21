@@ -36,6 +36,8 @@ jobs:
         env:
           PYTHONPATH: _pqe/src
         run: python3 scripts/run_quality_review.py --out .qa/out/ci
+      - name: Verify migrations and API on Railway PostgreSQL 18.6
+        run: ./gradlew --no-daemon -PwhiteHatTestPostgresVersion=18.6.0 :server:api:test
       - name: Assemble the Railway runtime
         if: hashFiles('railpack.json') != ''
         run: bash deploy/railway/build.sh
