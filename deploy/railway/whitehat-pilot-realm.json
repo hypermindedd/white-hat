@@ -1,5 +1,5 @@
 {
-  "realm": "whitehat-staging",
+  "realm": "whitehat-pilot",
   "enabled": true,
   "sslRequired": "all",
   "registrationAllowed": false,
@@ -19,7 +19,7 @@
     "webOrigins": ["${WH_IDP_WEB_ORIGIN}"],
     "attributes": {"pkce.code.challenge.method": "S256"},
     "protocolMappers": [
-      {"name": "api-audience", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper", "config": {"included.client.audience": "whitehat-api", "access.token.claim": "true", "id.token.claim": "false"}},
+      {"name": "api-audience", "protocol": "openid-connect", "protocolMapper": "oidc-audience-mapper", "config": {"included.custom.audience": "whitehat-api", "access.token.claim": "true", "id.token.claim": "false"}},
       {"name": "access-use", "protocol": "openid-connect", "protocolMapper": "oidc-hardcoded-claim-mapper", "config": {"claim.name": "token_use", "claim.value": "access", "jsonType.label": "String", "access.token.claim": "true", "id.token.claim": "false"}}
     ]
   }],

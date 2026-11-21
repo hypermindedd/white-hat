@@ -13,5 +13,5 @@ runtime=build/whitehat-idp
 mkdir -p "$runtime"
 tar -xzf "$archive" --strip-components=1 -C "$runtime"
 mkdir -p "$runtime/data/import"
-cp deploy/railway/whitehat-staging-realm.json "$runtime/data/import/"
+cp deploy/railway/whitehat-pilot-realm.json "$runtime/data/import/"
 KC_DB=postgres bash "$runtime/bin/kc.sh" build
