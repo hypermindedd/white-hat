@@ -32,7 +32,13 @@ async function fixture(){
     if(form.get('code')!=='fixture-code'||challenge!==state.auth.code_challenge)return toJson(res,400,{error:'bad_pkce'});
    }
    if(form.get('grant_type')==='refresh_token'&&form.get('refresh_token')!=='refresh-fixture')return toJson(res,400,{error:'bad_refresh'});
-   let idToken=fixtureToken(issuer,state.auth.nonce,'subject-42',state.signing);if(state.badSignature)idToken=idToken.slice(0,-2)+'aa';
+   let idToken=fixtureToken(issuer,state.auth.nonce,'subject-42',state.signing);
+   if(state.badSignature){
+    const [header,payload,signature]=idToken.split('.');
+    const bytes=Buffer.from(signature,'base64url');
+    bytes[0]^=1;
+    idToken=[header,payload,bytes.toString('base64url')].join('.');
+   }
    return toJson(res,200,{access_token:'access-'+state.grant,token_type:'Bearer',expires_in:35,refresh_token:'refresh-fixture',id_token:idToken});
   }
   return toJson(res,404,{error:'not_found'});

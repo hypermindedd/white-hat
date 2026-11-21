@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "provider": "java",
+  "buildAptPackages": ["curl"],
+  "steps": {
+    "build": {"commands": ["bash deploy/railway/build-idp.sh"]}
+  },
+  "deploy": {
+    "inputs": ["...", {"step": "build", "include": ["build/whitehat-idp"]}],
+    "startCommand": "exec bash build/whitehat-idp/bin/kc.sh start --optimized --import-realm --http-enabled=true --proxy-headers=xforwarded --cache=local --http-port=${PORT:-8080}"
+  }
+}

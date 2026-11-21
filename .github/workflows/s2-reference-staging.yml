@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   reference-staging:
+    if: github.event_name != 'pull_request' || !startsWith(github.head_ref, 'deploy/railway-voice-staging-')
     runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
