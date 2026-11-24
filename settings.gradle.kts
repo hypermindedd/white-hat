@@ -1,11 +1,4 @@
-pluginManagement {
-    val androidPluginVersion = "8.11.1"
-    plugins {
-        id("com.android.application") version androidPluginVersion
-        id("com.android.library") version androidPluginVersion
-    }
-    repositories { google(); gradlePluginPortal(); mavenCentral() }
-}
+pluginManagement { repositories { google(); gradlePluginPortal(); mavenCentral() } }
 dependencyResolutionManagement { repositories { google { content { includeGroupByRegex("(androidx|com[.]android|com[.]google[.]testing[.]platform)[.].*") } }; mavenCentral() } }
 rootProject.name = "white-hat"
 include(":shared:contracts", ":shared:client")
