@@ -50,6 +50,8 @@ jobs:
           npm ci --ignore-scripts --prefix apps/web-bff
           npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/whitehat-browser" 'playwright@1.56.1'
           "$RUNNER_TEMP/whitehat-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Check panel navigation with a delayed workspace response
+        run: WH_PLAYWRIGHT_MODULE="$RUNNER_TEMP/whitehat-browser/package.json" node apps/web-bff/test/e2e/panel-workspace.mjs
       - name: Test Kotlin with actual embedded PostgreSQL
         env:
           WH_BROWSER_E2E: 'true'
