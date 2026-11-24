@@ -6,7 +6,7 @@ const permissionLabels={REVIEW_RUN_INCIDENTS:'پیگیری اجراها',READ_RU
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nullable=v=>v==null?'نامشخص':new Intl.NumberFormat('fa-IR').format(v);
 let decisionLoad=0;
-const state={session:null,me:null,modes:[],workspace:null,decisions:[],selected:null,run:null,screen:'overview',poll:null,busy:false};
+const state={session:null,me:null,modes:[],workspace:null,decisions:[],selected:null,run:null,screen:'overview',poll:null};
 const path=s=>'/bff/api/v1'+s;
 const api=async(url,{method='GET',data,idempotency}={})=>{
  const response=await fetch(url,{method,credentials:'same-origin',headers:{...(data?{'Content-Type':'application/json'}:{}),...(method!=='GET'?{'X-CSRF-Token':state.session?.csrf||'','Origin':location.origin}:{}),...(idempotency?{'Idempotency-Key':idempotency}:{})},...(data?{body:JSON.stringify(data)}:{})});
@@ -27,10 +27,19 @@ function navigation(role){
 function shell(){const role=state.me.workspaces.find(w=>w.id===state.workspace)?.role;
  const workspaceOptions=state.me.workspaces.map(w=>`<option value="${safe(w.id)}" ${state.workspace===w.id?'selected':''}>${safe(w.name)} — ${safe(w.role)}</option>`).join('');
  app.innerHTML=`<div class="wh-shell"><aside class="wh-aside"><div class="wh-mark">WHITE HAT <small>SECOND MIND · KOTLIN API v1</small></div><nav class="wh-nav" aria-label="بخش‌های سامانه">${navigation(role).map(([k,v])=>`<button data-screen="${k}" aria-current="${state.screen===k?'page':'false'}">${v}</button>`).join('')}</nav><div class="wh-side-bottom">هویت: <b dir="ltr">${safe(state.me.subject)}</b><button id="logout">خروج امن</button></div></aside><main class="wh-main"><header class="wh-top"><div><h1>${safe(({overview:'نمای کلی',new:'تصمیم جدید',history:'آرشیو تصمیم‌ها',runs:'سابقهٔ تحلیل‌ها',incidents:'پنل پشتیبانی',operations:'شاخص‌های عملیات',quality:'صف کیفیت',detail:'جزئیات و اجرای تصمیم',edit:'ویرایش تصمیم',members:'اعضا و مجوزها',usage:'مصرف سازمانی'})[state.screen]||'دستیار تصمیم')}</h1><p>موتور مشترک تصمیم‌گیری · داده‌ها و مجوزها در Kotlin API</p></div><label class="wh-field">فضای کاری <select id="workspaces" class="wh-input"><option value="">یک فضا انتخاب کن</option>${workspaceOptions}</select></label></header><div id="content" aria-live="polite"></div></main></div>`;
- document.querySelector('#workspaces').onchange=async e=>{const workspace=e.target.value||null;state.workspace=workspace;
- state.selected=null;state.run=null;state.decisions=[];state.screen='overview';
- try{await loadDecisions();}catch(error){if(state.workspace===workspace)showError(error);}
- if(state.session&&state.workspace===workspace){render();document.querySelector('#workspaces').focus();}};
+ document.querySelector('#workspaces').onchange=async e=>{
+  state.workspace=e.target.value||null;
+  state.selected=null;state.run=null;state.decisions=[];state.screen='overview';
+  render();
+  document.querySelector('#workspaces').focus();
+  const refresh=loadDecisions();
+  const load=decisionLoad;
+  try{await refresh;}catch(error){if(state.session&&load===decisionLoad)showError(error);return;}
+  if(state.session&&load===decisionLoad&&['overview','history'].includes(state.screen)){
+   const root=document.querySelector('#content');
+   if(state.screen==='overview')overview(root);else history(root);
+  }
+ };
  document.querySelector('#logout').onclick=async()=>{try{await api('/bff/logout',{method:'POST'});state.session=null;renderLogin();}catch(e){showError(e);}};
  document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=async()=>{state.screen=b.dataset.screen;state.selected=null;state.run=null;render();
   document.querySelector('nav [aria-current="page"]')?.focus();});
@@ -61,17 +70,51 @@ function decisionForm(root){if(!state.workspace||state.me.workspaces.find(w=>w.i
  const d=state.screen==='edit'?state.selected:null;
  root.innerHTML=`<section class="wh-panel"><h2>${d?'ویرایش با کنترل revision':'ثبت تصمیم'}</h2><form id="decision-form">${fields(d)}<div class="wh-actions"><button type="submit">${d?'ذخیره ویرایش':'ثبت تصمیم'}</button><button type="button" id="form-cancel">انصراف</button></div></form></section>`;
  document.querySelector('#form-cancel').onclick=()=>{state.screen=d?'detail':'history';render();};
- document.querySelector('#decision-form').onsubmit=async e=>{e.preventDefault();if(state.busy)return;state.busy=true;const btn=e.target.querySelector('[type=submit]');btn.disabled=true;
- const input=Object.fromEntries(new FormData(e.target));try{const saved=await api(path(`/workspaces/${state.workspace}/decisions${d?'/'+d.id:''}`),{method:d?'PUT':'POST',data:d?{...input,expected_revision:d.revision}:input});state.selected=saved;state.run=null;await loadDecisions();state.screen='detail';}catch(error){showError(error);btn.disabled=false;return;}finally{state.busy=false;}render();};
+ const workspace=state.workspace;
+ document.querySelector('#decision-form').onsubmit=async e=>{
+  e.preventDefault();
+  const btn=e.currentTarget.querySelector('[type=submit]');
+  if(btn.disabled)return;
+  btn.disabled=true;
+  const input=Object.fromEntries(new FormData(e.currentTarget));
+  let saved;
+  try{
+   saved=await api(path(`/workspaces/${workspace}/decisions${d?'/'+d.id:''}`),{method:d?'PUT':'POST',data:d?{...input,expected_revision:d.revision}:input});
+  }catch(error){
+   if(root.isConnected){showError(error);btn.disabled=false;}
+   return;
+  }
+  if(!root.isConnected)return;
+  try{await loadDecisions();}catch(error){if(root.isConnected)showError(error);}
+  if(!root.isConnected)return;
+  state.selected=saved;state.run=null;state.screen='detail';render();
+ };
 }
 function history(root){if(!state.workspace){root.innerHTML='<p class="wh-warning">یک فضای کاری انتخاب کن.</p>';return;}
  root.innerHTML=`<section class="wh-panel"><h2>تصمیم‌های قابل مشاهده</h2><p class="wh-muted">سرور فقط تصمیم‌هایی رو نمایش می‌ده که اجازه خواندنشون رو داری.</p>${state.decisions.length?`<div class="wh-grid">${state.decisions.map(d=>`<button class="wh-item" data-decision="${safe(d.id)}"><b>${safe(d.title)}</b><p>${safe(names[d.mode]||d.mode)} · نسخه ${nullable(d.revision)}</p></button>`).join('')}</div>`:'<p class="wh-muted">هنوز تصمیمی ثبت نشده.</p>'}</section>`;
- root.querySelectorAll('[data-decision]').forEach(b=>b.onclick=async()=>{try{state.selected=await api(path(`/workspaces/${state.workspace}/decisions/${b.dataset.decision}`));state.run=null;state.screen='detail';render();}catch(e){showError(e);}});
+ const workspace=state.workspace;
+ let latestSelection=0;
+ for(const button of root.querySelectorAll('[data-decision]'))button.onclick=async()=>{
+  const selection=++latestSelection;
+  const active=()=>button.isConnected&&selection===latestSelection;
+  try{
+   const decision=await api(path(`/workspaces/${workspace}/decisions/${button.dataset.decision}`));
+   if(!active())return;
+   state.selected=decision;state.run=null;state.screen='detail';render();
+  }catch(error){if(active())showError(error);}
+ };
 }
 const terminal=new Set(['succeeded','failed','cancelled','reconciliation_required']);
-function detail(root){const d=state.selected;if(!d){state.screen='history';return history(root);}root.innerHTML=`<section class="wh-panel"><h2>${safe(d.title)} <span class="wh-state">revision ${nullable(d.revision)}</span></h2><p>${safe(d.decision)}</p><p class="wh-muted">${safe(names[d.mode]||d.mode)}</p><div class="wh-actions"><button id="edit">ویرایش</button><button id="analyze" ${state.busy?'disabled':''}>اجرای تحلیل</button></div></section><section class="wh-panel" id="run-panel"><h2>آخرین اجرای این نشست</h2>${renderRun()}</section>`;
+function detail(root){const d=state.selected;if(!d){state.screen='history';return history(root);}root.innerHTML=`<section class="wh-panel"><h2>${safe(d.title)} <span class="wh-state">revision ${nullable(d.revision)}</span></h2><p>${safe(d.decision)}</p><p class="wh-muted">${safe(names[d.mode]||d.mode)}</p><div class="wh-actions"><button id="edit">ویرایش</button><button id="analyze">اجرای تحلیل</button></div></section><section class="wh-panel" id="run-panel"><h2>آخرین اجرای این نشست</h2>${renderRun()}</section>`;
  root.querySelector('#edit').onclick=()=>{state.screen='edit';render();};
- root.querySelector('#analyze').onclick=async e=>{if(state.busy)return;state.busy=true;e.target.disabled=true;try{state.run=await api(path(`/workspaces/${state.workspace}/decisions/${d.id}/runs`),{method:'POST',data:{expected_revision:d.revision},idempotency:crypto.randomUUID()});}catch(error){showError(error);e.target.disabled=false;return;}finally{state.busy=false;}render();};
+ const analyze=root.querySelector('#analyze');
+ analyze.onclick=async()=>{
+  analyze.disabled=true;
+  try{
+   const run=await api(path(`/workspaces/${state.workspace}/decisions/${d.id}/runs`),{method:'POST',data:{expected_revision:d.revision},idempotency:crypto.randomUUID()});
+   if(root.isConnected){state.run=run;render();}
+  }catch(error){if(root.isConnected){showError(error);analyze.disabled=false;}}
+ };
  bindRun(root);if(state.run&&!terminal.has(state.run.status))state.poll=setInterval(()=>pollRun().catch(showError),3000);
 }
 function renderRun(){const r=state.run;if(!r)return '<p class="wh-muted">هنوز اجرایی انتخاب نشده. برای بازیابی یک اجرا، «اجراهای من» را باز کن.</p>';
@@ -100,7 +143,16 @@ async function bindFeedback(root){
 }
 function bindRun(root){
  bindFeedback(root.querySelector('#run-panel')||root);
-root.querySelector('#cancel-run')?.addEventListener('click',async()=>{try{state.run=await api(path(`/workspaces/${state.workspace}/runs/${state.run.id}/cancel`),{method:'POST',data:{}});render();}catch(e){showError(e);}});
+ const cancel=root.querySelector('#cancel-run');
+ if(cancel)cancel.onclick=async()=>{
+  const id=state.run.id, workspace=state.workspace;
+  const active=()=>state.workspace===workspace&&state.run?.id===id;
+  cancel.disabled=true;
+  try{
+   const run=await api(path(`/workspaces/${workspace}/runs/${id}/cancel`),{method:'POST',data:{}});
+   if(active()){state.run=run;render();}
+  }catch(error){if(active()){showError(error);cancel.disabled=false;}}
+ };
  root.querySelector('#refresh-run')?.addEventListener('click',()=>pollRun().catch(showError));}
 async function pollRun(){if(!state.run||!state.workspace)return;const id=state.run.id;const r=await api(path(`/workspaces/${state.workspace}/runs/${id}`));if(!state.run||state.run.id!==id)return;state.run=r;if(state.screen==='detail'){const el=document.querySelector('#run-panel');if(el){el.innerHTML='<h2>آخرین اجرای این نشست</h2>'+renderRun();bindRun(el);}}if(terminal.has(r.status))clearInterval(state.poll);}
 async function members(root){const w=state.me.workspaces.find(x=>x.id===state.workspace);if(!w){root.innerHTML='<p class="wh-warning">یک فضای کاری انتخاب کن.</p>';return;}
