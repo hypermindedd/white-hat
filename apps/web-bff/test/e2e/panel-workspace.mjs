@@ -23,6 +23,10 @@ try {
   let releaseResponse;
   const pending = new Promise(resolve => { markPending = resolve; });
   const response = new Promise(resolve => { releaseResponse = resolve; });
+  let markRunPending;
+  let releaseRun;
+  const runPending = new Promise(resolve => { markRunPending = resolve; });
+  const delayedRun = new Promise(resolve => { releaseRun = resolve; });
 
   await page.route(`${pageUrl}/**`, async route => {
     const path = new URL(route.request().url()).pathname;
@@ -37,6 +41,14 @@ try {
       return route.fulfill({ json: { subject: 'fixture', workspaces } });
     }
     if (path === '/bff/api/v1/modes') return route.fulfill({ json: { items: [{ id: 'challenge' }] } });
+    if (path === '/bff/api/v1/workspaces/second/runs') {
+      return route.fulfill({ json: { items: [{ id: 'run-1', status: 'succeeded' }] } });
+    }
+    if (path === '/bff/api/v1/workspaces/second/runs/run-1') {
+      markRunPending();
+      await delayedRun;
+      return route.fulfill({ json: { id: 'run-1', decision_id: ids.second, status: 'succeeded' } });
+    }
     const match = path.match(/^\/bff\/api\/v1\/workspaces\/(first|second)\/decisions(?:\/([^/]+))?$/);
     if (!match) return route.fulfill({ status: 404, json: { error: 'NOT_FOUND' } });
     const [, workspace, id] = match;
@@ -68,6 +80,22 @@ try {
   await page.locator(`[data-decision="${ids.second}"]`).click();
   await page.getByRole('heading', { name: new RegExp(titles.second) }).waitFor();
   console.log(JSON.stringify({ check: 'browser_workspace_ignores_stale_decision', pass: true }));
+
+  const runs = page.locator('nav [data-screen="runs"]');
+  await runs.click();
+  await page.locator('[data-run="run-1"]').click();
+  await runPending;
+  await history.click();
+  await runs.click();
+  await page.locator('[data-run="run-1"]').waitFor();
+  const completed = page.waitForResponse(value => new URL(value.url()).pathname.endsWith('/runs/run-1'));
+  releaseRun();
+  await (await completed).finished();
+  await page.evaluate(() => fetch('/bff/session').then(value => value.json()));
+  assert.equal(await page.locator('main h1').textContent(), 'سابقهٔ تحلیل‌ها');
+  await page.locator('[data-run="run-1"]').click();
+  await page.getByRole('heading', { name: new RegExp(titles.second) }).waitFor();
+  console.log(JSON.stringify({ check: 'browser_run_history_ignores_stale_selection', pass: true }));
 } finally {
   await browser.close();
 }

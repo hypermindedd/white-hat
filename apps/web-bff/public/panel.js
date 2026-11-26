@@ -5,6 +5,13 @@ errorTexts.IDENTITY_PROVIDER_UNAVAILABLE='سرویس ورود موقتاً در 
 const permissionLabels={REVIEW_RUN_INCIDENTS:'پیگیری اجراها',READ_RUN_METRICS:'شاخص‌های عملیات',REVIEW_QUALITY_FEEDBACK:'بازبینی کیفیت'};
 const safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nullable=v=>v==null?'نامشخص':new Intl.NumberFormat('fa-IR').format(v);
+function trackSelection(){
+ let latest=0;
+ return button=>{
+  const selection=++latest;
+  return ()=>button.isConnected&&selection===latest;
+ };
+}
 let decisionLoad=0;
 const state={session:null,me:null,modes:[],workspace:null,decisions:[],selected:null,run:null,screen:'overview',poll:null};
 const path=s=>'/bff/api/v1'+s;
@@ -93,10 +100,9 @@ function decisionForm(root){if(!state.workspace||state.me.workspaces.find(w=>w.i
 function history(root){if(!state.workspace){root.innerHTML='<p class="wh-warning">یک فضای کاری انتخاب کن.</p>';return;}
  root.innerHTML=`<section class="wh-panel"><h2>تصمیم‌های قابل مشاهده</h2><p class="wh-muted">سرور فقط تصمیم‌هایی رو نمایش می‌ده که اجازه خواندنشون رو داری.</p>${state.decisions.length?`<div class="wh-grid">${state.decisions.map(d=>`<button class="wh-item" data-decision="${safe(d.id)}"><b>${safe(d.title)}</b><p>${safe(names[d.mode]||d.mode)} · نسخه ${nullable(d.revision)}</p></button>`).join('')}</div>`:'<p class="wh-muted">هنوز تصمیمی ثبت نشده.</p>'}</section>`;
  const workspace=state.workspace;
- let latestSelection=0;
+ const select=trackSelection();
  for(const button of root.querySelectorAll('[data-decision]'))button.onclick=async()=>{
-  const selection=++latestSelection;
-  const active=()=>button.isConnected&&selection===latestSelection;
+  const active=select(button);
   try{
    const decision=await api(path(`/workspaces/${workspace}/decisions/${button.dataset.decision}`));
    if(!active())return;
@@ -209,16 +215,20 @@ async function runHistory(root){
  root.textContent='در حال دریافت اجراها…';
  try{
    const {items}=await api(path(`/workspaces/${workspace}/runs`));
+   if(!root.isConnected)return;
    root.innerHTML=`<section class="wh-panel"><h2>۱۰۰ اجرای اخیر من</h2>${items.length?`<ul>${items.map(run=>`<li><button data-run="${safe(run.id)}">${safe(run.status)} · <bdi>${safe(run.id)}</bdi></button></li>`).join('')}</ul>`:'<p>هنوز اجرایی ثبت نشده.</p>'}</section>`;
+   const select=trackSelection();
    for(const btn of root.querySelectorAll('[data-run]'))btn.onclick=async()=>{
+     const active=select(btn);
      try {
        const run=await api(path(`/workspaces/${workspace}/runs/${btn.dataset.run}`));
+       if(!active())return;
        const decision=await api(path(`/workspaces/${workspace}/decisions/${run.decision_id}`));
-       if(state.workspace!==workspace||state.screen!=='runs')return;
+       if(!active())return;
        state.selected=decision;state.run=run;state.screen='detail';render();
-     }catch(error){showError(error);}
+     }catch(error){if(active())showError(error);}
    };
- }catch(error){root.textContent='دریافت سابقهٔ اجرا ممکن نیست.';showError(error);}
+ }catch(error){if(root.isConnected){root.textContent='دریافت سابقهٔ اجرا ممکن نیست.';showError(error);}}
 }
 
 async function incidents(root){
